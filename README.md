@@ -1,3 +1,9 @@
+# My Notes
+- use npm instead of pnpm, npm is what vite recs
+
+
+---
+# Vite Notes
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
