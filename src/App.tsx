@@ -8,7 +8,8 @@ interface Doodle {
   col?: number;
   row?: number;
   href?: string;
-  src?: string;
+  previewGifSrc?: string;
+  previewImgSrc?: string;
   title?: string;
 }
 
@@ -60,12 +61,12 @@ function App() {
             title={doodle.title || `Doodle ${idx}`}
             row={doodle.row || 0}
             col={doodle.col || 0}
-            index={idx}
             width={2} // columns
             height={2} // columns
             offset={size/2}
             href={doodle.href || `/${idx}`}
-            previewSrc={doodle.src || `./sample.gif`}
+            previewImgSrc={doodle.previewImgSrc || `./sample.png`} // use https://ezgif.com/split to split gif into frames, save 1st frame. Prob some API you can use to do this for many gifs if needed
+            previewGifSrc={doodle.previewGifSrc || `./sample.gif`}
           />
         )}
       </div>

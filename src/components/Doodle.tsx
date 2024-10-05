@@ -1,7 +1,7 @@
 import React from 'react'
+import {useState} from 'react'
 
 interface DoodleProps {
-  index: number;
   title: string;
   row: number;
   col: number;
@@ -9,30 +9,37 @@ interface DoodleProps {
   height: number;
   offset: number;
   href: string;
-  previewSrc: string;
+  previewImgSrc: string;
+  previewGifSrc: string;
 }
 
-const Doodle: React.FC<DoodleProps> = ({ index:_index, title, row, col, width, height, offset, href, previewSrc }) => {
+const Doodle: React.FC<DoodleProps> = ({ 
+  title, row, col, width, height, offset, href, previewImgSrc, previewGifSrc 
+}) => {
+  const [src, setSrc] = useState(previewImgSrc);
   const isOffset = row % 2 !== 0; // this will ensure that doodles in odd rows get offset styles
-  const styles = isOffset
-    ? {
-        backgroundColor: '#3498db',
-        color: 'blue',
-        gridColumn: `${col*width} / span ${width}`,
-        gridRow: `${row} / span ${height}`,
-        top: offset * row
-      }
-    : {
-        backgroundColor: '#6faf10',
-        color: 'darkGreen',
-        gridColumn: `${col*width - 1} / span ${width}`,
-        gridRow: `${row} / span ${height}`,
-        top: offset * row
-      } // grid-column: col-start, col-end | grid-area: row-start, col-start, row-end, col-end
+  
+  const baseStyles = {
+    gridRow: `${row} / span ${height}`,
+    top: offset * row,
+    gridColumn: `${isOffset ? col * width : col * width - 1} / span ${width}`
+  }
 
+  const colorStyles = isOffset
+    ? { backgroundColor: '#3498db', color: 'blue' }
+    : { backgroundColor: '#6faf10', color: 'darkGreen' }
+
+  const styles = {...baseStyles, ...colorStyles}
+  
   return (
-    <a href={href} className='grid-item' style={styles}>
-        <img className='grid-item-preview' src={previewSrc} />
+    <a 
+      href={href}
+      className='grid-item'
+      style={styles}
+      onMouseEnter={() => setSrc(previewGifSrc)}
+      onMouseLeave={() => setSrc(previewImgSrc)}
+    >
+        <img className='grid-item-preview' src={src} />
         <span className='grid-item-title'>{title}</span>
     </a>
   )
