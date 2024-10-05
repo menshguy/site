@@ -2,14 +2,17 @@ import React from 'react'
 
 interface DoodleProps {
   index: number;
+  title: string;
   row: number;
   col: number;
   width: number;
   height: number;
   offset: number;
+  href: string;
+  previewSrc: string;
 }
 
-const Doodle: React.FC<DoodleProps> = ({ index, row, col, width, height, offset }) => {
+const Doodle: React.FC<DoodleProps> = ({ index:_index, title, row, col, width, height, offset, href, previewSrc }) => {
   const isOffset = row % 2 !== 0; // this will ensure that doodles in odd rows get offset styles
   const styles = isOffset
     ? {
@@ -21,15 +24,16 @@ const Doodle: React.FC<DoodleProps> = ({ index, row, col, width, height, offset 
       }
     : {
         backgroundColor: '#6faf10',
-        color: 'red',
+        color: 'darkGreen',
         gridColumn: `${col*width - 1} / span ${width}`,
         gridRow: `${row} / span ${height}`,
         top: offset * row
       } // grid-column: col-start, col-end | grid-area: row-start, col-start, row-end, col-end
 
   return (
-    <a href={`/${index}`} className='grid-item' style={styles}>
-        Doodle {index}
+    <a href={href} className='grid-item' style={styles}>
+        <img className='grid-item-preview' src={previewSrc} />
+        <span className='grid-item-title'>{title}</span>
     </a>
   )
 }

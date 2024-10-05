@@ -3,7 +3,16 @@ import Doodle from './components/Doodle'
 import './App.css'
 
 
-const rawDoodles = [
+interface Doodle {
+  bg: string;
+  col?: number;
+  row?: number;
+  href?: string;
+  src?: string;
+  title?: string;
+}
+
+const rawDoodles: Doodle[] = [
   {bg: 'red'}, {bg: 'blue'}, {bg: 'green'}, 
   {bg: 'yellow'}, {bg: 'purple'}, {bg: 'orange'}, 
   {bg: 'pink'}, {bg: 'brown'}, {bg: 'gray'},
@@ -12,7 +21,7 @@ const rawDoodles = [
 
 function App() {
   const [columns, _setColumns] = useState<number>(4) // Change this value to adjust grid
-  const [doodles, setDoodles] = useState<Array<{ bg:string, row:number, col:number }>>([])
+  const [doodles, setDoodles] = useState<Doodle[]>([])
   const size = Math.floor(window.innerWidth / (columns * 2));
 
   const styles = {
@@ -48,12 +57,15 @@ function App() {
         {doodles.length && doodles.map((doodle, idx) => 
           <Doodle
             key={idx}
-            row={doodle.row}
-            col={doodle.col}
+            title={doodle.title || `Doodle ${idx}`}
+            row={doodle.row || 0}
+            col={doodle.col || 0}
             index={idx}
-            width={2} //in columns
-            height={2} //in columns
+            width={2} // columns
+            height={2} // columns
             offset={size/2}
+            href={doodle.href || `/${idx}`}
+            previewSrc={doodle.src || `./sample.gif`}
           />
         )}
       </div>
