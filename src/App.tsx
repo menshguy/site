@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, CSSProperties } from 'react'
 import Doodle from './components/Doodle'
 import './App.css'
 
@@ -14,26 +14,51 @@ interface Doodle {
 }
 
 const rawDoodles: Doodle[] = [
-  {bg: 'red'}, {bg: 'blue'}, {bg: 'green'}, 
+  {bg: 'red', href: "/fallsunlight"}, {bg: 'blue'}, {bg: 'green'}, 
   {bg: 'yellow'}, {bg: 'purple'}, {bg: 'orange'}, 
   {bg: 'pink'}, {bg: 'brown'}, {bg: 'gray'},
   {bg: 'beige'}
 ]
 
 function App() {
-  const [columns, _setColumns] = useState<number>(4) // Change this value to adjust grid
+  const [columns, _setColumns] = useState<number>(3) // Change this value to adjust grid
   const [doodles, setDoodles] = useState<Doodle[]>([])
   const size = Math.floor(window.innerWidth / (columns * 2));
+  const gridColumns = 7
 
-  const styles = {
+  const baseStyles = {
     display: 'grid',
-    gridTemplateColumns: `repeat(7, ${size}px)`,
-    gridTemplateRows: `repeat(7, ${size}px)`,
-    gridAutoRows: `${size}px`,
-    gridAutoColumns: `${size}px`,
-    /* gap: 10px; */
+    position: 'absolute',
+    top: 0,
+    left: 0,
     transform: 'perspective(1000px) rotateX(30deg) rotateY(-10deg)',
     transformStyle: 'preserve-3d' as const
+  }
+
+  const gridStyles = {
+    ...baseStyles,
+    zIndex: 1,
+    gridTemplateColumns: `repeat(${gridColumns}, ${size}px)`,
+    gridTemplateRows: `repeat(${gridColumns}, ${size}px)`,
+    gridAutoRows: `${size}px`,
+    gridAutoColumns: `${size}px`,
+  }
+
+  const backgroundGridStyles = {
+    ...baseStyles,
+    zIndex: 0,
+    background: 'red',
+    gridTemplateColumns: `repeat(${gridColumns * 2}, ${size}px)`,
+    gridTemplateRows: `repeat(${gridColumns * 2}, ${size}px)`,
+    gridAutoRows: `${size}px`,
+    gridAutoColumns: `${size}px`,
+    top: ((gridColumns/2) * size * 2.5) * -1,
+    left: ((gridColumns/2) * size * 2.5) * -1
+  }
+
+  const emptyGridItemStyles = {
+    backgroundColor: 'aqua',
+    gridarea: `span ${2}`
   }
 
   useEffect(() => {
@@ -54,24 +79,34 @@ function App() {
 
   return (
     <>
-      <div className='grid-container' style={styles}>
-        {doodles.length && doodles.map((doodle, idx) => 
-          <Doodle
-            key={idx}
-            title={doodle.title || `Doodle ${idx}`}
-            row={doodle.row || 0}
-            col={doodle.col || 0}
-            width={2} // columns
-            height={2} // columns
-            offset={size/2}
-            href={doodle.href || `/${idx}`}
-            previewImgSrc={doodle.previewImgSrc || `./sample.png`} // use https://ezgif.com/split to split gif into frames, save 1st frame. Prob some API you can use to do this for many gifs if needed
-            previewGifSrc={doodle.previewGifSrc || `./sample.gif`}
-          />
+      <div style={backgroundGridStyles as CSSProperties}>
+        {Array(gridColumns * 2 * gridColumns).fill({}).map((elem, idx) =>
+          <div 
+            key={idx} 
+            className="grid-item"
+            style={emptyGridItemStyles}
+            ></div>
         )}
       </div>
-
+      <div className='grid-container' style={gridStyles as CSSProperties}>
+        {doodles.length > 0 && 
+          doodles.map((doodle, idx) => (
+            <Doodle
+              key={idx}
+              title={doodle.title || `Doodle ${idx}`}
+              row={doodle.row || 0}
+              col={doodle.col || 0}
+              width={2} // columns
+              height={2} // columns
+              offset={size/2}
+              href={doodle.href || `/${idx}`}
+              previewImgSrc={doodle.previewImgSrc || `./sample.png`} // use https://ezgif.com/split to split gif into frames, save 1st frame. Prob some API you can use to do this for many gifs if needed
+              previewGifSrc={doodle.previewGifSrc || `./sample.gif`}
+            />
+        ))}
+      </div>
     </>
+
   )
 }
 
