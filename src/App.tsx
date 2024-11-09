@@ -14,10 +14,10 @@ interface Doodle {
 }
 
 const rawDoodles: Doodle[] = [
-  {bg: 'red', href: "/fallsunlight"}, {bg: 'blue'}, {bg: 'green'}, 
-  {bg: 'yellow'}, {bg: 'purple'}, {bg: 'orange'}, 
-  {bg: 'pink'}, {bg: 'brown'}, {bg: 'gray'},
-  {bg: 'beige'}
+  {bg: 'red', href: "/fallsunlight"}, {bg: 'blue', href:"/fallbreeze"}, {bg: 'green', href: "/seasonalforests"}, 
+  {bg: 'yellow', href: 'tree1'}, {bg: 'purple', href: 'tree2'}, {bg: 'orange', href: 'tree3'}, 
+  {bg: 'pink', href: 'tree4'}, {bg: 'brown', href: 'tree5'}, {bg: 'gray', href: 'rowhome1'}, {bg: 'yellow', href: 'rowhome2'},
+  {bg: 'beige', href: 'rowhome3'}, {bg: 'green', href: 'bezierdemo'}
 ]
 
 function App() {

@@ -1,16 +1,8 @@
 import React from 'react';
-import P5Wrapper from './P5Wrapper';
+import P5Wrapper from '../../components/P5Wrapper';
 
 
 const mySketch = (p: p5) => {
-  // let {
-  //   preload, setup, draw, noLoop, background, fill, noStroke, rect, blendMode, image,
-  //   createCanvas, p.colorMode, loadImage, p.random, p.color, width, height, HALF_PI, QUARTER_PI,
-  //   TWO_PI, sin, cos, atan2, push, pop, translate, rotate, arc, beginShape, vertex,
-  //   bezierVertex, endShape, circle, stroke, strokeWeight, noFill, createGraphics,
-  //   MULTIPLY, BLEND, mouseX, mouseY,
-  //   HSL
-  // } = p;
 
   let cw, ch;
   let bottom = 20;
@@ -588,14 +580,15 @@ const mySketch = (p: p5) => {
   
 };
 
-const MyComponent: React.FC = () => {
+const FallSunlight: React.FC = () => {
   return (
     <div>
       <h1>Fall Sunlight</h1>
+      <p>11/7/24</p>
       <p>Click to redraw.</p>
       <P5Wrapper sketch={mySketch} />
     </div>
   );
 };
 
-export default MyComponent;
+export default FallSunlight;
