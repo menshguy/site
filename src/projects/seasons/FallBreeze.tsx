@@ -3,6 +3,8 @@ import P5Wrapper from '../../components/P5Wrapper';
 
 
 const mySketch = (p: p5) => {
+
+  let {color} = p
   let cw, ch;
   let bottom = 20;
   let drawControls = false;
@@ -14,6 +16,7 @@ const mySketch = (p: p5) => {
   let season;
   let textureImg;
   let colors;
+  let bgColor;
   
   p.preload = () => {
     // img = loadImage('../textures/paper_smooth.jpg');
@@ -81,6 +84,13 @@ const mySketch = (p: p5) => {
         p.color(155, 95, 75),  // Bright Green
       ]
     }
+
+    let bgColors = {
+      summer: p.color(56,85,91), //light yellow
+      winter: p.color(208,18,83), //deep blue
+      spring: p.color(43, 62, 90), //orange
+      fall: p.color(39, 26, 73) //brown
+    }
   
     let treeHeights = {
       summer: p.random(ch/2, ch),
@@ -98,101 +108,42 @@ const mySketch = (p: p5) => {
     
     /** General Settings */
     season = p.random(['spring', 'fall', 'winter', 'summer'])
-    let center = {x:cw/2, y:ch-bottom};
+    bgColor = bgColors[season];
+    console.log("season", season)
+    let startP = {x:cw/2, y:ch-bottom};
     let treeHeight = treeHeights[season];
     let fills = colors[season];
-    console.log("season", season)
-    /** Trunks:
-     *   1. Tree Trunks are just random bezier lines
-     */
-    let numTrunkLines = p.random(4,8);
+
     let trunkHeight = trunkHeights[season];
     let trunkWidth = p.random(100,500)
-    /** Leaves:
-     *  1. Points are draw randomly across each "row"
-     *  2. Rows increment up by rowHeight until they reach treeHeight
-     *  3. Leaves are then drawn randomly around each point, avoiding gaps in the "arcs"
-     *      - The arcs are essentially openface 3/4 circles that face the center of the tree
-     *      - The idea behind arcs to avoid too much clutter in the center
-    */
-    let pointBoundaryRadius;
-    if (season === 'spring' || season === 'fall') {
-      pointBoundaryRadius = {min: 100, max: 250}; // Example values for spring
-    } else if (season === 'summer') {
-      pointBoundaryRadius = {min: 100, max: 220}; // Example values for fall
-    } else if (season === 'winter') {
-      pointBoundaryRadius = {min: 150, max: 200}; // Example values for winter
-    }
+    let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
+
+    let numPointsPerRow = p.random(10 , 15); // X points are draw within a boundary radius
+    let pointBoundaryRadius = {min: 100, max: 250}; //
+    let avg = season === "winter" ? 5 : 100
     
-    let pointsStart = p.height - bottom - pointBoundaryRadius.min;
-    
-    let numPointsPerRow;
-    if (season === 'spring' || season === 'fall') {
-      numPointsPerRow = p.random(10 , 15); // Example values for spring
-    } else if (season === 'summer') {
-      numPointsPerRow = p.random(10 , 15); // Example values for fall
-    } else if (season === 'winter') {
-      numPointsPerRow = p.random(1, 3); // Example values for winter
-    }
-    
-    let numLeavesPerPoint;
-    if (season === 'spring' || season === 'fall') {
-      numLeavesPerPoint = p.random(100, 100); // Example values for spring
-    } else if (season === 'summer') {
-      numLeavesPerPoint = p.random(100, 100); // Example values for fall
-    } else if (season === 'winter') {
-      numLeavesPerPoint = p.random(3, 5); // Example values for winter
-    }
+    let numLeavesPerPoint = p.random(avg, avg); // X leaves are draw around each point.
+    let leavesStartY = p.height - bottom - pointBoundaryRadius.min; //where on y axis do leaves start
     let leafWidth = p.random(5, 5);
-    
-    let w = p.width/10
-    let rowWidthIncrementSizes = {
-      summer: () => p.random(-100, 100), 
-      winter: () => p.random(-w, w), 
-      spring: () => p.random(-w, w), 
-      fall: () => p.random(-w, w)
-    }
-  
-     // Pre-calculate random values for trunk and leaf properties
-     let preCalculatedLeafWidths = Array.from({ length: numLeavesPerPoint }, () => p.random(leafWidth - 2, leafWidth + 2));
-     let preCalculatedLeafHeights = preCalculatedLeafWidths.map(w => p.random(w, w + 4));
+    let leafHeight = p.random(5, 5);
   
     /** Create Tree */
     forest = new Forest({
-      treeHeight, numTrunkLines, numPointsPerRow, 
-      numLeavesPerPoint, center, trunkHeight, trunkWidth, pointsStart,
-      pointBoundaryRadius, fills, rowWidthIncrementSizes, preCalculatedLeafWidths, preCalculatedLeafHeights
+      treeHeight, numTrunkLines, numPointsPerRow,
+      numLeavesPerPoint, startP, trunkHeight, trunkWidth, leavesStartY,
+      pointBoundaryRadius, fills, leafWidth, leafHeight
     })
   }
   
   p.draw = () => {
-  
-    if (season === "fall") {
-      p.background(39, 26, 73) //brown
-    } 
-    else if (season === "spring") {
-      p.background(43, 62, 90) //orange
-    }
-    else if (season === "winter") {
-      p.background(208,18,83) //deep blue
-    }
-    else if (season === "summer") {
-      p.background(56,85,91) //light yellow
-    }
+    p.background(bgColor)
     
-    
-    //Draw Trees in order
-    drawTrunk(forest.trunk);
+    drawTrunk(forest.trunk); //Draw Tree Trunk
   
     let time = p.frameCount * 0.2;
-    forest.leaves.forEach(row => row.forEach((l, index) => {
+    forest.leaves.forEach(row => row.forEach(l => {
       l.x += Math.sin(time) * l.movementFactor; // Oscillate the x position
-      drawLeaf(
-        l, 
-        0.2, 
-        forest.preCalculatedLeafWidths[index], 
-        forest.preCalculatedLeafHeights[index]
-      );
+      drawLeaf(l);
     }));
     
     //Draw Texture
@@ -203,22 +154,21 @@ const mySketch = (p: p5) => {
   
   class Forest {
     constructor({
-      treeHeight, numTrunks, numTrunkLines, leafWidth, numPointsPerRow, 
-      numLeavesPerPoint, center, trunkHeight, trunkWidth, pointsStart,
-      pointBoundaryRadius, fills, rowWidthIncrementSizes, preCalculatedLeafWidths, preCalculatedLeafHeights
+      treeHeight, numTrunks, numTrunkLines, numPointsPerRow, 
+      numLeavesPerPoint, startP, trunkHeight, trunkWidth, leavesStartY,
+      pointBoundaryRadius, fills, leafWidth, leafHeight
     }){
       Object.assign(this, {
-        treeHeight, numTrunks, numTrunkLines, leafWidth, numPointsPerRow, 
-        numLeavesPerPoint, center, trunkHeight, trunkWidth, pointsStart,
-        pointBoundaryRadius, fills, rowWidthIncrementSizes
+        treeHeight, numTrunks, numTrunkLines, numPointsPerRow, 
+        numLeavesPerPoint, startP, trunkHeight, trunkWidth, leavesStartY,
+        pointBoundaryRadius, fills
       });
       this.fills = fills;
-      this.preCalculatedLeafWidths = preCalculatedLeafWidths;
-      this.preCalculatedLeafHeights = preCalculatedLeafHeights;
-      this.midpoint = {x: center.x ,y: center.y - treeHeight/2}
+      this.leafWidth = leafWidth;
+      this.leafHeight = leafHeight;
+      this.midpoint = {x: startP.x ,y: startP.y - treeHeight/2}
       this.trunk = this.generateTrunk();
       this.points = this.generatePoints();
-      this.circles = this.generateCircles();
       this.leaves = this.generateLeaves();
   
       if (debug){
@@ -227,19 +177,19 @@ const mySketch = (p: p5) => {
         p.fill("pink")
         p.circle(this.midpoint.x, this.midpoint.y,20)
         p.fill("red")
-        p.circle(this.center.x, this.center.y,20)
+        p.circle(this.startP.x, this.startP.y,20)
       }
     }
   
     generateTrunk() {
-      let {numTrunkLines, preCalculatedTrunkWidth, trunkHeight, trunkWidth} = this;
+      let {numTrunkLines, startP, trunkHeight, trunkWidth} = this;
       // Use pre-calculated trunk widths
       let lines = [];
       let startPoint = {
-        x: p.random(p.width/2 - 50, p.width/2 + 50),
-        y: p.height - bottom
+        x: p.random(startP.x - 50, startP.x + 50),
+        y: startP.y
       };
-      for (let i = 0; i < this.numTrunkLines; i++) {
+      for (let i = 0; i < numTrunkLines; i++) {
         let endPoint = {
           x: p.random(startPoint.x-(trunkWidth/2), startPoint.x+(trunkWidth/2)), 
           y: p.random((startPoint.y-trunkHeight) + (trunkHeight/2), startPoint.y-bottom-trunkHeight)
@@ -259,21 +209,22 @@ const mySketch = (p: p5) => {
     }
   
     generatePoints(){
-      let {treeHeight, trunkWidth, numPointsPerRow, pointsStart, rowWidthIncrementSizes, midpoint:m} = this;
+      let {treeHeight, trunkWidth, numPointsPerRow, leavesStartY, startP, pointBoundaryRadius, midpoint:m} = this;
       let points = [];
-      let min_x = 50;
-      let max_x = trunkWidth + 50;
+      let min_x = startP.x - trunkWidth;
+      let max_x = startP.x + trunkWidth;
   
-      let total_h = p.height - bottom - treeHeight;
-      let rowHeight = treeHeight/20;
-      for(let i = pointsStart; i > total_h; i -= rowHeight){
+      let max_height = p.height - bottom - treeHeight;
+      let rowHeight = treeHeight/10;
+      for(let i = leavesStartY; i > max_height; i -= rowHeight){
         let row = [];
         let min_y = i;
         let max_y = i - rowHeight;
         for(let j=0; j < numPointsPerRow; j++){
           let x = p.random(min_x, max_x);
           let y = p.random(min_y, max_y)
-          let boundary = this.generatePointBoundary(x, y, m.x, m.y)
+          let r = pointBoundaryRadius;
+          let boundary = generatePointBoundary(r, x, y, m.x, m.y)
           row.push({x, y, boundary});
             
           //Draw points
@@ -292,48 +243,27 @@ const mySketch = (p: p5) => {
       }
             
       return points;
-    }
-  
-    generatePointBoundary(px, py, mx, my){
-      let {pointBoundaryRadius:pbr} = this
-      let min = pbr.min;
-      let max = pbr.max;
-      let radius = p.random(min, max); 
-      
-      // Calculate the differences in x and y and calc angle us atan2
-      let dx = mx - px;
-      let dy = my - py;
-      let angle = p.atan2(dy, dx);
-      
-      // This won't do anything, but if you want to create a gap that faces center you can take the values in the comments
-      let start = 0 // angle + QUARTER_PI
-      let stop = p.TWO_PI // angle - QUARTER_PI
-      
-      return {start, stop, radius};
-    }
-  
-    generateCircles() {
-      let {points} = this;
-      let circles = [];
-      
-      // Create leaves that surround and face each point
-      points.forEach(row => {
-        row.forEach(({x:px, y:py, boundary:b, isLeftMost, isRightMost}) => {
-          if (debug) {
-            p.fill(p.color(300, 100, 50, 0.5))
-            p.stroke("green")
-            let d = b.radius * 2;
-            p.arc(px, py, d, d, b.start, b.stop )
-          }
-  
-          circles.push({ x:px, y:py, r:b.radius, isLeftMost, isRightMost })
-        })
-      })
-      return circles;
+
+      function generatePointBoundary(max_r, px, py, mx, my){
+        let min = max_r.min;
+        let max = max_r.max;
+        let radius = p.random(min, max); 
+        
+        // Calculate the differences in x and y and calc angle us atan2
+        let dx = mx - px;
+        let dy = my - py;
+        let angle = p.atan2(dy, dx);
+        
+        // This won't do anything, but if you want to create a gap that faces startP you can take the values in the comments
+        let start = 0 // angle + QUARTER_PI
+        let stop = p.TWO_PI // angle - QUARTER_PI
+        
+        return {start, stop, angle, radius};
+      }
     }
   
     generateLeaves() {
-      let {leafWidth, numLeavesPerPoint, points, fills} = this;
+      let {leafWidth, leafHeight, numLeavesPerPoint, points, fills} = this;
       // Use pre-calculated leaf dimensions
       let leaves = [];
       this.points.forEach(row => {
@@ -342,11 +272,11 @@ const mySketch = (p: p5) => {
           let row = [];
           for (let i = 0; i < num; i++) {
             //Width and Height of leaves
-            let leaf_w = this.preCalculatedLeafWidths[i];
-            let leaf_h = this.preCalculatedLeafHeights[i];
+            let leaf_w = leafWidth;
+            let leaf_h = leafHeight;
             let fill_c = p.random(fills)
             
-            //Angle leaf towards center of its boundary
+            //Angle leaf towards startP of its boundary
             let angle = p.random(b.start, b.stop)
             let r = p.random(0, b.radius/2) 
             
