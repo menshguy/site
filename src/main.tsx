@@ -5,11 +5,11 @@ import App from './App.tsx'
 import FallSunlight from './projects/seasons/FallSunlight.tsx';
 import FallBreeze from './projects/seasons/FallBreeze.tsx';
 import SeasonalForests from './projects/seasons/SeasonalForests.tsx';
-import Tree1 from './projects/trees/Tree1.tsx';
-import Tree2 from './projects/trees/Tree2.tsx';
+import Tree1 from './projects/trees/Tree5.tsx';
+import Tree2 from './projects/trees/Tree4.tsx';
 import Tree3 from './projects/trees/Tree3.tsx';
-import Tree4 from './projects/trees/Tree4.tsx';
-import Tree5 from './projects/trees/Tree5.tsx';
+import Tree4 from './projects/trees/Tree2.tsx';
+import Tree5 from './projects/trees/Tree1.tsx';
 import Rowhome1 from './projects/rowhomes/Rowhome1.tsx';
 import Rowhome2 from './projects/rowhomes/Rowhome2.tsx';
 import Rowhome3 from './projects/rowhomes/Rowhome3.tsx';
