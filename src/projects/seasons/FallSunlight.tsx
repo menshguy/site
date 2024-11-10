@@ -1,31 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-
-type Season = 'winter' | 'fall' | 'spring' | 'summer';
-type Leaf = { x: number, y: number, w: number, h: number, angle: number, start: number, stop: number, isSunLeaf: boolean, fill_c: p5.Color }
-type Point = {
-  x: number;
-  y: number;
-  boundary: {
-    start: number;
-    stop: number;
-    radius: number;
-    angle: number;
-  };
-};
-type BoundaryPoint = {
-  start: number;
-  stop: number;
-  radius: number;
-  angle: number;
-};
-
-type Trunk = { 
-  startPoint: { x: number, y: number }, 
-  controlPoints: { x: number, y: number }[], 
-  endPoint: { x: number, y: number } 
-}[]
+import { Season, Leaf, Point, BoundaryPoint, Trunk } from './types';
 
 const mySketch = (p: p5) => {
 
@@ -159,25 +135,25 @@ const mySketch = (p: p5) => {
     let numPointsPerRow: number;
     let numLeavesPerPoint: number;
     switch (season) {
-      case 'spring':
+      // case 'spring':
       case 'fall':
         pointBoundaryRadius = { min: 100, max: 250 };
         numPointsPerRow = p.random(p.width/100 , p.width/60); // Example values for spring
         numLeavesPerPoint = p.random(1000, 1200); // Example values for spring
         break;
-      case 'summer':
-        pointBoundaryRadius = { min: 100, max: 220 };
-        numPointsPerRow = p.random(p.width/100 , p.width/50); // Example values for fall
-        numLeavesPerPoint = p.random(800, 100); // Example values for fall
-        break;
-      case 'winter':
-        pointBoundaryRadius = { min: 150, max: 200 };
-        numPointsPerRow = p.random(1, 3); // Example values for winter
-        numLeavesPerPoint = p.random(3, 5); // Example values for winter
-        break;
+      // case 'summer':
+      //   pointBoundaryRadius = { min: 100, max: 220 };
+      //   numPointsPerRow = p.random(p.width/100 , p.width/50); // Example values for fall
+      //   numLeavesPerPoint = p.random(800, 100); // Example values for fall
+      //   break;
+      // case 'winter':
+      //   pointBoundaryRadius = { min: 150, max: 200 };
+      //   numPointsPerRow = p.random(1, 3); // Example values for winter
+      //   numLeavesPerPoint = p.random(3, 5); // Example values for winter
+      //   break;
     }
     let pointsStart = p.height - bottom - pointBoundaryRadius.min;
-    let leafWidth = season === "summer" ? 4 : p.random(2, 3);
+    let leafWidth = p.random(2, 3);
     let rowHeight = season === "fall" ? 30 : 20; //x points will drawn p.randominly in each row. rows increment up by this amount
     
 
@@ -194,13 +170,11 @@ const mySketch = (p: p5) => {
     p.background(bgColors[season])
     
     //Draw Ground Fill
-    let groundFill = season === "winter" ? "white" : forest.fills[4]
-    if (season === "winter") {
-      p.fill(groundFill)
-      p.noStroke()
-      p.rect(0, p.height-bottom, p.width, p.height-bottom);
-    }
-    
+    let groundFill = colorsSunlight[season]();
+    p.fill(groundFill)
+    p.noStroke()
+    p.rect(0, p.height-bottom, p.width, p.height-bottom);
+  
     // Draw Ground Line (on top of Ground Fill & trees)
     drawGroundLine(25, ch-bottom, cw-25, groundFill)
     
@@ -397,7 +371,7 @@ const mySketch = (p: p5) => {
             let angle = p.random(b.start, b.stop)
             let r = p.random(0, b.radius/2)
 
-            //If angle is pointing towards "sun" (upper left), push into sunLeaf array
+            //If angle is in sunlight (~upper left of boundary), push into sunLeaf array
             let isSunLeaf = false;
             if (angle > p.HALF_PI + p.QUARTER_PI && angle < p.TWO_PI-p.QUARTER_PI){
               if(p.random([0,0,0,0,0,0,1])) {
@@ -451,6 +425,8 @@ const mySketch = (p: p5) => {
 
     clear() {
       this.trunks = [];
+      this.points = [];
+      this.sunLeaves = [];
       this.leaves = [];
     }
   }
@@ -533,50 +509,46 @@ const mySketch = (p: p5) => {
     fill_c: p5.Color
   ) {
     let x = xStart;
-    let y = yStart;
+    const y = yStart;
     p.stroke(fill_c);
     p.strokeWeight(1);
-    fill_c ? p.fill(fill_c) : p.noFill()
-    
-    while (x < xEnd){
-      let tickLength = 0;
-      let tickBump = p.random(-4, 0);
-      let tickType = p.random(["long", "short", "long", "short", "space"]);
-
-      if(tickType === "long"){
-        tickLength = p.random(10, 25);
-        p.beginShape();
-        p.vertex(x, y, 0);
-        let x2 = x;
-        let y2 = y;
-        let cx1 = x + tickLength / 2;
-        let cy1 = y + tickBump;
-        let cx2 = x + tickLength;
-        let cy2 = y;
-        p.bezierVertex(x2, y2, cx1, cy1, cx2, cy2);
-        p.endShape();
+    fill_c ? p.fill(fill_c) : p.noFill();
+  
+    while (x < xEnd) {
+      const tickBump = p.random(-4, 0);
+      const tickType = p.random(["long", "short", "long", "short", "space"]);
+      let tickLength = getTickLength(tickType);
+  
+      if (tickType !== "space") {
+        drawTick(x, y, tickLength, tickBump);
       }
-      else if(tickType === "short"){
-        tickLength = p.random(3, 10);
-        p.beginShape();
-        p.vertex(x, y, 0);
-        let x2 = x;
-        let y2 = y;
-        let cx1 = x + tickLength / 2;
-        let cy1 = y + tickBump;
-        let cx2 = x + tickLength;
-        let cy2 = y;
-        p.bezierVertex(x2, y2, cx1, cy1, cx2, cy2);
-        p.endShape();
-      }
-      else if(tickType === "space"){
-        tickLength = p.random(5,25)
-      } 
-      else {
-        console.error("no such line type")
-      }
-
+  
       x += tickLength;
+    }
+  
+    function getTickLength(type: string): number {
+      switch (type) {
+        case "long":
+          return p.random(10, 25);
+        case "short":
+          return p.random(3, 10);
+        case "space":
+          return p.random(5, 25);
+        default:
+          console.error("no such line type");
+          return 0;
+      }
+    }
+  
+    function drawTick(x: number, y: number, length: number, bump: number) {
+      p.beginShape();
+      p.vertex(x, y, 0);
+      const cx1 = x + length / 2;
+      const cy1 = y + bump;
+      const cx2 = x + length;
+      const cy2 = y;
+      p.bezierVertex(x, y, cx1, cy1, cx2, cy2);
+      p.endShape();
     }
   }
 
