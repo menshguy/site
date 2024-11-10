@@ -3,7 +3,7 @@ import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 
 type Season = 'winter' | 'fall' | 'spring' | 'summer';
-type Leaf = { x: number, y: number, w: number, h: number, angle: number, start: number, stop: number, flagForSunlight: boolean, fill_c: p5.Color }
+type Leaf = { x: number, y: number, w: number, h: number, angle: number, start: number, stop: number, isSunLeaf: boolean, fill_c: p5.Color }
 type Point = {
   x: number;
   y: number;
@@ -59,7 +59,7 @@ const mySketch = (p: p5) => {
     
     colors = {
       winter: [
-        'white',
+        p.color(0, 0, 100),
         p.color(200, 10, 50),  // Light Blue
         p.color(210, 20, 60),  // Medium Blue
         p.color(220, 30, 50),  // Dark Blue
@@ -85,7 +85,7 @@ const mySketch = (p: p5) => {
         p.color(5, 70, 30),   // Red
       ], 
       spring: [
-        'white',
+        p.color(0, 0, 100),
         p.color(25, 70, 10),  // Orange
         p.color(35, 80, 15),  // Yellow
         p.color(15, 60, 20),  // Brown
@@ -177,7 +177,7 @@ const mySketch = (p: p5) => {
         break;
     }
     let pointsStart = p.height - bottom - pointBoundaryRadius.min;
-    let leafWidth = season === "summer" ? p.random(4, 4) : p.random(2, 3);
+    let leafWidth = season === "summer" ? 4 : p.random(2, 3);
     let rowHeight = season === "fall" ? 30 : 20; //x points will drawn p.randominly in each row. rows increment up by this amount
     
 
@@ -205,7 +205,7 @@ const mySketch = (p: p5) => {
     drawGroundLine(25, ch-bottom, cw-25, groundFill)
     
     // Draw Trees in order
-    forest.trunks.forEach(trunk => drawTrunk(trunk, forest.trunkHeight, forest.trunkWidth));
+    forest.trunks.forEach(trunk => drawTrunk(trunk));
     forest.leaves.forEach(leaf => drawLeaf(leaf, 0.2));
     
     // Draw Texture
@@ -345,7 +345,7 @@ const mySketch = (p: p5) => {
           }
         }
 
-        //Increment min/max x, while making sure we dont exceed midpoint. Otherwise, you will just start an inverted triange shape and end up with an hour glass
+        //Increment min/max x, while making sure we dont exceed midpoint.
         let w = p.width/10;
         min_x += min_x > p.width/2 ? 0 : p.random(-w, w);
         max_x += max_x < p.width/2 ? 0 : p.random(-w, w);
@@ -398,38 +398,40 @@ const mySketch = (p: p5) => {
             let r = p.random(0, b.radius/2)
 
             //If angle is pointing towards "sun" (upper left), push into sunLeaf array
-            let flagForSunlight = false;
+            let isSunLeaf = false;
             if (angle > p.HALF_PI + p.QUARTER_PI && angle < p.TWO_PI-p.QUARTER_PI){
               if(p.random([0,0,0,0,0,0,1])) {
                 fill_c = colorsSunlight[season]();
                 r = p.random(b.radius/3, b.radius/2)
                 leaf_w += 1
                 leaf_h += 1
-                flagForSunlight = true
+                isSunLeaf = true
               }
             }
             
-            //Calculate polar coordinates
-            let isFallenLeaf = py + (p.sin(angle) * r) >= (p.height-bottom) //If py is below the ground, we flag it so we can create fallen leaves later
+            //Calculate cartesian coords from polar coordinates
             let x = px + (p.cos(angle) * r);
+            let isFallenLeaf = py + (p.sin(angle) * r) >= (p.height-bottom) //If py is below the ground, we flag it so we can create fallen leaves later
             let y = isFallenLeaf //If y is below bottom (ground), set to y to bottom with some variance to draw "fallen leaves"
-              ? season === "summer"
-                ? ch + 100 // get it off the screen! No fallen leaves in summer
-                : p.height-bottom+p.random(0,15) 
+              ? season === "summer" ? ch + 100 : p.height-bottom+p.random(0,15) // remove fallen leaves from screen in summer!
               : py + (p.sin(angle) * r);
             angle = isFallenLeaf ? p.PI : angle; //Angle fallen leaves horizonally
             
             //Create Leaf Object
             let leaf = {
-              x, y, w:leaf_w, h:leaf_h, 
-              angle, 
-              start:angle-p.HALF_PI, stop:angle+p.HALF_PI,
-              flagForSunlight, 
+              x,
+              y,
+              w: leaf_w,
+              h: leaf_h,
+              angle,
+              start: angle - p.HALF_PI,
+              stop: angle + p.HALF_PI,
+              isSunLeaf,
               fill_c
             }
 
             //Push Leaf into row
-            if (leaf.flagForSunlight) {
+            if (leaf.isSunLeaf) {
               sunLeaves.push(leaf)
             } else {
               leaves.push(leaf)
@@ -448,8 +450,8 @@ const mySketch = (p: p5) => {
     }
 
     clear() {
-      this.trunks = []
-      this.leaves = []
+      this.trunks = [];
+      this.leaves = [];
     }
   }
 
@@ -528,7 +530,7 @@ const mySketch = (p: p5) => {
     xStart: number,
     yStart: number,
     xEnd: number,
-    fill_c: p5.Color | string
+    fill_c: p5.Color
   ) {
     let x = xStart;
     let y = yStart;
