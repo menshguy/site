@@ -1,24 +1,45 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
+import p5 from 'p5';
 
+type Season = 'winter' | 'fall' | 'spring' | 'summer';
+type Leaf = { x: number, y: number, w: number, h: number, angle: number, start: number, stop: number, flagForSunlight: boolean, fill_c: p5.Color }
+type Point = {
+  x: number;
+  y: number;
+  boundary: {
+    start: number;
+    stop: number;
+    radius: number;
+    angle: number;
+  };
+};
+type BoundaryPoint = {
+  start: number;
+  stop: number;
+  radius: number;
+  angle: number;
+};
+
+type Trunk = { 
+  startPoint: { x: number, y: number }, 
+  controlPoints: { x: number, y: number }[], 
+  endPoint: { x: number, y: number } 
+}[]
 
 const mySketch = (p: p5) => {
 
-  let cw, ch;
+  let cw: number, ch: number;
   let bottom = 20;
-  let textureImg;
-  let drawControls = false;
-  let img;
-  let trees = [];
+  let textureImg: p5.Image;
   let debug = false;
-  let fallColorFills;
-  let colors;
-  let colorsSunlight;
-  let forest;
-  let season;
+  let colors: Record<Season, p5.Color[]>;
+  let colorsSunlight: Record<Season, () => p5.Color>;;
+  let bgColors: Record<Season, p5.Color>;;
+  let forest: Forest;
+  let season: Season;
 
   p.preload = () => {
-    // img = loadImage('../textures/paper_smooth.jpg');
     textureImg = p.loadImage(
       './textures/watercolor_1.jpg',
       () => {
@@ -32,21 +53,11 @@ const mySketch = (p: p5) => {
 
   p.setup = () => {
     p.colorMode(p.HSL);
-
-    // Calc distance from canvas to top of screen
-    // let container = document.getElementById("canvas-container");
-    // let rect = container.getBoundingClientRect();
-    // let distanceFromTop = rect.top;
-
-    // Set width and height to full window
-    // cw = windowWidth || 600;
-    // ch = (windowHeight - distanceFromTop) || 600;
-    cw = 800;
-    ch = 800;
+    cw = 600;
+    ch = 600;
     p.createCanvas(cw, ch);
-    // canvas.parent(container);
     
-    p.colors = {
+    colors = {
       winter: [
         'white',
         p.color(200, 10, 50),  // Light Blue
@@ -101,19 +112,18 @@ const mySketch = (p: p5) => {
       ]
     }
 
-    p.colorsSunlight ={
+    colorsSunlight = {
       winter: () => p.color(p.random(205,225), 80, 90),
       fall: () => p.color(p.random(15,50), 80, 60),
       spring: () => p.color(p.random(5,60), 75, 70),
       summer: () => p.color(p.random(100,135), 70, 95)
     }
 
-    let w = p.width/10
-    let rowWidthIncrementSizes = {
-      summer: () => p.random(-w, w), 
-      winter: () => p.random(-w, w), 
-      spring: () => p.random(-w, w), 
-      fall: () => p.random(-w, w)
+    bgColors = {
+      summer: p.color(56, 85, 91), //light yellow
+      winter: p.color(208, 18, 83), //deep blue
+      spring: p.color(43, 62, 90), //orange
+      fall: p.color(39, 26, 73) //brown
     }
 
     let forestHeights = {
@@ -132,52 +142,41 @@ const mySketch = (p: p5) => {
     
     /** General Settings */
     // season = p.random(['spring', 'fall', 'summer'])
-    season = 'fall'
-    let center = {x:cw/2, y:ch-bottom};
+    season = 'fall';
+    let startCoords = {x:cw/2, y:ch-bottom};
     let forestHeight = forestHeights[season];
-    let fills = p.colors[season];
+    let fills = colors[season];
     console.log("season", season)
-    /** Trunks:
-     *   1. Tree Trunks are just p.random bezier lines
-     */
+
+    // Define Tree Trunks
     let numTrunks = p.random(15, 20);
     let numLinesPerTrunk = p.random(4,8);
     let trunkHeight = trunkHeights[season];
     let trunkWidth = p.random(p.width/10,p.width/8)
-    /** Leaves:
-     *  1. Points are draw p.randomly across each "row"
-     *  2. Rows increment up by rowHeight until they reach forestHeight
-     *  3. Leaves are then drawn p.randomly around each point, avoiding gaps in the "arcs"
-     *      - The arcs are essentially openface 3/4 circles that face the center of the tree
-     *      - The idea behind arcs to avoid too much clutter in the center
-    */
-    let pointBoundaryRadius;
-    if (season === 'spring' || season === 'fall') {
-      pointBoundaryRadius = {min: 100, max: 250}; // Example values for spring
-    } else if (season === 'summer') {
-      pointBoundaryRadius = {min: 100, max: 220}; // Example values for fall
-    } else if (season === 'winter') {
-      pointBoundaryRadius = {min: 150, max: 200}; // Example values for winter
+    
+    // Define Leaf Settings - X points are drawing randomly in rows, X leafs are draw around the points within defined ciruclar boundary.
+    let pointBoundaryRadius: { min: number; max: number };
+    let numPointsPerRow: number;
+    let numLeavesPerPoint: number;
+    switch (season) {
+      case 'spring':
+      case 'fall':
+        pointBoundaryRadius = { min: 100, max: 250 };
+        numPointsPerRow = p.random(p.width/100 , p.width/60); // Example values for spring
+        numLeavesPerPoint = p.random(1000, 1200); // Example values for spring
+        break;
+      case 'summer':
+        pointBoundaryRadius = { min: 100, max: 220 };
+        numPointsPerRow = p.random(p.width/100 , p.width/50); // Example values for fall
+        numLeavesPerPoint = p.random(800, 100); // Example values for fall
+        break;
+      case 'winter':
+        pointBoundaryRadius = { min: 150, max: 200 };
+        numPointsPerRow = p.random(1, 3); // Example values for winter
+        numLeavesPerPoint = p.random(3, 5); // Example values for winter
+        break;
     }
     let pointsStart = p.height - bottom - pointBoundaryRadius.min;
-    
-    let numPointsPerRow;
-    if (season === 'spring' || season === 'fall') {
-      numPointsPerRow = p.random(p.width/100 , p.width/60); // Example values for spring
-    } else if (season === 'summer') {
-      numPointsPerRow = p.random(p.width/100 , p.width/50); // Example values for fall
-    } else if (season === 'winter') {
-      numPointsPerRow = p.random(1, 3); // Example values for winter
-    }
-    
-    let numLeavesPerPoint;
-    if (season === 'spring' || season === 'fall') {
-      numLeavesPerPoint = p.random(1000, 1200); // Example values for spring
-    } else if (season === 'summer') {
-      numLeavesPerPoint = p.random(800, 100); // Example values for fall
-    } else if (season === 'winter') {
-      numLeavesPerPoint = p.random(3, 5); // Example values for winter
-    }
     let leafWidth = season === "summer" ? p.random(4, 4) : p.random(2, 3);
     let rowHeight = season === "fall" ? 30 : 20; //x points will drawn p.randominly in each row. rows increment up by this amount
     
@@ -185,26 +184,14 @@ const mySketch = (p: p5) => {
     /** Create Tree */
     forest = new Forest({
       forestHeight, numTrunks, numLinesPerTrunk, leafWidth, numPointsPerRow, 
-      numLeavesPerPoint, rowHeight, center, trunkHeight, trunkWidth, pointsStart,
-      pointBoundaryRadius, fills, rowWidthIncrementSizes
+      numLeavesPerPoint, rowHeight, startCoords, trunkHeight, trunkWidth, pointsStart,
+      pointBoundaryRadius, fills
     })
   }
 
   p.draw = () => {
     p.noLoop();
-
-    if (season === "fall") {
-      p.background(39, 26, 73) //brown
-    } 
-    else if (season === "spring") {
-      p.background(43, 62, 50) //orange
-    }
-    else if (season === "winter") {
-      p.background(208,18,83) //deep blue
-    }
-    else if (season === "summer") {
-      p.background(56,85,91) //light yellow
-    }
+    p.background(bgColors[season])
     
     //Draw Ground Fill
     let groundFill = season === "winter" ? "white" : forest.fills[4]
@@ -214,52 +201,90 @@ const mySketch = (p: p5) => {
       p.rect(0, p.height-bottom, p.width, p.height-bottom);
     }
     
-    //Draw Ground Squiggly (on top of Ground Fill & trees)
+    // Draw Ground Line (on top of Ground Fill & trees)
     drawGroundLine(25, ch-bottom, cw-25, groundFill)
     
-    //Draw Trees in order
+    // Draw Trees in order
     forest.trunks.forEach(trunk => drawTrunk(trunk, forest.trunkHeight, forest.trunkWidth));
-    forest.leaves.forEach(row => row.forEach(l => {
-      drawLeaf(l, 0.2)
-    }));
+    forest.leaves.forEach(leaf => drawLeaf(leaf, 0.2));
     
-    //Draw Texture
+    // Draw Texture
     p.blendMode(p.MULTIPLY);
     p.image(textureImg, 0, 0, cw, ch);
     p.blendMode(p.BLEND); 
 
+    // Draw SunLeavs last (so the colors are not muted by the texture)
     forest.sunLeaves.forEach(l => {
       drawSunLeaf(l)
     });
   }
 
   class Forest {
+    midpoint: {x: number, y: number};
+    trunks: any[];
+    points: any[];
+    leaves: any[];
+    sunLeaves: any[];
+    forestHeight: number;
+    numTrunks: number;
+    numLinesPerTrunk: number;
+    leafWidth: number;
+    numPointsPerRow: number;
+    numLeavesPerPoint: number;
+    rowHeight: number;
+    startCoords: {x: number, y: number};
+    trunkHeight: number;
+    trunkWidth: number;
+    pointsStart: number;
+    pointBoundaryRadius: {min: number, max: number};
+    fills: any[];
+
     constructor({
       forestHeight, numTrunks, numLinesPerTrunk, leafWidth, numPointsPerRow, 
-      numLeavesPerPoint, rowHeight, center, trunkHeight, trunkWidth, pointsStart,
-      pointBoundaryRadius, fills, rowWidthIncrementSizes
+      numLeavesPerPoint, rowHeight, startCoords, trunkHeight, trunkWidth, pointsStart,
+      pointBoundaryRadius, fills
+    }: {
+      forestHeight: number;
+      numTrunks: number;
+      numLinesPerTrunk: number;
+      leafWidth: number;
+      numPointsPerRow: number;
+      numLeavesPerPoint: number;
+      rowHeight: number;
+      startCoords: { x: number; y: number };
+      trunkHeight: number;
+      trunkWidth: number;
+      pointsStart: number;
+      pointBoundaryRadius: { min: number; max: number };
+      fills: p5.Color[];
     }){
-      Object.assign(this, {
-        forestHeight, numTrunks, numLinesPerTrunk, leafWidth, numPointsPerRow, 
-        numLeavesPerPoint, rowHeight, center, trunkHeight, trunkWidth, pointsStart,
-        pointBoundaryRadius, fills, rowWidthIncrementSizes
-      });
+      this.forestHeight = forestHeight;
+      this.numTrunks = numTrunks;
+      this.numLinesPerTrunk = numLinesPerTrunk;
+      this.leafWidth = leafWidth;
+      this.numPointsPerRow = numPointsPerRow;
+      this.numLeavesPerPoint = numLeavesPerPoint;
+      this.rowHeight = rowHeight;
+      this.startCoords = startCoords;
+      this.trunkHeight = trunkHeight;
+      this.trunkWidth = trunkWidth;
+      this.pointsStart = pointsStart;
+      this.pointBoundaryRadius = pointBoundaryRadius;
       this.fills = fills;
-      this.midpoint = {x: center.x ,y: center.y - forestHeight/2}
+      this.midpoint = {x: startCoords.x ,y: startCoords.y - forestHeight/2}
       this.trunks = this.generateTrunks();
       this.points = this.generatePoints();
-      this.circles = this.generateCircles();
       let {leaves, sunLeaves} = this.generateLeaves();
       this.leaves = leaves;
       this.sunLeaves = sunLeaves;
 
       if (debug){
         p.fill("yellow")
-        p.circle(this.midpoint.x, height - bottom - forestHeight,20)
+        p.circle(this.midpoint.x, p.height - bottom - forestHeight,20)
         p.fill("pink")
         p.circle(this.midpoint.x, this.midpoint.y,20)
         p.fill("red")
-        p.circle(this.center.x, this.center.y,20)
+        p.circle(this.startCoords.x, this.startCoords.y,20)
       }
     }
 
@@ -295,21 +320,23 @@ const mySketch = (p: p5) => {
     }
 
     generatePoints(){
-      let {forestHeight, numPointsPerRow, rowHeight, pointsStart, rowWidthIncrementSizes, midpoint:m} = this;
+      let {forestHeight, numPointsPerRow, rowHeight, pointsStart, midpoint:m} = this;
       let points = [];
       let min_x = p.width/10;
       let max_x = p.width - (p.width/10);
 
       let total_h = p.height - bottom - forestHeight;
       for(let i = pointsStart; i > total_h; i-=rowHeight){
-        let row = [];
+
         let min_y = i;
         let max_y = i - rowHeight;
         for(let j=0; j < numPointsPerRow; j++){
           let x = p.random(min_x, max_x);
-          let y = p.random(min_y, max_y)
-          let boundary = this.generatePointBoundary(x, y, m.x, m.y)
-          row.push({x, y, boundary});
+          let y = p.random(min_y, max_y);
+          let boundary = this.generatePointBoundary(x, y, m.x, m.y);
+          
+          //Push array or points in points array
+          points.push({x, y, boundary});
             
           //Draw points
           if (debug) { 
@@ -318,18 +345,21 @@ const mySketch = (p: p5) => {
           }
         }
 
-        //Push array or points in points array
-        points.push(row)
-
         //Increment min/max x, while making sure we dont exceed midpoint. Otherwise, you will just start an inverted triange shape and end up with an hour glass
-        min_x += min_x > p.width/2 ? 0 : rowWidthIncrementSizes[season]();
-        max_x += max_x < p.width/2 ? 0 : rowWidthIncrementSizes[season]();
+        let w = p.width/10;
+        min_x += min_x > p.width/2 ? 0 : p.random(-w, w);
+        max_x += max_x < p.width/2 ? 0 : p.random(-w, w);
       }
             
       return points;
     }
 
-    generatePointBoundary(px, py, mx, my){
+    generatePointBoundary(
+      px: number, 
+      py: number, 
+      mx: number, 
+      my: number
+    ): BoundaryPoint {
       let {pointBoundaryRadius:pbr} = this
       let min = pbr.min;
       let max = pbr.max;
@@ -340,60 +370,38 @@ const mySketch = (p: p5) => {
       let dy = my - py;
       let angle = p.atan2(dy, dx);
       
-      // This won't do anything, but if you want to create a gap that faces center you can take the values in the comments
+      // This won't do anything, but if you want to create a gap that faces startCoords you can take the values in the comments
       let start = 0 // angle + QUARTER_PI
       let stop = p.TWO_PI // angle - QUARTER_PI
       
-      return {start, stop, radius};
+      return {start, stop, radius, angle};
     }
 
-    generateCircles() {
-      let {points} = this;
-      let circles = [];
+    generateLeaves(): { leaves: Leaf[], sunLeaves: Leaf[] } {
+      let {leafWidth, numLeavesPerPoint, points, fills} = this;
+      let leaves: Leaf[] = [];
+      let sunLeaves: Leaf[] = [];
       
       // Create leaves that surround and face each point
-      points.forEach(row => {
-        row.forEach(({x:px, y:py, boundary:b, isLeftMost, isRightMost}) => {
-          if (debug) {
-            p.fill(p.color(300, 100, 50, 0.5))
-            p.stroke("green")
-            let d = b.radius * 2;
-            p.arc(px, py, d, d, b.start, b.stop )
-          }
-
-          circles.push({ x:px, y:py, r:b.radius, isLeftMost, isRightMost })
-        })
-      })
-      return circles;
-    }
-
-    generateLeaves() {
-      let {leafWidth, numLeavesPerPoint, points, fills} = this;
-      let leaves = [];
-      let sunLeaves = [];
-
-      // Create leaves that surround and face each point
-      points.forEach(row => {
+      points.forEach(({x:px, y:py, boundary:b}: Point) => {
         let num = numLeavesPerPoint;
-        row.forEach(({x:px, y:py, boundary:b}) => {
-          //Create Leaves and push into row
-          let row = []
+          
+          //Create Leaves and push into array
           for (let i = 0; i < num; i++) {
             //Width and Height of leaves
-            let leaf_w = p.random(leafWidth-2,leafWidth+2)
-            let leaf_h = p.random(leaf_w,leaf_w+4)
+            let leaf_w = p.random(leafWidth-2, leafWidth+2)
+            let leaf_h = p.random(leaf_w, leaf_w+4)
             let fill_c = p.random(fills)
             
-            //Angle leaf towards center of its boundary
+            //Angle leaf towards startCoords of its boundary
             let angle = p.random(b.start, b.stop)
             let r = p.random(0, b.radius/2)
 
-            //If angle is pointing towards "sun" (upper left), 
-            //push into different array, adjust radius, make leave bigger
+            //If angle is pointing towards "sun" (upper left), push into sunLeaf array
             let flagForSunlight = false;
             if (angle > p.HALF_PI + p.QUARTER_PI && angle < p.TWO_PI-p.QUARTER_PI){
               if(p.random([0,0,0,0,0,0,1])) {
-                fill_c = p.colorsSunlight[season]();
+                fill_c = colorsSunlight[season]();
                 r = p.random(b.radius/3, b.radius/2)
                 leaf_w += 1
                 leaf_h += 1
@@ -414,15 +422,17 @@ const mySketch = (p: p5) => {
             //Create Leaf Object
             let leaf = {
               x, y, w:leaf_w, h:leaf_h, 
-              angle, start:angle-p.HALF_PI, stop:angle+p.HALF_PI,
-              flagForSunlight, fill_c
+              angle, 
+              start:angle-p.HALF_PI, stop:angle+p.HALF_PI,
+              flagForSunlight, 
+              fill_c
             }
 
             //Push Leaf into row
             if (leaf.flagForSunlight) {
               sunLeaves.push(leaf)
             } else {
-              row.push(leaf)
+              leaves.push(leaf)
             }
             
             //Debug - Draw leaf point in Blue
@@ -431,22 +441,20 @@ const mySketch = (p: p5) => {
               p.circle(x,y,leaf_w)
             }
           }
-          //Push row
-          leaves.push(row)
           //Decrease number of leaves per point until 5 leaf minimum
           num = num > 5 ? num - 10 : 5;
-        })
       })
       return {leaves, sunLeaves};
     }
 
     clear() {
-      this.lines = []
+      this.trunks = []
       this.leaves = []
     }
   }
 
-  function drawLeaf({x, y, w, h, angle, start, stop, fill_c}, prob) {
+  function drawLeaf(leaf: Leaf, prob: number) {
+    let {x, y, w, h, angle, start, stop, fill_c} = leaf;
     let typeOfLeaf = p.random(0,1) > prob ? "full" : "outline";
     
     if (typeOfLeaf === "full") {
@@ -472,12 +480,13 @@ const mySketch = (p: p5) => {
       p.strokeWeight(1);
       p.noFill();
       p.translate(x,y);
-      p.arc(0, 0, w, w, start-0.2, stop+0.2); //open faced arc pointing toward boundary center
+      p.arc(0, 0, w, w, start-0.2, stop+0.2); //open faced arc pointing toward boundary startCoords
       p.pop();
     }
   }
 
-  function drawSunLeaf({x, y, w, h, angle, start, stop, fill_c}) {
+  function drawSunLeaf(sunLeaf: Leaf) {
+    let {x, y, w, h, angle, start: _start, stop: _stop, fill_c} = sunLeaf;
     p.push();
     p.noStroke();
     p.fill(fill_c)
@@ -487,10 +496,10 @@ const mySketch = (p: p5) => {
     p.pop();
   }
 
-  function drawTrunk(tree, trunkHeight, trunkWidth){
+  function drawTrunk(trunk: Trunk) {
     let trunkBuffer = p.createGraphics(cw, ch);
-    tree.forEach(line => {
-      let {startPoint:s, controlPoints:cps, endPoint:e} = line
+    trunk.forEach(line => {
+      let {startPoint: s, controlPoints: cps, endPoint: e} = line
 
       //Set Styles
       trunkBuffer.push()
@@ -515,7 +524,12 @@ const mySketch = (p: p5) => {
     p.image(trunkBuffer, 0, 0)
   }
 
-  function drawGroundLine(xStart, yStart, xEnd, fill_c){
+  function drawGroundLine(
+    xStart: number,
+    yStart: number,
+    xEnd: number,
+    fill_c: p5.Color | string
+  ) {
     let x = xStart;
     let y = yStart;
     p.stroke(fill_c);
@@ -523,7 +537,7 @@ const mySketch = (p: p5) => {
     fill_c ? p.fill(fill_c) : p.noFill()
     
     while (x < xEnd){
-      let tickLength;
+      let tickLength = 0;
       let tickBump = p.random(-4, 0);
       let tickType = p.random(["long", "short", "long", "short", "space"]);
 
@@ -564,12 +578,6 @@ const mySketch = (p: p5) => {
     }
   }
 
-  function calculateDistance(x1, y1, x2, y2) {
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
   p.mousePressed = () => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
       p.setup();
@@ -584,7 +592,7 @@ const FallSunlight: React.FC = () => {
   return (
     <div>
       <h1>Fall Sunlight</h1>
-      <p>11/7/24</p>
+      {/* <p>11/7/24</p> */}
       <p>Click to redraw.</p>
       <P5Wrapper sketch={mySketch} />
     </div>

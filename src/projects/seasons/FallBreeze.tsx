@@ -12,7 +12,7 @@ const mySketch = (p: p5) => {
   let trees = [];
   let debug = false;
   let fallColorFills;
-  let forest;
+  let tree;
   let season;
   let textureImg;
   let colors;
@@ -128,7 +128,7 @@ const mySketch = (p: p5) => {
     let leafHeight = p.random(5, 5);
   
     /** Create Tree */
-    forest = new Forest({
+    tree = new Tree({
       treeHeight, numTrunkLines, numPointsPerRow,
       numLeavesPerPoint, startP, trunkHeight, trunkWidth, leavesStartY,
       pointBoundaryRadius, fills, leafWidth, leafHeight
@@ -138,10 +138,11 @@ const mySketch = (p: p5) => {
   p.draw = () => {
     p.background(bgColor)
     
-    drawTrunk(forest.trunk); //Draw Tree Trunk
+    // drawTrunk(tree.trunk); //Draw Tree Trunk
+    drawTrunkInWind(tree.trunk)
   
     let time = p.frameCount * 0.2;
-    forest.leaves.forEach(row => row.forEach(l => {
+    tree.leaves.forEach(row => row.forEach(l => {
       l.x += Math.sin(time) * l.movementFactor; // Oscillate the x position
       drawLeaf(l);
     }));
@@ -152,7 +153,7 @@ const mySketch = (p: p5) => {
     p.blendMode(p.BLEND); 
   }
   
-  class Forest {
+  class Tree {
     constructor({
       treeHeight, numTrunks, numTrunkLines, numPointsPerRow, 
       numLeavesPerPoint, startP, trunkHeight, trunkWidth, leavesStartY,
@@ -203,7 +204,7 @@ const mySketch = (p: p5) => {
           y: p.random(startControlPoint.y, endPoint.y)
         }
         let controlPoints = [startControlPoint, endControlPoint]
-        lines.push({ startPoint, endPoint, controlPoints })
+        lines.push({ startPoint, endPoint, controlPoints, initialControlPoints: [...controlPoints] })
       }
       return lines;
     }
@@ -224,7 +225,7 @@ const mySketch = (p: p5) => {
           let x = p.random(min_x, max_x);
           let y = p.random(min_y, max_y)
           let r = pointBoundaryRadius;
-          let boundary = generatePointBoundary(r, x, y, m.x, m.y)
+          let boundary = getPointBoundary(r, x, y, m.x, m.y)
           row.push({x, y, boundary});
             
           //Draw points
@@ -243,31 +244,14 @@ const mySketch = (p: p5) => {
       }
             
       return points;
-
-      function generatePointBoundary(max_r, px, py, mx, my){
-        let min = max_r.min;
-        let max = max_r.max;
-        let radius = p.random(min, max); 
-        
-        // Calculate the differences in x and y and calc angle us atan2
-        let dx = mx - px;
-        let dy = my - py;
-        let angle = p.atan2(dy, dx);
-        
-        // This won't do anything, but if you want to create a gap that faces startP you can take the values in the comments
-        let start = 0 // angle + QUARTER_PI
-        let stop = p.TWO_PI // angle - QUARTER_PI
-        
-        return {start, stop, angle, radius};
-      }
     }
   
     generateLeaves() {
       let {leafWidth, leafHeight, numLeavesPerPoint, points, fills} = this;
       // Use pre-calculated leaf dimensions
       let leaves = [];
-      this.points.forEach(row => {
-        let num = this.numLeavesPerPoint;
+      points.forEach(row => {
+        let num = numLeavesPerPoint;
         row.forEach(({ x: px, y: py, boundary: b }, index) => {
           let row = [];
           for (let i = 0; i < num; i++) {
@@ -306,18 +290,17 @@ const mySketch = (p: p5) => {
               p.circle(x,y,leaf_w)
             }
           }
-          //Push row
           leaves.push(row)
-          //Decrease number of leaves per point until 5 leaf minimum
-          num = num > 5 ? num - 10 : 5;
+          num = num > 5 ? num - 10 : 5; //Decrease leaves per point, so top is more sparse then base
         })
       })
       return leaves;
     }
   
     clear() {
-      this.lines = []
       this.leaves = []
+      this.points = []
+      this.trunk = []
     }
   }
   
@@ -331,6 +314,41 @@ const mySketch = (p: p5) => {
     p.pop();
   }
   
+  function drawTrunkInWind(lines){
+    let trunkBuffer = p.createGraphics(cw, ch);
+    let time = p.frameCount * 0.02; // Adjust the speed of the wind effect
+    lines.forEach(line => {
+      let { startPoint: s, controlPoints: cps, endPoint: e, initialControlPoints: icps } = line;
+
+      // Animate control points
+      // cps[0].x = icps[0].x + Math.sin(time) * 1.2; // Adjust the amplitude as needed
+      // cps[1].x = icps[1].x + Math.sin(time + 1) * 1; // Offset the phase for variety
+      
+      // Animate end points
+      e.x = e.x + Math.sin(time) * 1.2; // Adjust the amplitude as needed
+      e.x = e.x + Math.sin(time + 1) * 1.2; // Offset the phase for variety
+
+      // Set Styles
+      trunkBuffer.push();
+      trunkBuffer.stroke('black');
+      trunkBuffer.strokeWeight(1);
+      trunkBuffer.noFill();
+
+      // -- Curve Style -- //
+      trunkBuffer.beginShape();
+      trunkBuffer.vertex(s.x, s.y);
+      trunkBuffer.bezierVertex(
+        cps[0].x, cps[0].y,
+        cps[1].x, cps[1].y,
+        e.x, e.y
+      );
+      trunkBuffer.endShape();
+      trunkBuffer.pop(); // Unset Styles
+    });
+
+    p.image(trunkBuffer, 0, 0);
+  }
+
   function drawTrunk(lines){
     let trunkBuffer = p.createGraphics(cw, ch);
     lines.forEach(line => {
@@ -351,13 +369,27 @@ const mySketch = (p: p5) => {
         e.x, e.y
       )
       trunkBuffer.endShape();
-      
-      //Unset Styles
-      trunkBuffer.pop()
-  
+      trunkBuffer.pop(); //Unset Styles
     })
   
     p.image(trunkBuffer, 0, 0)
+  }
+
+  function getPointBoundary(max_r, px, py, mx, my){
+    let min = max_r.min;
+    let max = max_r.max;
+    let radius = p.random(min, max); 
+    
+    // Calculate the differences in x and y and calc angle us atan2
+    let dx = mx - px;
+    let dy = my - py;
+    let angle = p.atan2(dy, dx);
+    
+    // This won't do anything, but if you want to create a gap that faces startP you can take the values in the comments
+    let start = 0 // angle + QUARTER_PI
+    let stop = p.TWO_PI // angle - QUARTER_PI
+    
+    return {start, stop, angle, radius};
   }
   
   p.mousePressed = () => {
