@@ -1,12 +1,13 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
-
+import p5 from 'p5';
+import {Leaf, Line, Point} from '../seasons/types.ts';
 
 const mySketch = (p: p5) => {
-  let cw, ch;
+  let cw:number, ch:number;
   let bottom = 100;
   let drawControls = false;
-  let trees = []
+  let trees: any[] = []
   
   p.setup = () => {
     cw = 600;
@@ -51,11 +52,11 @@ const mySketch = (p: p5) => {
     drawBaseLine(0, ch-bottom, cw)
   }
   
-  function drawBaseLine(xStart, y, xEnd){
+  function drawBaseLine(xStart: number, y: number, xEnd: number) {
     let x = xStart;
     
     while (x < xEnd){
-      let tickLength;
+      let tickLength = 0;
       let tickBump = p.random(-6, 0);
       let tickType = p.random(["long", "long", "short", "space"]);
   
@@ -97,8 +98,28 @@ const mySketch = (p: p5) => {
   }
   
   class Tree {
-    constructor({numLines, startPoint, treeHeight, treeWidth}){
-      Object.assign(this, { numLines, startPoint, treeHeight, treeWidth });
+    numLines: number;
+    startPoint: {x: number, y: number}; 
+    treeHeight: number; 
+    treeWidth: number;
+    lines: Line[];
+    leaves: Leaf[]
+
+    constructor({
+      numLines, 
+      startPoint, 
+      treeHeight, 
+      treeWidth
+    }: {
+      numLines: number, 
+      startPoint: {x: number, y: number}, 
+      treeHeight: number, 
+      treeWidth: number
+    }){
+      this.numLines = numLines;
+      this.startPoint = startPoint;
+      this.treeHeight = treeHeight; 
+      this.treeWidth = treeWidth;
       this.lines = this.generateTree();
       this.leaves = this.generateLeaves();
     }
@@ -127,25 +148,33 @@ const mySketch = (p: p5) => {
     }
   
     generateLeaves() {
-      let leaves = [];
-      let radius = p.random(125, 150); // Create the large enclosing circle, but don't draw it
-      // Draw small half-circles on the right half only
-      let numCircles = 900; // Number of small half-circles
+      let leaves: Leaf[] = [];
+      let radius = p.random(125, 150);
+      let numCircles = 900;
       for (let i = 0; i < numCircles; i++) {
-        // Random angle between 0 and PI for the right half
         let angle = p.random(-p.PI, p.PI);
-        // Random radius within the main circle's radius
         let r = p.sqrt(p.random(0,0.5)) * radius;
         let x = p.cos(angle) * r;
         let y = p.sin(angle) * r;
-        // Calculate the angle of the half-circle to face the center
         let angleToCenter = p.atan2(y, x);
-  
-        // Draw the half-circle
-        
-        let w = p.random(10,20)
-        let h = p.random(10,20)
-        leaves.push({x, y, w, h, start: angleToCenter - p.HALF_PI, stop: angleToCenter + p.HALF_PI})
+        let w = p.random(10,20);
+        let h = p.random(10,20);
+        let fill_c = p.random([
+          p.color(44, 59, 77), 
+          p.color(35, 45, 47),
+          p.color(19, 66, 66),
+          p.color(86, 38, 55)
+        ]);
+        leaves.push({
+          x, 
+          y, 
+          w, 
+          h, 
+          start: angleToCenter - p.HALF_PI, 
+          stop: angleToCenter + p.HALF_PI,
+          fill_c,
+          angle
+        })
       }
       return leaves;
     }
@@ -161,7 +190,8 @@ const mySketch = (p: p5) => {
       p.translate(startPoint.x, startPoint.y-(bottom/2)-(treeHeight));
       p.rotate(p.radians(-90));
   
-      this.leaves.forEach( ({x, y, w, h, start, stop}) => {
+      this.leaves.forEach((leaf: Leaf) => {
+        let {x, y, w, h, start, stop} = leaf;
         p.fill(p.random([
           p.color(44, 59, 77), 
           p.color(35, 45, 47),
@@ -199,8 +229,8 @@ const mySketch = (p: p5) => {
           //Draw Control Points for Reference
           p.stroke("red");
           p.strokeWeight(5);
-          controlPoints.forEach(p => {
-            p.point(p.x, p.y)
+          controlPoints.forEach((point: Point) => {
+            p.point(point.x, point.y)
           })
         
           //Connect Control Points to Anchor Points
@@ -224,12 +254,12 @@ const mySketch = (p: p5) => {
       if (drawControls){
         trees.forEach(tree => {
           let {lines} = tree;
-          lines.forEach(line => {
-            let p = line.controlPoints
-            let x1 = p[0].x
-            let y1 = p[0].y
-            let x2 = p[1].x
-            let y2 = p[1].y
+          lines.forEach((line: Line) => {
+            let cp = line.controlPoints
+            let x1 = cp[0].x
+            let y1 = cp[0].y
+            let x2 = cp[1].x
+            let y2 = cp[1].y
             if (p.dist(p.mouseX, p.mouseY, x1, y1) < 10) {
               line.isDragging = {i: 0};
             }
@@ -252,11 +282,11 @@ const mySketch = (p: p5) => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
       trees.forEach(tree => {
         let {lines} = tree;
-        lines.forEach(line => {
-          let p = line.controlPoints
+        lines.forEach((line: Line) => {
+          let cp = line.controlPoints
           if (line.isDragging) {
-            p[line.isDragging.i].x = p.mouseX;
-            p[line.isDragging.i].y = p.mouseY;
+            cp[line.isDragging.i].x = p.mouseX;
+            cp[line.isDragging.i].y = p.mouseY;
           }
         });
       })
@@ -268,7 +298,7 @@ const mySketch = (p: p5) => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
       trees.forEach(tree => {
         let {lines} = tree;
-        lines.forEach(line => {
+        lines.forEach((line: Line) => {
           line.isDragging = false;
         });
       })

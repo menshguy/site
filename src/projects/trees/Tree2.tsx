@@ -1,12 +1,11 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
-
+import p5 from 'p5';
 
 const mySketch = (p: p5) => {
-  let cw, ch;
+  let cw: number, ch:number;
   let bottom = 100;
-  let drawControls = false;
-  let trees = [];
+  let trees: any[] = [];
   
   p.setup = () => {
     // Sketch Settings
@@ -50,11 +49,11 @@ const mySketch = (p: p5) => {
     p.noFill();
   }
   
-  function drawBaseLine(xStart, y, xEnd){
+  function drawBaseLine(xStart: number, y: number, xEnd: number){
     let x = xStart;
     
     while (x < xEnd){
-      let tickLength;
+      let tickLength = 0;
       let tickBump = p.random(-4, 0);
       let tickType = p.random(["long", "short", "long", "short", "space"]);
   
@@ -96,8 +95,28 @@ const mySketch = (p: p5) => {
   }
   
   class Tree {
-    constructor({numLines, startPoint, treeHeight, treeWidth}){
-      Object.assign(this, { numLines, startPoint, treeHeight, treeWidth });
+    numLines: number;
+    startPoint: { x: number; y: number }; 
+    treeHeight: number;
+    treeWidth: number;
+    lines: any[];
+    leaves: any[]
+
+    constructor({
+      numLines, 
+      startPoint, 
+      treeHeight, 
+      treeWidth
+    }: {
+      numLines: number, 
+      startPoint: { x: number; y: number }, 
+      treeHeight: number, 
+      treeWidth: number
+    }){
+      this.numLines = numLines 
+      this.startPoint = startPoint
+      this.treeHeight = treeHeight
+      this.treeWidth = treeWidth
       this.lines = this.generateTree();
       this.leaves = this.generateLeaves();
     }
@@ -126,7 +145,7 @@ const mySketch = (p: p5) => {
     }
   
     generateLeaves() {
-  
+      return []
     }
   
     draw(){

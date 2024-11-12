@@ -43,5 +43,6 @@ export type Line = {
   startPoint: Point, 
   controlPoints: Point[],
   initialControlPoints?: Point[],
-  endPoint: Point
+  endPoint: Point,
+  isDragging?: {i: number} | false
 }

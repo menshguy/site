@@ -6,7 +6,7 @@ import { Season, Leaf, Line } from './types';
 const mySketch = (p: p5) => {
   let cw: number, ch: number;
   let bottom = 20;
-  let debug = true;
+  let debug = false;
   let forest: Forest;
   let season: Season;
   let colors: Record<Season, p5.Color[]>;
@@ -14,7 +14,6 @@ const mySketch = (p: p5) => {
   let textureImg: p5.Image;
   
   p.preload = () => {
-    // img = loadImage('../textures/paper_smooth.jpg');
     textureImg = p.loadImage('../textures/watercolor_1.jpg');
   }
   

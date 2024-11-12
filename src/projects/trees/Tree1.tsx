@@ -1,8 +1,9 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
+import p5 from 'p5';
 
 const mySketch = (p: p5) => {
-  let buffers, rowhomes, bottom;
+  let bottom;
   let cw = 600;
   let ch = 600;
   
@@ -21,7 +22,7 @@ const mySketch = (p: p5) => {
     let numTrees = p.floor(p.random(5, 12))
     let x = 100;
     for (let i = 0; i < numTrees; i++) {
-      let w = null // Not using yet
+      let w = 0 // Not using yet
       let h = p.floor(p.random(100,200))
       let y = bottom - h
       marker_line(x, y, w, h)
@@ -30,13 +31,18 @@ const mySketch = (p: p5) => {
   }
   
   // Function to draw a single squiggly line
-  function drawSquigglyLine(x, y, length, angle) {
-    let segments = p.floor(length / 5); // Number of small segments in the line
-    let amp = 0.75;                  // Amplitude of squiggle
+  function drawSquigglyLine(
+    x: number, 
+    y: number, 
+    length: number, 
+    angle: number
+  ) {
+    let segments = p.floor(length / 5);
+    let amp = 0.75;
     p.noFill();
     // p.stroke(p.color(30, 28, 57))
     p.stroke(0)
-    p.strokeWeight(1);                // Thinner lines for finer ink-like detail
+    p.strokeWeight(1);
   
     p.beginShape();
     for (let i = 0; i < segments; i++) {
@@ -51,19 +57,23 @@ const mySketch = (p: p5) => {
     p.endShape();
   }
   
-  function marker_line (x, y, w, h, settings={}) {
-    let {fill_c, stroke_c, stroke_w} = settings;
+  function marker_line (
+    x: number, 
+    y: number, 
+    w: number, 
+    h: number, 
+    settings?:{stroke_c: p5.Color, stroke_w: number}
+  ) {
+    let {stroke_c = p.color("black"), stroke_w = 1} = settings || {};
     let numLines = 8;
     
-    p.stroke(stroke_c || "black")
-    p.strokeWeight(stroke_w || 1)
-    // p.fill(fill_c || "white")
-    // p.rect(x, y, w, h)
+    p.stroke(stroke_c)
+    p.strokeWeight(stroke_w)
     let lean = p.random(["left", "sraight", "right"])
   
     for (let i = 0; i < numLines; i++) {  // Draw multiple lines to make it look rough
       
-      let x2;
+      let x2: number = 0;
       switch (lean) {
         case "left":
           x2 = p.random(-12, -6);

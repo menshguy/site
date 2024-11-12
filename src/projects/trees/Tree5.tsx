@@ -1,20 +1,17 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
+import p5 from 'p5';
+import {Leaf, Line} from '../seasons/types.ts';
 
 
 const mySketch = (p: p5) => {
-  let cw, ch;
+  let cw: number, ch: number;
   let bottom = 20;
-  let drawControls = false;
-  let img;
-  let trees = [];
   let debug = false;
-  let fallColorFills;
-  let lightFallColorFills;
-  let textureImg;
+  let fallColorFills: p5.Color[];
+  let textureImg: p5.Image;
   
   p.preload = () => {
-    // img = loadImage('../textures/paper_smooth.jpg');
     textureImg = p.loadImage('../textures/watercolor_1.jpg');
   }
   
@@ -25,7 +22,7 @@ const mySketch = (p: p5) => {
     p.createCanvas(cw, ch);
   
     fallColorFills = [
-      'white',
+      p.color('white'),
       p.color(25, 70, 30),  // Orange
       p.color(35, 80, 40),  // Yellow
       p.color(15, 60, 35),  // Brown
@@ -37,16 +34,6 @@ const mySketch = (p: p5) => {
       p.color(45, 90, 60),  // Light Yellow
       p.color(5, 70, 60),   // Red
     ];
-    lightFallColorFills = [
-      // 'white',
-      p.color(45, 90, 70),  // Light Yellow
-      p.color(45, 90, 80),  // Light Yellow
-      p.color(45, 90, 75),  // Light Yellow
-      p.color(45, 90, 73),  // Light Yellow
-      p.color(45, 90, 78),  // Light Yellow
-      p.color(5, 70, 80),   // Red
-      p.color(5, 70, 90)    // Red
-    ];
   }
   
   p.draw = () => {
@@ -57,22 +44,16 @@ const mySketch = (p: p5) => {
     p.noLoop();
   
     /** General Settings */
-    let center = {x:cw/2, y:ch-bottom};
+    let startCoords = {x: cw/2, y: ch-bottom};
     let forestHeight = p.random(ch/4,ch-ch/3);
-    /** Trunks:
-     *   1. Tree Trunks are just random bezier lines
-     */
+
+    // Trunks:
     let numTrunks = p.random(15, 20);
     let numLinesPerTrunk = p.random(4,8);
     let trunkHeight = p.random(100, forestHeight + 20);
     let trunkWidth = p.random(p.width/12, p.width/10)
-    /** Leaves:
-     *  1. Points are draw randomly across each "row"
-     *  2. Rows increment up by rowHeight until they reach forestHeight
-     *  3. Leaves are then drawn randomly around each point, avoiding gaps in the "arcs"
-     *      - The arcs are essentially openface 3/4 circles that face the center of the tree
-     *      - The idea behind arcs to avoid too much clutter in the center
-    */
+
+    // Leaves:
     let pointBoundaryRadius = {min: 70, max:200};
     let pointsStart = p.height - bottom - pointBoundaryRadius.min;
     let numPointsPerRow = p.random(p.width/100 , p.width/60);
@@ -82,28 +63,31 @@ const mySketch = (p: p5) => {
      
     /** Create Tree */
     let forest = new Forest({
-      forestHeight, numTrunks, numLinesPerTrunk, leafWidth, numPointsPerRow, 
-      numLeavesPerPoint, rowHeight, center, trunkHeight, trunkWidth, pointsStart,
-      pointBoundaryRadius
+      forestHeight, 
+      numTrunks, 
+      numLinesPerTrunk, 
+      leafWidth,
+      numPointsPerRow, 
+      numLeavesPerPoint, 
+      rowHeight, 
+      startCoords, 
+      trunkHeight, 
+      trunkWidth, 
+      pointsStart,
+      pointBoundaryRadius, 
+      fills: fallColorFills
     })
 
     //Draw Ground Fill
     let groundFill = fallColorFills[3]
-    // fill(groundFill)
-    // noStroke()
-    // rect(0, height-bottom, width, height-bottom);
     
     //Draw Ground Squiggly (on top of Ground Fill & trees)
     drawGroundLine(25, ch-bottom, cw-25, groundFill)
     
     //Draw Trees in order
-    forest.trunks.forEach(trunk => drawTrunk(trunk, trunkHeight, trunkWidth));
-    // forest.circles.forEach(c => {
-    //   drawToBuffer(circleBuffer, c)
-    // });
-    // drawCircleBuffer(circleBuffer)
-    forest.leaves.forEach(row => row.forEach(l => {
-      drawLeaf(l, 0.2, p.random(fallColorFills))
+    forest.trunks.forEach(trunk => drawTrunk(trunk));
+    forest.leaves.forEach(row => row.forEach((leaf: Leaf) => {
+      drawLeaf(leaf, 0.2, p.random(fallColorFills))
     }));
     
     //Draw Texture
@@ -113,20 +97,70 @@ const mySketch = (p: p5) => {
   }
   
   class Forest {
+    midpoint: {x: number, y: number};
+    trunks: any[];
+    points: any[];
+    leaves: any[];
+    sunLeaves?: any[];
+    forestHeight: number;
+    numTrunks: number;
+    numLinesPerTrunk: number;
+    leafWidth: number;
+    numPointsPerRow: number;
+    numLeavesPerPoint: number;
+    rowHeight: number;
+    startCoords: {x: number, y: number};
+    trunkHeight: number;
+    trunkWidth: number;
+    pointsStart: number;
+    pointBoundaryRadius: {min: number, max: number};
+    fills: any[];
+
     constructor({
-      forestHeight, numTrunks, numLinesPerTrunk, leafWidth, numPointsPerRow, 
-      numLeavesPerPoint, rowHeight, center, trunkHeight, trunkWidth, pointsStart,
-      pointBoundaryRadius
+      forestHeight, 
+      numTrunks, 
+      numLinesPerTrunk, 
+      leafWidth, 
+      numPointsPerRow, 
+      numLeavesPerPoint, 
+      rowHeight, 
+      startCoords, 
+      trunkHeight, 
+      trunkWidth, 
+      pointsStart,
+      pointBoundaryRadius, 
+      fills, 
+    }: {
+      forestHeight: number;
+      numTrunks: number;
+      numLinesPerTrunk: number;
+      leafWidth: number;
+      numPointsPerRow: number;
+      numLeavesPerPoint: number;
+      rowHeight: number;
+      startCoords: { x: number; y: number };
+      trunkHeight: number;
+      trunkWidth: number;
+      pointsStart: number;
+      pointBoundaryRadius: { min: number; max: number };
+      fills: p5.Color[];
     }){
-      Object.assign(this, {
-        forestHeight, numTrunks, numLinesPerTrunk, leafWidth, numPointsPerRow, 
-        numLeavesPerPoint, rowHeight, center, trunkHeight, trunkWidth, pointsStart,
-        pointBoundaryRadius 
-      });
-      this.midpoint = {x: center.x ,y: center.y - forestHeight/2}
+      this.forestHeight = forestHeight;
+      this.numTrunks = numTrunks; 
+      this.numLinesPerTrunk = numLinesPerTrunk;
+      this.leafWidth = leafWidth;
+      this.numPointsPerRow = numPointsPerRow;
+      this.numLeavesPerPoint = numLeavesPerPoint; 
+      this.rowHeight = rowHeight;
+      this.startCoords = startCoords;
+      this.trunkHeight = trunkHeight;
+      this.trunkWidth = trunkWidth;
+      this.pointsStart = pointsStart;
+      this.pointBoundaryRadius = pointBoundaryRadius; 
+      this.fills = fills;
+      this.midpoint = {x: startCoords.x ,y: startCoords.y - forestHeight/2}
       this.trunks = this.generateTrunks();
       this.points = this.generatePoints();
-      this.circles = this.generateCircles();
       this.leaves = this.generateLeaves();
   
       if (debug){
@@ -135,7 +169,7 @@ const mySketch = (p: p5) => {
         p.fill("pink")
         p.circle(this.midpoint.x, this.midpoint.y,20)
         p.fill("red")
-        p.circle(this.center.x, this.center.y,20)
+        p.circle(this.startCoords.x, this.startCoords.y,20)
       }
     }
   
@@ -210,9 +244,9 @@ const mySketch = (p: p5) => {
             
       return points;
     }
-  
-    generatePointBoundary(px, py, mx, my){
-      let {pointBoundaryRadius:pbr} = this
+    
+    generatePointBoundary(px: number, py: number, mx: number, my: number) {
+      let {pointBoundaryRadius: pbr} = this;
       let min = pbr.min;
       let max = pbr.max;
       let radius = p.random(min, max); 
@@ -226,37 +260,17 @@ const mySketch = (p: p5) => {
       let start = 0 // angle + QUARTER_PI
       let stop = p.TWO_PI // angle - QUARTER_PI
       
-      return {start, stop, radius};
-    }
-  
-    generateCircles() {
-      let {points} = this;
-      let circles = [];
-      
-      // Create leaves that surround and face each point
-      points.forEach(row => {
-        row.forEach(({x:px, y:py, boundary:b, isLeftMost, isRightMost}) => {
-          if (debug) {
-            p.fill(p.color(300, 100, 50, 0.5))
-            p.stroke("green")
-            let d = b.radius * 2;
-            p.arc(px, py, d, d, b.start, b.stop )
-          }
-  
-          circles.push({ x:px, y:py, r:b.radius, isLeftMost, isRightMost })
-        })
-      })
-      return circles;
+      return {start, stop, radius, angle};
     }
   
     generateLeaves() {
       let {leafWidth, numLeavesPerPoint, points} = this;
-      let leaves = [];
+      let leaves: any[] = [];
   
       // Create leaves that surround and face each point
       points.forEach(row => {
         let num = numLeavesPerPoint;
-        row.forEach(({x:px, y:py, boundary:b}) => {
+        row.forEach(({x: px, y: py, boundary: b}: {x: number, y: number, boundary: any}) => {
           //Create Leaves and push into row
           let row = []
           for (let i = 0; i < num; i++) {
@@ -295,13 +309,13 @@ const mySketch = (p: p5) => {
     }
   
     clear() {
-      this.lines = []
       this.leaves = []
     }
   }
   
-  function drawLeaf({x, y, w, h, angle, start, stop}, p, fill_c) {
-    let typeOfLeaf = p.random(0,1) > p ? "full" : "outline";
+  function drawLeaf(leaf: Leaf, probability:number, fill_c: p5.Color) {
+    let {x, y, w, h, angle, start, stop} = leaf
+    let typeOfLeaf = p.random(0,1) > probability ? "full" : "outline";
     
     if (typeOfLeaf === "full") {
       drawFullLeaf()
@@ -316,7 +330,7 @@ const mySketch = (p: p5) => {
       p.fill(fill_c)
       p.translate(x,y);
       p.rotate(angle);
-      p.arc(0, 0, h, w, 0, TWO_PI);
+      p.arc(0, 0, h, w, 0, p.TWO_PI);
       p.pop();
     }
   
@@ -331,9 +345,9 @@ const mySketch = (p: p5) => {
     }
   }
   
-  function drawTrunk(tree, trunkHeight, trunkWidth){
+  function drawTrunk(tree: Line[]){
     let trunkBuffer = p.createGraphics(cw, ch);
-    tree.forEach(line => {
+    tree.forEach((line: Line) => {
       let {startPoint:s, controlPoints:cps, endPoint:e} = line
   
       //Set Styles
@@ -352,29 +366,14 @@ const mySketch = (p: p5) => {
       )
       trunkBuffer.endShape();
   
-      // Erase a circle area
-      if (p.random([0,1])) randomErase();
-      
       //Unset Styles
       trunkBuffer.pop()
-  
-      function randomErase(){
-        if (!debug) trunkBuffer.fill("red")
-        trunkBuffer.noStroke(10)
-        if (!debug) trunkBuffer.erase();
-        trunkBuffer.circle(
-          s.x+p.random(-trunkWidth/2, trunkWidth/2), 
-          e.y-trunkHeight/2, 
-          50
-        );
-        if (!debug) trunkBuffer.noErase();
-      }
     })
   
     p.image(trunkBuffer, 0, 0)
   }
   
-  function drawGroundLine(xStart, yStart, xEnd, fill_c){
+  function drawGroundLine(xStart: number, yStart: number, xEnd: number, fill_c: p5.Color) {
     let x = xStart;
     let y = yStart;
     p.stroke(fill_c);
@@ -382,7 +381,7 @@ const mySketch = (p: p5) => {
     fill_c ? p.fill(fill_c) : p.noFill()
     
     while (x < xEnd){
-      let tickLength;
+      let tickLength = 0;
       let tickBump = p.random(-4, 0);
       let tickType = p.random(["long", "short", "long", "short", "space"]);
   
