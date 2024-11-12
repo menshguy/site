@@ -14,12 +14,18 @@ interface Doodle {
 }
 
 const rawDoodles: Doodle[] = [
-  {bg: 'red', href: "/fallsunlight"}, {bg: 'blue', href:"/fallbreeze"}, {bg: 'green', href: "/seasonalforests"}, 
-  {bg: 'yellow', href: 'tree1'}, {bg: 'purple', href: 'tree2'}, {bg: 'orange', href: 'tree3'}, 
-  {bg: 'pink', href: 'tree4'}, {bg: 'brown', href: 'tree5'}, 
-  // {bg: 'gray', href: 'rowhome1'}, 
-  {bg: 'yellow', href: 'rowhome2'},
-  {bg: 'beige', href: 'rowhome3'}, {bg: 'green', href: 'bezierdemo'}
+  {bg: 'red', title:"Fall Sunlight", href: "/fallsunlight"}, 
+  {bg: 'blue', title:"Fall Breeze", href:"/fallbreeze"}, 
+  {bg: 'green', title:"Seasonal Forests", href: "/seasonalforests"}, 
+  {bg: 'yellow', title:"Tree 1", href: '/tree1'}, 
+  {bg: 'purple', title:"Tree 2", href: '/tree2'}, 
+  {bg: 'orange', title:"Tree 3", href: '/tree3'}, 
+  {bg: 'pink', title:"Tree 4", href: '/tree4'}, 
+  {bg: 'brown', title:"Tree 5", href: '/tree5'}, 
+  // {bg: 'gray', title:, href: 'rowhome1'}, 
+  {bg: 'yellow', title:"Rowhomes", href: '/rowhome2'},
+  {bg: 'beige', title:"Rowhomes and Trees", href: '/rowhome3'}, 
+  {bg: 'green', title:"Bezier demo", href: '/bezierdemo'}
 ]
 
 function App() {

@@ -22,10 +22,10 @@ const mySketch = (p: p5) => {
     let numTrees = p.floor(p.random(5, 12))
     let x = 100;
     for (let i = 0; i < numTrees; i++) {
-      let w = 0 // Not using yet
+      let _w = 0 // Not using yet
       let h = p.floor(p.random(100,200))
       let y = bottom - h
-      marker_line(x, y, w, h)
+      marker_line(x, y, _w, h)
       x += p.random(10, p.width/numTrees);
     }
   }
