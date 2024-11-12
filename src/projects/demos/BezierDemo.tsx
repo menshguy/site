@@ -1,25 +1,19 @@
-
-
-
-
-
-
-
-
-
-
-
-
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
+import p5 from 'p5'
 
+interface Line {
+  startPoint: { x: number; y: number };
+  endPoint: { x: number; y: number };
+  controlPoints: { x: number; y: number }[];
+  isDragging?: { i: number } | false;
+}
 
 const mySketch = (p: p5) => {
   let cw = 600;
   let ch = 600;
   let bottom = 100;
-  let x1, x2, y1, y2, endX, endY;
-  let lines = []
+  let lines: Line[] = []
   
   p.setup = () => {
     p.createCanvas(cw, ch);
