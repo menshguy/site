@@ -1,16 +1,15 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { Season, Leaf, Point, BoundaryPoint, Trunk } from './types';
+import { Season, Leaf, Point, BoundaryPoint, Trunk, Line} from './types';
 
 const mySketch = (p: p5) => {
-
   let cw: number, ch: number;
   let bottom = 20;
   let textureImg: p5.Image;
   let debug = false;
   let colors: Record<Season, p5.Color[]>;
-  let colorsSunlight: Record<Season, () => p5.Color>;;
+  let colorsSunlight: Record<Season, () => p5.Color>;
   let bgColors: Record<Season, p5.Color>;;
   let forest: Forest;
   let season: Season;
@@ -197,9 +196,7 @@ const mySketch = (p: p5) => {
     p.blendMode(p.BLEND); 
 
     // Draw SunLeavs last (so the colors are not muted by the texture)
-    forest.sunLeaves.forEach(l => {
-      drawSunLeaf(l)
-    });
+    forest.sunLeaves.forEach(leaf => drawSunLeaf(leaf));
   }
 
   class Forest {
@@ -223,9 +220,19 @@ const mySketch = (p: p5) => {
     fills: any[];
 
     constructor({
-      forestHeight, numTrunks, numLinesPerTrunk, leafWidth, numPointsPerRow, 
-      numLeavesPerPoint, rowHeight, startCoords, trunkHeight, trunkWidth, pointsStart,
-      pointBoundaryRadius, fills
+      forestHeight, 
+      numTrunks, 
+      numLinesPerTrunk, 
+      leafWidth, 
+      numPointsPerRow, 
+      numLeavesPerPoint, 
+      rowHeight, 
+      startCoords, 
+      trunkHeight, 
+      trunkWidth, 
+      pointsStart,
+      pointBoundaryRadius, 
+      fills
     }: {
       forestHeight: number;
       numTrunks: number;
@@ -310,7 +317,6 @@ const mySketch = (p: p5) => {
 
       let total_h = p.height - bottom - forestHeight;
       for(let i = pointsStart; i > total_h; i-=rowHeight){
-
         let min_y = i;
         let max_y = i - rowHeight;
         for(let j=0; j < numPointsPerRow; j++){
@@ -377,15 +383,15 @@ const mySketch = (p: p5) => {
             let fill_c = p.random(fills)
             
             //Angle leaf towards startCoords of its boundary
-            let angle = p.random(b.start, b.stop)
-            let r = p.random(0, b.radius/2)
+            let angle = b ? p.random(b.start, b.stop) : 0
+            let r = b ? p.random(0, b.radius/2) : 0
 
             //If angle is in sunlight (~upper left of boundary), push into sunLeaf array
             let isSunLeaf = false;
             if (angle > p.HALF_PI + p.QUARTER_PI && angle < p.TWO_PI-p.QUARTER_PI){
               if(p.random([0,0,0,0,0,0,1])) {
                 fill_c = colorsSunlight[season]();
-                r = p.random(b.radius/3, b.radius/2)
+                r = b ? p.random(b.radius/3, b.radius/2) : 0
                 leaf_w += 1
                 leaf_h += 1
                 isSunLeaf = true
@@ -396,7 +402,7 @@ const mySketch = (p: p5) => {
             let x = px + (p.cos(angle) * r);
             let isFallenLeaf = py + (p.sin(angle) * r) >= (p.height-bottom) //If py is below the ground, we flag it so we can create fallen leaves later
             let y = isFallenLeaf //If y is below bottom (ground), set to y to bottom with some variance to draw "fallen leaves"
-              ? season === "summer" ? ch + 100 : p.height-bottom+p.random(0,15) // remove fallen leaves from screen in summer!
+              ? season === "summer" ? ch + 100 : p.height - bottom + p.random(0, 15) // remove fallen leaves from screen in summer!
               : py + (p.sin(angle) * r);
             angle = isFallenLeaf ? p.PI : angle; //Angle fallen leaves horizonally
             
@@ -485,8 +491,8 @@ const mySketch = (p: p5) => {
 
   function drawTrunk(trunk: Trunk) {
     let trunkBuffer = p.createGraphics(cw, ch);
-    trunk.forEach(line => {
-      let {startPoint: s, controlPoints: cps, endPoint: e} = line
+    trunk.forEach((line: Line) => {
+      let {startPoint: s, controlPoints: cps, endPoint: e} = line;
 
       //Set Styles
       trunkBuffer.push()
