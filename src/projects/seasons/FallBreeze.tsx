@@ -406,31 +406,31 @@ const mySketch = (p: p5) => {
     p.image(trunkBuffer, 0, 0);
   }
 
-  function drawTrunk(lines: Line[]){
-    let trunkBuffer = p.createGraphics(cw, ch);
-    lines.forEach(line => {
-      let {startPoint:s, controlPoints:cps, endPoint:e} = line
+  // function drawTrunk(lines: Line[]){
+  //   let trunkBuffer = p.createGraphics(cw, ch);
+  //   lines.forEach(line => {
+  //     let {startPoint:s, controlPoints:cps, endPoint:e} = line
   
-      //Set Styles
-      trunkBuffer.push()
-      trunkBuffer.stroke('black')
-      trunkBuffer.strokeWeight(1);
-      trunkBuffer.noFill()
+  //     //Set Styles
+  //     trunkBuffer.push()
+  //     trunkBuffer.stroke('black')
+  //     trunkBuffer.strokeWeight(1);
+  //     trunkBuffer.noFill()
   
-      // -- Curve Style -- //
-      trunkBuffer.beginShape();
-      trunkBuffer.vertex(s.x, s.y)
-      trunkBuffer.bezierVertex(
-        cps[0].x, cps[0].y,
-        cps[1].x, cps[1].y,
-        e.x, e.y
-      )
-      trunkBuffer.endShape();
-      trunkBuffer.pop(); //Unset Styles
-    })
+  //     // -- Curve Style -- //
+  //     trunkBuffer.beginShape();
+  //     trunkBuffer.vertex(s.x, s.y)
+  //     trunkBuffer.bezierVertex(
+  //       cps[0].x, cps[0].y,
+  //       cps[1].x, cps[1].y,
+  //       e.x, e.y
+  //     )
+  //     trunkBuffer.endShape();
+  //     trunkBuffer.pop(); //Unset Styles
+  //   })
   
-    p.image(trunkBuffer, 0, 0)
-  }
+  //   p.image(trunkBuffer, 0, 0)
+  // }
 
   function getPointBoundary(
     max_r: {min: number, max: number}, 

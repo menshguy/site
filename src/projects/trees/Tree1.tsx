@@ -60,7 +60,7 @@ const mySketch = (p: p5) => {
   function marker_line (
     x: number, 
     y: number, 
-    w: number, 
+    _w: number, 
     h: number, 
     settings?:{stroke_c: p5.Color, stroke_w: number}
   ) {
