@@ -1,17 +1,15 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { Season, Leaf, Point, BoundaryPoint, Line, Trunk } from './types';
-
+import { Season, Leaf, Line } from './types';
 
 const mySketch = (p: p5) => {
   let cw: number, ch: number;
   let bottom = 20;
-  let debug = false;
+  let debug = true;
   let forest: Forest;
   let season: Season;
   let colors: Record<Season, p5.Color[]>;
-  // let colorsSunlight: Record<Season, () => p5.Color>;;
   let bgColors: Record<Season, p5.Color>;;
   let textureImg: p5.Image;
   
@@ -88,14 +86,6 @@ const mySketch = (p: p5) => {
       fall: p.color(39, 26, 73) //brown
     }
 
-    let w = p.width/10
-    let rowWidthIncrementSizes = {
-      summer: () => p.random(-100, 100), 
-      winter: () => p.random(-w, w), 
-      spring: () => p.random(-w, w), 
-      fall: () => p.random(-w, w)
-    }
-  
     let forestHeights = {
       summer: p.random(ch/2, ch),
       winter: p.random(50, 150),
@@ -127,18 +117,23 @@ const mySketch = (p: p5) => {
     let pointBoundaryRadius: { min: number; max: number } = { min: 0, max: 0 }; // Initialize with default values;
     let numPointsPerRow: number = 0;
     let numLeavesPerPoint: number = 0;
-    if (season === 'spring' || season === 'fall') {
-      pointBoundaryRadius = {min: 100, max: 250}; // Example values for spring
-      numPointsPerRow = p.random(p.width/100 , p.width/60); // Example values for spring
-      numLeavesPerPoint = p.random(1000, 1200); // Example values for spring
-    } else if (season === 'summer') {
-      pointBoundaryRadius = {min: 100, max: 220}; // Example values for fall
-      numPointsPerRow = p.random(p.width/100 , p.width/50); // Example values for fall
-      numLeavesPerPoint = p.random(800, 100); // Example values for fall
-    } else if (season === 'winter') {
-      pointBoundaryRadius = {min: 150, max: 200}; // Example values for winter
-      numPointsPerRow = p.random(1, 3); // Example values for winter
-      numLeavesPerPoint = p.random(3, 5); // Example values for winter
+    switch(season){
+      case "fall":
+      case "spring":
+        pointBoundaryRadius = {min: 100, max: 250}; // Example values for spring
+        numPointsPerRow = p.random(p.width/100 , p.width/60); // Example values for spring
+        numLeavesPerPoint = p.random(1000, 1200); // Example values for spring
+        break;
+      case "summer":
+        pointBoundaryRadius = {min: 100, max: 220}; // Example values for fall
+        numPointsPerRow = p.random(p.width/100 , p.width/50); // Example values for fall
+        numLeavesPerPoint = p.random(800, 100); // Example values for fall
+        break;
+      case "winter":
+        pointBoundaryRadius = {min: 150, max: 200}; // Example values for winter
+        numPointsPerRow = p.random(1, 3); // Example values for winter
+        numLeavesPerPoint = p.random(3, 5); // Example values for winter
+        break;
     }
 
     let pointsStart = p.height - bottom - pointBoundaryRadius.min;
@@ -159,8 +154,7 @@ const mySketch = (p: p5) => {
       trunkWidth,
       pointsStart,
       pointBoundaryRadius,
-      fills, 
-      rowWidthIncrementSizes
+      fills
     })
   }
   
@@ -208,7 +202,6 @@ const mySketch = (p: p5) => {
     pointsStart: number;
     pointBoundaryRadius: {min: number, max: number};
     fills: any[];
-    rowWidthIncrementSizes: Record<Season, () => number>;
 
     constructor({
       forestHeight, 
@@ -224,7 +217,6 @@ const mySketch = (p: p5) => {
       pointsStart,
       pointBoundaryRadius, 
       fills, 
-      rowWidthIncrementSizes
     }: {
       forestHeight: number;
       numTrunks: number;
@@ -239,7 +231,6 @@ const mySketch = (p: p5) => {
       pointsStart: number;
       pointBoundaryRadius: { min: number; max: number };
       fills: p5.Color[];
-      rowWidthIncrementSizes: Record<Season, () => number>
     }){
       this.forestHeight = forestHeight;
       this.numTrunks = numTrunks; 
@@ -254,7 +245,6 @@ const mySketch = (p: p5) => {
       this.pointsStart = pointsStart;
       this.pointBoundaryRadius = pointBoundaryRadius; 
       this.fills = fills;
-      this.rowWidthIncrementSizes = rowWidthIncrementSizes;
       this.midpoint = {x: startCoords.x ,y: startCoords.y - forestHeight/2}
       this.trunks = this.generateTrunks();
       this.points = this.generatePoints();
@@ -302,32 +292,33 @@ const mySketch = (p: p5) => {
     }
   
     generatePoints(){
-      let {forestHeight, numPointsPerRow, rowHeight, pointsStart, rowWidthIncrementSizes, midpoint:m} = this;
+      let {forestHeight, numPointsPerRow, rowHeight, pointsStart, midpoint:m} = this;
       let points = [];
+      
       let min_x = p.width/10;
       let max_x = p.width - (p.width/10);
-  
       let total_h = p.height - bottom - forestHeight;
       for(let i = pointsStart; i > total_h; i-=rowHeight){
+        
         let min_y = i;
         let max_y = i - rowHeight;
         for(let j=0; j < numPointsPerRow; j++){
+          
           let x = p.random(min_x, max_x);
           let y = p.random(min_y, max_y)
           let boundary = this.generatePointBoundary(x, y, m.x, m.y)
-          
-          // Push Point
-          points.push({x, y, boundary})
+          points.push({x, y, boundary}); // Push Point
             
           if (debug) { 
             p.fill("red");
             p.circle(x,y,5);
           }
         }
-  
-        //Increment min/max x, while making sure we dont exceed midpoint. Otherwise, you will just start an inverted triange shape and end up with an hour glass
-        min_x += min_x > p.width/2 ? 0 : rowWidthIncrementSizes[season]();
-        max_x += max_x < p.width/2 ? 0 : rowWidthIncrementSizes[season]();
+
+        //Increment min/max x, while making sure we dont exceed midpoint.
+        let w = p.width/10;
+        min_x += min_x > p.width/2 ? 0 : p.random(-w, w);
+        max_x += max_x < p.width/2 ? 0 : p.random(-w, w);
       }
             
       return points;
@@ -373,8 +364,8 @@ const mySketch = (p: p5) => {
           let angle = p.random(b.start, b.stop)
           let r = p.random(0, b.radius/2) 
           
-          //Calculate polar coordinates
-          let isFallenLeaf = py + (p.sin(angle) * r) >= (p.height-bottom) //If py is below the ground, we flag it so we can create fallen leaves later
+          //Calculate cartesian coords from polar coordinates
+          let isFallenLeaf = py + (p.sin(angle) * r) >= (p.height - bottom) //If py is below the ground, we flag it so we can create fallen leaves later
           let x = px + (p.cos(angle) * r);
           let y = isFallenLeaf //If y is below bottom (ground), set to y to bottom with some variance to draw "fallen leaves"
             ? season === "summer"
@@ -404,7 +395,7 @@ const mySketch = (p: p5) => {
             p.circle(x,y,leaf_w)
           }
         }
-        num = num > 5 ? num - 10 : 5; //Decrease number of leaves per point until 5 leaf minimum
+        // num = num > 5 ? num - 10 : 5; //Decrease number of leaves per point until 5 leaf minimum
       })
       return leaves;
     }
@@ -530,8 +521,8 @@ const mySketch = (p: p5) => {
   
   p.mousePressed = () => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      p.setup();
       p.clear();
+      p.setup();
       p.redraw();
     }
   }
