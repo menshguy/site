@@ -1,9 +1,14 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
+import p5 from 'p5';
+import { RowhomeConfig, FloorSectionConfig } from './types.ts';
 
 const mySketch = (p: p5) => {
-  let buffers, rowhomes, bottom;
-  let cw, ch;
+  let buffers: p5.Graphics[] = [];
+  let rowhomes: Rowhome[] = [];
+  let bottom: number;
+  let cw: number;
+  let ch: number;
   
   p.setup = () => {
     cw = 600;
@@ -19,34 +24,34 @@ const mySketch = (p: p5) => {
     const w = p.random(ch/6, cw);
     const x = (p.width - w) / 2;
     const y = p.height - bottom;
-    const fill_c = p.color(23, 100, 54)
+    const fill_c = p.color(23, 100, 54);
     const rowhome = new Rowhome({x, y, w, h, fill_c});
-    rowhomes.push(rowhome)
+    rowhomes.push(rowhome);
   
     const lh = p.random(ch/3, ch);
     const lw = p.random(ch/6, cw);
     const lx = (x - lw) - 2;
     const ly = p.height - bottom;
-    const fill_lc = p.color(23, 100, 94)
-    const rowhome_left = new Rowhome({x:lx, y:ly, w:lw, h:lh, fill_c:fill_lc})
-    rowhomes.push(rowhome_left)
+    const fill_lc = p.color(23, 100, 94);
+    const rowhome_left = new Rowhome({x: lx, y: ly, w: lw, h: lh, fill_c: fill_lc});
+    rowhomes.push(rowhome_left);
   
     const rh = p.random(ch/3, ch);
     const rw = p.random(ch/6, cw);
     const rx = (x + w) + 2;
     const ry = p.height - bottom;
-    const fill_rc = p.color(23, 100, 94)
-    const rowhome_right = new Rowhome({x:rx, y:ry, w:rw, h:rh, fill_c:fill_rc})
-    rowhomes.push(rowhome_right)
+    const fill_rc = p.color(23, 100, 94);
+    const rowhome_right = new Rowhome({x: rx, y: ry, w: rw, h: rh, fill_c: fill_rc});
+    rowhomes.push(rowhome_right);
   
     if (lx > 0) {
       const h = p.random(ch/3, ch);
       const w = p.random(ch/6, cw);
       const x = (lx - w) - 2; 
       const y = p.height - bottom;
-      const fill_c = p.color(23, 100, 94)
-      const rowhome_left = new Rowhome({x, y, w, h, fill_c})
-      rowhomes.push(rowhome_left)
+      const fill_c = p.color(23, 100, 94);
+      const rowhome_left = new Rowhome({x, y, w, h, fill_c});
+      rowhomes.push(rowhome_left);
     }
   
     if (rx + rw < p.width) {
@@ -54,9 +59,9 @@ const mySketch = (p: p5) => {
       const w = p.random(ch/6, cw);
       const x = (rx + w) + 2; 
       const y = p.height - bottom;
-      const fill_c = p.color(23, 100, 94)
-      const rowhome_right = new Rowhome({x, y, w, h, fill_c})
-      rowhomes.push(rowhome_right)
+      const fill_c = p.color(23, 100, 94);
+      const rowhome_right = new Rowhome({x, y, w, h, fill_c});
+      rowhomes.push(rowhome_right);
     }
   }
   
@@ -65,20 +70,30 @@ const mySketch = (p: p5) => {
     p.noStroke();
     p.noLoop();
     
-    buffers.forEach(buffer => { buffer?.clear() })
-    rowhomes.forEach(rowhome => rowhome.draw())
-    marker_rect(0, p.height-bottom, p.width, bottom, p.color(204, 14, 60))
+    buffers.forEach(buffer => { buffer?.clear() });
+    rowhomes.forEach(rowhome => rowhome.draw());
+    marker_rect(0, p.height-bottom, p.width, bottom, p.color(204, 14, 60));
   }
   
   class Rowhome {
-    constructor ({x, y, w, h, fill_c="red", stroke_c="black"}) {
-      Object.assign(this, {x, y, w, h, fill_c, stroke_c})
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    fill_c: p5.Color | string;
+    stroke_c: p5.Color | string;
+    configs: { min: number; max: number; proportion: number; content: string[] }[];
+    numFloors: number;
+    totalHeight: number;
+    allFloors: FloorSection[][];
+
+    constructor({x, y, w, h, fill_c, stroke_c}: RowhomeConfig) {
       this.x = x;
       this.y = y;
       this.w = w;
       this.h = h;
-      this.fill_c = fill_c;
-      this.stroke_c = stroke_c;
+      this.fill_c = fill_c || "red";
+      this.stroke_c = stroke_c || "black";
       this.configs = [
         {min:0,   max:80,  proportion:p.random([0, p.random(0.05, 0.1)]),    content:['window']},
         {min:100, max:200, proportion:p.random(0.25, 0.35),                content:['window', 'window']},
@@ -86,33 +101,41 @@ const mySketch = (p: p5) => {
         {min:0,   max:150, proportion:p.random([0, p.random(0.2, 0.25)]),    content:['circle', 'window']},
         {min:0,   max:150, proportion:p.random([0, p.random(0.2, 0.25)]),    content:['circle', 'window']},
         {min:20,   max:150, proportion:p.random(0.05, 0.25),               content:['circle', 'window']},
-      ]
+      ];
       this.numFloors = this.configs.length;
       this.totalHeight = this.configs.reduce((a, b) => a + b.proportion, 0);
       this.allFloors = this.generateAllFloors();
     }
     
-    generateAllFloors() {
+    generateAllFloors(): FloorSection[][] {
       let {x, y, w, h, totalHeight, configs} = this;
-      return configs.map((config, i) => {
+      return configs.map((config) => {
         let fh = h/totalHeight * config.proportion;
         if (fh > config.max) fh = config.max;
         if (fh < config.min) fh = config.min;
         y -= fh;
-        return this.generateFloorSections({x, y, w, h:fh, config})
-      })
+        return this.generateFloorSections({
+          x, 
+          y, 
+          w, 
+          h: fh, 
+          config, 
+          content: config.content, 
+          fill_c: this.fill_c
+        });
+      });
     }
     
-    generateFloorSections({x, y, w, h, config}){
-      let {fill_c, numFloors} = this;
-      let {content} = config
-      let numCols = p.random([2,2,3,3,3,4,4,4,4,5])
-      let sectionProportions = getSectionProportions(numCols)
-      let sections = getSections(sectionProportions, numCols)
+    generateFloorSections({x, y, w, h, config}: FloorSectionConfig): FloorSection[] {
+      let {fill_c} = this;
+      let {content} = config;
+      let numCols = p.random([2,2,3,3,3,4,4,4,4,5]);
+      let sectionProportions = getSectionProportions(numCols);
+      let sections = getSections(sectionProportions, numCols);
       return sections;
       
-      function getSectionProportions(numCols) {
-        let sectionProportions = [];
+      function getSectionProportions(numCols: number): number[] {
+        let sectionProportions: number[] = [];
         let remainder = numCols;
         for (let j = 0; j < numCols; j++) {
           let value = j === numCols - 1 ? remainder : p.floor(p.random(0, remainder + 1));
@@ -122,21 +145,21 @@ const mySketch = (p: p5) => {
         return sectionProportions;
       }
       
-      function getSections(sectionProportions, numCols) {
+      function getSections(sectionProportions: number[], numCols: number): FloorSection[] {
         let sx = x;
         return sectionProportions.map(proportion => {
-          let sw = (w/numCols) * proportion
+          let sw = (w/numCols) * proportion;
           let floorSection = new FloorSection({
-            x:sx, y, w:sw, h, content: p.random(content), fill_c
+            x: sx, y, w: sw, h, content: p.random(content), fill_c
           });
           sx += sw;
           return floorSection;
-        })
+        });
       }
     }
   
-    drawFullHouseForTesting(){
-      let {x,y,w,h} = this;
+    drawFullHouseForTesting() {
+      let {x, y, w, h} = this;
       p.fill("red");
       p.rect(x-5, ch-y-5, w+10, h+10);
       p.noFill();
@@ -147,7 +170,7 @@ const mySketch = (p: p5) => {
       allFloors.forEach(floor => {
         floor.forEach(floor_section => {
           if(floor_section.w) floor_section.draw();
-        })
+        });
       });
     }
   
@@ -158,42 +181,58 @@ const mySketch = (p: p5) => {
   }
   
   class FloorSection {
-    constructor({x, y, w, h, content, fill_c="yellow", stroke_c = "black"}){
-      let fill_c_dark = p.color(p.hue(fill_c), p.saturation(fill_c), p.max(0, p.lightness(fill_c) - 10));
-      Object.assign(this, {x, y, w, h, content, stroke_c, fill_c, fill_c_dark})
+    x!: number;
+    y!: number;
+    w!: number;
+    h!: number;
+    content!: string;
+    fill_c!: p5.Color;
+    stroke_c!: string;
+    fill_c_dark: p5.Color;
+
+    constructor({x, y, w, h, content, fill_c, stroke_c}: FloorSectionConfig) {
+      const fill_c_dark = p.color(p.hue(fill_c), p.saturation(fill_c), p.max(0, p.lightness(fill_c) - 10));
+      this.x = x;
+      this.y = y; 
+      this.w = w; 
+      this.h = h; 
+      this.content = content; 
+      this.stroke_c = stroke_c || p.color("black").toString();
+      this.fill_c = fill_c ? fill_c.toString() : "yellow";
+      this.fill_c_dark = fill_c_dark;
     }
   
     setStyles() {
-      let {fill_c, fill_c_dark, stroke_c} = this;
-      p.stroke(fill_c_dark)
-      p.strokeWeight(1)
-      p.fill(fill_c)
+      let {fill_c, fill_c_dark} = this;
+      p.stroke(fill_c_dark);
+      p.strokeWeight(1);
+      p.fill(fill_c);
     }
   
     unSetStyles() {
       p.noStroke();
-      p.noFill()
+      p.noFill();
     }
   
     drawFloorBG() {
-      let {x,y,w,h} = this;
-      p.rect(x,y,w,h)
+      let {x, y, w, h} = this;
+      p.rect(x, y, w, h);
     }
   
     drawContent() {
-      let {x, y, w, h, fill_c_dark, content, i} = this;
+      let {x, y, w, h, fill_c_dark, content} = this;
       switch (content) {
         case "door":
-          drawDoor(x, y, w, h, fill_c_dark)
+          drawDoor(x, y, w, h, fill_c_dark);
           break;
         case "window":
-          drawWindow(x, y, w, h, fill_c_dark)
+          drawWindow(x, y, w, h, fill_c_dark);
           break;
         case "circle":
-          drawWindow(x, y, w, h, fill_c_dark)
+          drawWindow(x, y, w, h, fill_c_dark);
           break;
         default:
-          console.error("Section content does not exist:", content, i)
+          console.error("Section content does not exist:", content);
           break;
       }
     }
@@ -235,7 +274,7 @@ const mySketch = (p: p5) => {
     }
   }
   
-  function drawDoor (x, y, w, h, fill_c) {
+  function drawDoor(x: number, y: number, w: number, h: number, fill_c: p5.Color) {
     let sw = p.random(40, 50);
     let sh = p.random(80, 100);
   
@@ -246,12 +285,12 @@ const mySketch = (p: p5) => {
     let sy = y + h - sh;
   
     p.fill(fill_c);
-    p.noStroke()
+    p.noStroke();
     p.rect(sx, sy, sw, sh); 
     p.noFill();
   }
   
-  function drawWindow (x, y, w, h, fill_c) {
+  function drawWindow(x: number, y: number, w: number, h: number, fill_c: p5.Color) {
     let sx = x + 5;
     let sy = y + 5;
     let sw = w - 10;
@@ -262,7 +301,7 @@ const mySketch = (p: p5) => {
     p.noFill();
   }
   
-  function drawCircle (x, y, w, h, fill_c) {
+  function drawCircle(x: number, y: number, w: number, h: number, fill_c: p5.Color) {
     let sx = x + 5;
     let sy = y + 5;
     let sw = w - 10;
@@ -273,17 +312,16 @@ const mySketch = (p: p5) => {
     p.noFill();
   }
   
-  function drawAwning (x, y, w, h, fill_c) {
-    p.fill(fill_c)
+  function drawAwning(x: number, y: number, w: number, h: number, fill_c: p5.Color) {
+    p.fill(fill_c);
     p.quad(x, y, x+w, y+10, x-10, y+10, x+w+10, y+10);
-    p.noFill()
+    p.noFill();
   }
   
-  function marker_rect (x, y, w, h, fill_c = "white", stroke_c = "black") {
-    
-    p.stroke(stroke_c)
-    p.fill(fill_c)
-    p.rect(x, y, w, h)
+  function marker_rect(x: number, y: number, w: number, h: number, fill_c: p5.Color = p.color("white"), stroke_c: string = "black") {
+    p.stroke(stroke_c);
+    p.fill(fill_c);
+    p.rect(x, y, w, h);
   
     for (let i = 0; i < 3; i++) {
       let xOffset = p.random(-5, 4);
@@ -318,11 +356,11 @@ const mySketch = (p: p5) => {
       );
     }
   
-    p.noStroke()
-    p.noFill()
+    p.noStroke();
+    p.noFill();
   }
   
-  function drawTextureHatches(_x, _y, w, h, buffer) {
+  function drawTextureHatches(_x: number, _y: number, w: number, h: number, buffer: p5.Graphics) {
     let lineSpacing = 6;
     let length = 20;
     let angle = p.PI / 4;
@@ -334,10 +372,10 @@ const mySketch = (p: p5) => {
     }
   }
   
-  function drawSquigglyLine(x, y, length, angle, buffer) {
+  function drawSquigglyLine(x: number, y: number, length: number, angle: number, buffer: p5.Graphics) {
     let segments = p.floor(length / 5);
     let amp = 1;
-    buffer.stroke("grey")
+    buffer.stroke("grey");
     buffer.strokeWeight(0.5);
   
     buffer.beginShape();
@@ -351,18 +389,6 @@ const mySketch = (p: p5) => {
       buffer.vertex(px, py);
     }
     buffer.endShape();
-  }
-  
-  function sumArray(arr) {
-    return arr.reduce((a, b) => a + b, 0);
-  }
-  
-  function shuffleArray(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
   }
   
   p.mousePressed = () => {
