@@ -154,14 +154,23 @@ const mySketch = (p: p5) => {
     }
     let pointsStart = p.height - bottom - pointBoundaryRadius.min;
     let leafWidth = p.random(2, 3);
-    let rowHeight = season === "fall" ? 30 : 20; //x points will drawn p.randominly in each row. rows increment up by this amount
-    
+    let rowHeight = 30; //x points will drawn p.randominly in each row. rows increment up by this amount
 
     /** Create Tree */
     forest = new Forest({
-      forestHeight, numTrunks, numLinesPerTrunk, leafWidth, numPointsPerRow, 
-      numLeavesPerPoint, rowHeight, startCoords, trunkHeight, trunkWidth, pointsStart,
-      pointBoundaryRadius, fills
+      startCoords, 
+      forestHeight, 
+      numTrunks, 
+      numLinesPerTrunk, 
+      trunkHeight, 
+      trunkWidth, 
+      leafWidth, 
+      numPointsPerRow, 
+      numLeavesPerPoint, 
+      rowHeight, 
+      pointsStart,
+      pointBoundaryRadius, 
+      fills
     })
   }
 
