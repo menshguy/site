@@ -82,7 +82,7 @@ function App() {
   return (
     <>
       <div style={backgroundGridStyles as CSSProperties}>
-        {Array(gridColumns * 2 * gridColumns).fill({}).map((elem, idx) =>
+        {Array(gridColumns * 2 * gridColumns).fill({}).map((_elem, idx) =>
           <div 
             key={idx} 
             className="grid-item"

@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { TreeConfig, RowhomeConfig, FloorSectionConfig } from './types.ts';
+import { TreeConfig, RowhomeConstructor, FloorSectionConstructor } from './types.ts';
 
 const mySketch = (p: p5) => {
   let buffers: p5.Graphics[] = [];
@@ -269,7 +269,10 @@ const mySketch = (p: p5) => {
     totalHeight: number;
     allFloors: FloorSection[][];
 
-    constructor({ x, y, w, h, fill_c, stroke_c = p.color('black') }: RowhomeConfig) {
+    constructor(
+      { x, y, w, h, fill_c, stroke_c = p.color('black') }: 
+      RowhomeConstructor
+    ) {
       this.x = x;
       this.y = y;
       this.w = w;
@@ -313,7 +316,7 @@ const mySketch = (p: p5) => {
      * @example [FloorSection, FloorSection, ...]
      */
     generateFloorSections({ x, y, w, h, config }: any) {
-      const { fill_c } = this;
+      const { fill_c, stroke_c } = this;
       const { content } = config;
       const numCols = p.random([2, 2, 3, 3, 3, 4, 4, 4, 4, 5]);
       const sectionProportions = getSectionProportions(numCols);
@@ -345,6 +348,7 @@ const mySketch = (p: p5) => {
             h,
             content: p.random(content) as unknown as string,
             fill_c,
+            stroke_c
           });
           sx += sw;
           return floorSection;
@@ -393,7 +397,7 @@ const mySketch = (p: p5) => {
       content, 
       fill_c = p.color('yellow'), 
       stroke_c = p.color('black') 
-    }: FloorSectionConfig) {
+    }: FloorSectionConstructor) {
       const fill_c_dark = p.color(p.hue(fill_c), p.saturation(fill_c), p.max(0, p.lightness(fill_c) - 10));
       this.x = x; 
       this.y = y; 

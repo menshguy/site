@@ -10,7 +10,7 @@ import Tree2 from './projects/trees/Tree4.tsx';
 import Tree3 from './projects/trees/Tree3.tsx';
 import Tree4 from './projects/trees/Tree2.tsx';
 import Tree5 from './projects/trees/Tree1.tsx';
-import Rowhome1 from './projects/rowhomes/_Rowhome1.tsx';
+// import Rowhome1 from './projects/rowhomes/Rowhome1.tsx';
 import Rowhome2 from './projects/rowhomes/Rowhome2.tsx';
 import Rowhome3 from './projects/rowhomes/Rowhome3.tsx';
 import BezierDemo from './projects/demos/BezierDemo.tsx';

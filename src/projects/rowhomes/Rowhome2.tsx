@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { RowhomeConfig, FloorSectionConfig } from './types.ts';
+import { RowhomeConstructor, FloorSectionConstructor, FloorSectionGenerator } from './types.ts';
 
 const mySketch = (p: p5) => {
   let buffers: p5.Graphics[] = [];
@@ -80,27 +80,30 @@ const mySketch = (p: p5) => {
     y: number;
     w: number;
     h: number;
-    fill_c: p5.Color | string;
-    stroke_c: p5.Color | string;
+    fill_c: p5.Color;
+    stroke_c: p5.Color;
     configs: { min: number; max: number; proportion: number; content: string[] }[];
     numFloors: number;
     totalHeight: number;
     allFloors: FloorSection[][];
 
-    constructor({x, y, w, h, fill_c, stroke_c}: RowhomeConfig) {
+    constructor(
+      {x, y, w, h, fill_c, stroke_c}: 
+      RowhomeConstructor
+    ) {
       this.x = x;
       this.y = y;
       this.w = w;
       this.h = h;
-      this.fill_c = fill_c || "red";
-      this.stroke_c = stroke_c || "black";
+      this.fill_c = fill_c || p.color("red") 
+      this.stroke_c = stroke_c || p.color("black")
       this.configs = [
-        {min:0,   max:80,  proportion:p.random([0, p.random(0.05, 0.1)]),    content:['window']},
-        {min:100, max:200, proportion:p.random(0.25, 0.35),                content:['window', 'window']},
-        {min:100, max:150, proportion:p.random([0, p.random(0.2, 0.25)]),    content:['circle', 'window']},
-        {min:0,   max:150, proportion:p.random([0, p.random(0.2, 0.25)]),    content:['circle', 'window']},
-        {min:0,   max:150, proportion:p.random([0, p.random(0.2, 0.25)]),    content:['circle', 'window']},
-        {min:20,   max:150, proportion:p.random(0.05, 0.25),               content:['circle', 'window']},
+        {min:0,   max:80,  proportion:p.random([0, p.random(0.05, 0.1)]), content:['window']},
+        {min:100, max:200, proportion:p.random(0.25, 0.35), content:['window', 'window']},
+        {min:100, max:150, proportion:p.random([0, p.random(0.2, 0.25)]), content:['circle', 'window']},
+        {min:0,   max:150, proportion:p.random([0, p.random(0.2, 0.25)]), content:['circle', 'window']},
+        {min:0,   max:150, proportion:p.random([0, p.random(0.2, 0.25)]), content:['circle', 'window']},
+        {min:20,  max:150, proportion:p.random(0.05, 0.25), content:['circle', 'window']},
       ];
       this.numFloors = this.configs.length;
       this.totalHeight = this.configs.reduce((a, b) => a + b.proportion, 0);
@@ -108,7 +111,7 @@ const mySketch = (p: p5) => {
     }
     
     generateAllFloors(): FloorSection[][] {
-      let {x, y, w, h, totalHeight, configs} = this;
+      let {x, y, w, h, totalHeight, configs, fill_c, stroke_c} = this;
       return configs.map((config) => {
         let fh = h/totalHeight * config.proportion;
         if (fh > config.max) fh = config.max;
@@ -119,15 +122,18 @@ const mySketch = (p: p5) => {
           y, 
           w, 
           h: fh, 
-          config, 
-          content: config.content, 
-          fill_c: this.fill_c
+          config,
+          fill_c,
+          stroke_c
         });
       });
     }
     
-    generateFloorSections({x, y, w, h, config}: FloorSectionConfig): FloorSection[] {
-      let {fill_c} = this;
+    generateFloorSections(
+      {x, y, w, h, config}: 
+      FloorSectionGenerator
+    ): FloorSection[] {
+      let{fill_c, stroke_c} = this;
       let {content} = config;
       let numCols = p.random([2,2,3,3,3,4,4,4,4,5]);
       let sectionProportions = getSectionProportions(numCols);
@@ -150,7 +156,13 @@ const mySketch = (p: p5) => {
         return sectionProportions.map(proportion => {
           let sw = (w/numCols) * proportion;
           let floorSection = new FloorSection({
-            x: sx, y, w: sw, h, content: p.random(content), fill_c
+            x: sx, 
+            y, 
+            w: sw, 
+            h, 
+            content: p.random(content), 
+            fill_c,
+            stroke_c
           });
           sx += sw;
           return floorSection;
@@ -185,21 +197,27 @@ const mySketch = (p: p5) => {
     y!: number;
     w!: number;
     h!: number;
-    content!: string;
-    fill_c!: p5.Color;
-    stroke_c!: string;
+    content: string;
+    fill_c: p5.Color;
+    stroke_c: p5.Color;
     fill_c_dark: p5.Color;
 
-    constructor({x, y, w, h, content, fill_c, stroke_c}: FloorSectionConfig) {
-      const fill_c_dark = p.color(p.hue(fill_c), p.saturation(fill_c), p.max(0, p.lightness(fill_c) - 10));
+    constructor(
+      {x, y, w, h, content, fill_c, stroke_c}:
+      FloorSectionConstructor
+    ) {
       this.x = x;
       this.y = y; 
       this.w = w; 
       this.h = h; 
       this.content = content; 
-      this.stroke_c = stroke_c || p.color("black").toString();
-      this.fill_c = fill_c ? fill_c.toString() : "yellow";
-      this.fill_c_dark = fill_c_dark;
+      this.stroke_c = stroke_c || p.color("black");
+      this.fill_c = fill_c || p.color("yellow");
+      this.fill_c_dark = p.color(
+        p.hue(fill_c), 
+        p.saturation(fill_c), 
+        p.max(0, p.lightness(fill_c) - 10)
+      );;
     }
   
     setStyles() {
@@ -301,31 +319,12 @@ const mySketch = (p: p5) => {
     p.noFill();
   }
   
-  function drawCircle(x: number, y: number, w: number, h: number, fill_c: p5.Color) {
-    let sx = x + 5;
-    let sy = y + 5;
-    let sw = w - 10;
-    let sh = h - 10;
-  
-    p.fill(fill_c);
-    p.rect(sx, sy, sw, sh); 
-    p.noFill();
-  }
-  
-  function drawAwning(x: number, y: number, w: number, h: number, fill_c: p5.Color) {
-    p.fill(fill_c);
-    p.quad(x, y, x+w, y+10, x-10, y+10, x+w+10, y+10);
-    p.noFill();
-  }
-  
   function marker_rect(x: number, y: number, w: number, h: number, fill_c: p5.Color = p.color("white"), stroke_c: string = "black") {
     p.stroke(stroke_c);
     p.fill(fill_c);
     p.rect(x, y, w, h);
   
     for (let i = 0; i < 3; i++) {
-      let xOffset = p.random(-5, 4);
-      let yOffset = p.random(-5, 6);
       
       p.line(
         x + p.random(-2, 2), 

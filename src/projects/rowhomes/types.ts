@@ -7,7 +7,7 @@ export interface TreeConfig {
   treeWidth: number;
 }
 
-export interface RowhomeConfig {
+export interface RowhomeConstructor {
   x: number;
   y: number;
   w: number;
@@ -16,13 +16,42 @@ export interface RowhomeConfig {
   stroke_c?: p5.Color;
 }
 
-export interface FloorSectionConfig {
+export interface FloorSectionConstructor {
   x: number;
   y: number;
   w: number;
   h: number;
-  config?: {};
-  content: string;
+  // config: { 
+  //   min: number; 
+  //   max: number; 
+  //   proportion: number; 
+  // };
+  content: string; 
+  stroke_c: p5.Color;
   fill_c: p5.Color;
-  stroke_c?: p5.Color;
+}
+
+export interface FloorSectionGenerator {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  fill_c: p5.Color;
+  stroke_c: p5.Color;
+  config: { 
+    min: number; 
+    max: number; 
+    proportion: number; 
+    content: string[];
+  };
+}
+
+export interface FloorSectionConstructor2 {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  config: any;
+  content: string[] | number[];
+  fill_c: p5.Color | string;
 }
