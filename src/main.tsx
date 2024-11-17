@@ -2,6 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import App from './App.tsx'
+import OneTree from './projects/seasons/OneTree.tsx';
+import Vermont from './projects/seasons/Vermont.tsx';
 import FallSunlight from './projects/seasons/FallSunlight.tsx';
 import FallBreeze from './projects/seasons/FallBreeze.tsx';
 import SeasonalForests from './projects/seasons/SeasonalForests.tsx';
@@ -21,6 +23,8 @@ createRoot(document.getElementById('root')!).render(
     <Router>
       <Routes>
         <Route path="/" element={<App />} />
+        <Route path="/vermont" element={<Vermont />} />
+        <Route path="/OneTree" element={<OneTree />} />
         <Route path="/fallsunlight" element={<FallSunlight />} />
         <Route path="/fallbreeze" element={<FallBreeze />} />
         <Route path="/seasonalforests" element={<SeasonalForests />} />

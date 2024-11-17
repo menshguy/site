@@ -14,6 +14,8 @@ interface Doodle {
 }
 
 const rawDoodles: Doodle[] = [
+  {bg: 'red', title:"Vermont", href: "/vermont"}, 
+  {bg: 'red', title:"OneTree", href: "/onetree"}, 
   {bg: 'red', title:"Fall Sunlight", href: "/fallsunlight"}, 
   {bg: 'blue', title:"Fall Breeze", href:"/fallbreeze"}, 
   {bg: 'green', title:"Seasonal Forests", href: "/seasonalforests"}, 
@@ -55,7 +57,7 @@ function App() {
   const backgroundGridStyles = {
     ...baseStyles,
     zIndex: 0,
-    background: 'red',
+    background: 'antiquewhite',
     gridTemplateColumns: `repeat(${gridColumns * 2}, ${size}px)`,
     gridTemplateRows: `repeat(${gridColumns * 2}, ${size}px)`,
     gridAutoRows: `${size}px`,
