@@ -22,7 +22,7 @@ const mySketch = (p: p5) => {
   let treesInBack: VermontTree[] = [];
   
   p.preload = () => {
-    textureImg = p.loadImage('../textures/watercolor_1.jpg');
+    textureImg = p.loadImage('../textures/coldpressed_1.PNG');
   }
   
   p.setup = () => {
@@ -30,23 +30,6 @@ const mySketch = (p: p5) => {
     p.createCanvas(cw, ch);
 
     /** Colors */
-    // colors = {
-    //   winter: (s: number = 1, l: number = 1) => () => p.color(p.random(70,130), 20*s, 70*l),
-    //   fall: (s: number = 1, l: number = 1) => () => p.color(p.random(5,45), 65*s, 100*l),
-    //   spring: (s: number = 1, l: number = 1) => () => p.color(p.random(5,45), 75*s, 100*l),
-    //   summer: (s: number = 1, l: number = 1) => () => p.color(p.random(70,125), 80*s, 55*l)
-    // }
-    // darkGreen = color(107 9.5% 37.3);
-    // lightGreen = color(74 20.2% 49.6%)
-    
-    // darkYellow = color(46 77.8% 70)
-    // lightYellow = color(42 89.9% 69)
-    
-    // darkOrange = color(27 80.6% 71.8%)
-    // lightOrange = color(28 65.7% 66.9)
-    
-    // darkRed = color(2 77.6% 79)
-    // lightRed = color(7 55.7% 76.1%)
     colors = {
       green: (s: number = 1, l: number = 1) => () => p.color(p.random(74,107), 40*s, 40.3*l),
       yellow: (s: number = 1, l: number = 1) => () => p.color(p.random(42,46), p.random(77,89.6)*s, 70*l),
@@ -85,8 +68,8 @@ const mySketch = (p: p5) => {
 
       // Points & Leaves
       let numPointsPerRow = p.random(13,15); // X points are draw within a boundary radius
-      let avg = 50
-      let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
+      let avg = 200
+      let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
       let pointBoundaryRadius = {min: 22, max: 25};
       let leavesStartY = p.height - bottom - pointBoundaryRadius.min-10; //where on y axis do leaves start
       let leafWidth = p.random(2, 3);
@@ -165,7 +148,7 @@ const mySketch = (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[fallColor](0.8, .3),
+        fills: colors[fallColor](0.8, .4),
         fillsSunlight: colors[fallColor](0.8, .8),  
         leafWidth, 
         leafHeight,
@@ -191,7 +174,7 @@ const mySketch = (p: p5) => {
 
       // Points & Leaves
       let numPointsPerRow = 25; // X points are draw within a boundary radius
-      let pointBoundaryRadius = {min: 32, max: 35};
+      let pointBoundaryRadius = {min: 28, max: 30};
       let avg = 85
       let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
       let leavesStartY = p.height - backBottom - pointBoundaryRadius.min; //where on y axis do leaves start
@@ -233,7 +216,9 @@ const mySketch = (p: p5) => {
   
   p.draw = () => {
     p.noLoop();
-    p.background(bgColor)
+    p.background(bgColor);
+    p.fill(bgColor)
+    p.rect(0,0,cw,ch);
     
     //Sky
     p.noStroke()
@@ -246,12 +231,12 @@ const mySketch = (p: p5) => {
     p.rect(0, 180, p.width, p.height)
     
     //Lake
-    // p.noStroke()
+    p.noStroke()
     p.fill("#41669a")
     p.rect(0, p.height-bottom, p.width, p.height)
     
     treesInBack.forEach(tree => {
-      drawTrunk(p, tree.trunk, false)
+      // drawTrunk(p, tree.trunk, false)
       tree.leaves.forEach(leaf => drawLeaf(p, leaf));
     })
     treesInMiddle.forEach(tree => {
@@ -274,75 +259,17 @@ const mySketch = (p: p5) => {
     })
 
     drawGroundLine(p, 25, ch-bottom, cw-25, colors['red'](1, 0.2)())
-    
+    // Draw water reflection
+    drawReflection()
+    drawLake();
+
+
     //Draw Texture
     p.blendMode(p.MULTIPLY);
     p.image(textureImg, 0, 0, cw, ch);
     p.blendMode(p.BLEND);
 
-    // Draw water reflection
-    let buffer = p.createGraphics(cw, ch);
-    buffer.push();
-    buffer.colorMode(buffer.HSL);
-    buffer.scale(1, -1); // Flip the y-axis to draw upside down
-    buffer.translate(0, -p.height-bottom); // Adjust translation for the buffer
-    
-    let allTrees = [...treesInBack, ...treesInMiddle, ...treesInFront];
-    allTrees.forEach(tree => {
-      tree.leaves.forEach(leaf => {
-        // Darken and desaturate the reflection leaves
-        let c = leaf.fill_c;
-        leaf.fill_c = p.color(
-          p.hue(c), 
-          p.saturation(c) * 0.6, 
-          p.lightness(c) * 0.85
-        )
-        drawLeaf(buffer, leaf)
-      });
-    });
-    buffer.filter(p.BLUR, 3);
-    p.image(buffer, 0, 0);
-    buffer.pop();
-
-    //Draw Lake and Erase Circles
-    let lakeBuffer = p.createGraphics(cw, ch);
-    lakeBuffer.push();
-    lakeBuffer.colorMode(lakeBuffer.HSL);
-    lakeBuffer.noStroke()
-    lakeBuffer.fill("#8DA9CF")
-    lakeBuffer.rect(0, p.height-bottom, p.width, p.height)
-    // Erase random ovals from the rectangle - start from bottom half of lake to ensure more circles get drawn toward the top
-    for (let i = 0; i <= 5; i++) { // Adjust the number of ovals as needed
-      
-      let inceptionBuffer = p.createGraphics(cw, ch);
-      inceptionBuffer.push();
-      let x = inceptionBuffer.random(0, inceptionBuffer.width);
-      let y = i <= 3
-        ? inceptionBuffer.random(inceptionBuffer.height-bottom, inceptionBuffer.height-(bottom/2))
-        : inceptionBuffer.random(inceptionBuffer.height-(bottom/2), inceptionBuffer.height);
-      let w = inceptionBuffer.random(600, 1500); // Random width of the oval
-      let h = inceptionBuffer.map(y, inceptionBuffer.height-bottom, inceptionBuffer.height, 3, 80); // Height increases with y
-
-      // console.log(`Oval ${i}: x=${x}, y=${y}, w=${w}, h=${h}`); // Debugging output
-      // console.log(inceptionBuffer.height-bottom, inceptionBuffer.height-(bottom/2)); // Debugging output
-      
-      // Draw ellipse with soft edges
-      inceptionBuffer.colorMode(inceptionBuffer.HSL);
-      inceptionBuffer.noStroke();
-      inceptionBuffer.fill("white");
-      inceptionBuffer.ellipse(x, y, w, h);
-      let blurAmount = p.map(y, inceptionBuffer.height-bottom, inceptionBuffer.height, 1, 5) // Increase blur as y increases
-      inceptionBuffer.filter(p.BLUR, blurAmount); // Apply blur to soften edges
-      inceptionBuffer.pop();
-      
-      // Erase the inceptionBuffer circles from lakeBuffer
-      lakeBuffer.blendMode(lakeBuffer.REMOVE); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
-      lakeBuffer.image(inceptionBuffer, 0, 0);
-      lakeBuffer.blendMode(lakeBuffer.BLEND); // Reset to normal blend mode
-    }
-    lakeBuffer.pop();
-    p.image(lakeBuffer, 0, 0);
-
+    //Debug Helpers
     if (debug) {
       //bulge
       p.stroke("red")
@@ -364,6 +291,70 @@ const mySketch = (p: p5) => {
         p.point(treePoint.x, treePoint.y)
       })
     }
+  }
+
+  const drawReflection = () => {
+    let buffer = p.createGraphics(cw, ch);
+    buffer.push();
+    buffer.colorMode(buffer.HSL);
+    buffer.scale(1, -1); // Flip the y-axis to draw upside down
+    buffer.translate(0, -p.height-bottom); // Adjust translation for the buffer
+    let allTrees = [...treesInBack, ...treesInMiddle, ...treesInFront];
+    allTrees.forEach(tree => {
+      tree.leaves.forEach(leaf => {
+        // Darken and desaturate the reflection leaves
+        let c = leaf.fill_c;
+        leaf.fill_c = p.color(
+          p.hue(c), 
+          p.saturation(c) * 0.6, 
+          p.lightness(c) * 0.85
+        )
+        drawLeaf(buffer, leaf)
+      });
+    });
+    buffer.filter(p.BLUR, 3); // Add blur to buffer
+    p.image(buffer, 0, 0); // Draw Buffer
+    buffer.pop();
+  }
+
+  const drawLake = () => {
+    // Draw Lake Rect and Erase Circles so that reflection image comes through
+    let lakeBuffer = p.createGraphics(cw, ch);
+    lakeBuffer.push();
+    lakeBuffer.colorMode(lakeBuffer.HSL);
+    lakeBuffer.noStroke()
+    lakeBuffer.fill("#8DA9CF")
+    lakeBuffer.rect(0, p.height-bottom, p.width, p.height)
+    // Erase random ovals from the rectangle - start from bottom half of lake to ensure more circles get drawn toward the top
+    for (let i = 0; i <= 4; i++) { // Adjust the number of ovals as needed
+      let inceptionBuffer = p.createGraphics(cw, ch);
+      inceptionBuffer.push();
+      let x = inceptionBuffer.random(0, inceptionBuffer.width);
+      let y = i <= 3
+        ? inceptionBuffer.random(inceptionBuffer.height-bottom, inceptionBuffer.height-(bottom/2))
+        : inceptionBuffer.random(inceptionBuffer.height-(bottom/2), inceptionBuffer.height);
+      let w = inceptionBuffer.random(600, 1000); // Random width of the oval
+      let h = inceptionBuffer.map(y, inceptionBuffer.height-bottom, inceptionBuffer.height, 5, 50); // Height increases with y
+
+      // console.log(`Oval ${i}: x=${x}, y=${y}, w=${w}, h=${h}`); // Debugging output
+      // console.log(inceptionBuffer.height-bottom, inceptionBuffer.height-(bottom/2)); // Debugging output
+      
+      // Draw ellipse with soft edges
+      inceptionBuffer.colorMode(inceptionBuffer.HSL);
+      inceptionBuffer.noStroke();
+      inceptionBuffer.fill("white");
+      inceptionBuffer.ellipse(x, y, w, h);
+      let blurAmount = p.map(y, inceptionBuffer.height-bottom, inceptionBuffer.height, 0, 5) // Increase blur as y increases
+      inceptionBuffer.filter(p.BLUR, blurAmount); // Apply blur to soften edges
+      inceptionBuffer.pop();
+      
+      // Erase the inceptionBuffer circles from lakeBuffer
+      lakeBuffer.blendMode(lakeBuffer.REMOVE); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
+      lakeBuffer.image(inceptionBuffer, 0, 0);
+      lakeBuffer.blendMode(lakeBuffer.BLEND); // Reset to normal blend mode
+    }
+    lakeBuffer.pop();
+    p.image(lakeBuffer, 0, 0);
   }
   
   // p.mousePressed = redraw(p, cw, ch);

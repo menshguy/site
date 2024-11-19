@@ -1,0 +1,3 @@
+newmtl Material
+map_Kd textures/color.jpg
+Pr 1.00

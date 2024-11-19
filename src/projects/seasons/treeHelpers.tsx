@@ -84,7 +84,7 @@ class VermontTree {
 
     this.trunk = this.generateTrunk();
     this.points = this.generatePoints();
-    this.leaves = this.generateLeaves();
+    this.leaves = this.generateLeafShapes();
   }
 
   generateTrunk() {
@@ -111,7 +111,10 @@ class VermontTree {
   }
 
   generatePoints(){
-    let {p, treeHeight, treeWidth, rowHeight, numPointsPerRow, leavesStartY, startPoint, bulgePoint, pointBoundaryRadius, midpoint} = this;
+    let {
+      p, treeHeight, treeWidth, rowHeight, numPointsPerRow, leavesStartY, 
+      startPoint, bulgePoint, pointBoundaryRadius, midpoint
+    } = this;
     let points = [];
     let start_y = leavesStartY;
     let end_y = startPoint.y - treeHeight;
@@ -126,14 +129,15 @@ class VermontTree {
     
     // Lower Half -- expand row width until you reach the bulge
     // let lowerRowIncrement = treeWidth / numLowerRows;
-    let totalRows = numLowerRows;
-    let accumulatedHeight = 0;
+    let lowerRows = numLowerRows;
+    let upperRows = numUpperRows;
+    // let accumulatedHeight = 0;
 
-    for (let i = 0; i < totalRows; i++) {
+    for (let i = 0; i < lowerRows; i++) {
         // Calculate the increment for start_y using a quadratic function
-        let lowerRowHeightIncrement = (lowerHalfHeight * (i + 1)) / (totalRows * (totalRows + 1) / 2);
+        let lowerRowHeightIncrement = (lowerHalfHeight * (i + 1)) / (lowerRows * (lowerRows + 1) / 2);
 
-        let leafPoints = genLeafPoints(
+        let leafPoints = genLeafCoordinates(
             startPoint.x - (rowWidth / 2),
             startPoint.x + (rowWidth / 2),
             start_y,
@@ -143,11 +147,16 @@ class VermontTree {
         points.push(...leafPoints);
         start_y -= lowerRowHeightIncrement; // Increase start_y by the calculated increment
         rowWidth += lowerRowIncrement;
-        accumulatedHeight += lowerRowHeightIncrement;
+        // accumulatedHeight += lowerRowHeightIncrement;
     }
     // Upper Half -- reduce row width until you reach the top
-    while (start_y > end_y) {
-      let leafPoints = genLeafPoints(
+    // while (start_y > end_y) {
+    rowWidth = treeWidth
+    for (let i = 0; i < upperRows - 1; i++) {
+      // Calculate the increment for start_y using a quadratic function
+      let upperRowHeightIncrement = (upperHalfHeight * (upperRows - i)) / (upperRows * (upperRows + 1) / 2);
+
+      let leafPoints = genLeafCoordinates(
         startPoint.x - (rowWidth/2),
         startPoint.x + (rowWidth/2),
         start_y, 
@@ -155,21 +164,21 @@ class VermontTree {
         midpoint
       )
       points.push(...leafPoints)
-      start_y -= rowHeight;
-      rowWidth -= upperRowIncrement
+      start_y -= upperRowHeightIncrement;
+      rowWidth -= upperRowIncrement;
     }
 
     return points;
 
     // Generate a point within the pointBoundary radius for each numPointsPerRow
-    function genLeafPoints (
+    function genLeafCoordinates (
       min_x: number, 
       max_x: number, 
       min_y: number, 
       max_y: number, 
       m:{x: number, y: number}
     ) {
-      let leafPoints = []
+      let leafCoords = []
       // Clamp min_x and max_x to ensure they are within the treeWidth boundary
       min_x = Math.max(min_x, startPoint.x - (treeWidth / 2));
       max_x = Math.min(max_x, startPoint.x + (treeWidth / 2));
@@ -179,32 +188,35 @@ class VermontTree {
         let r = pointBoundaryRadius;
         let boundary = getPointBoundary(p, r, x, y, m.x, m.y)
         let leaf = {x, y, boundary};
-        leafPoints.push(leaf);
+        leafCoords.push(leaf);
       }
       
-      return leafPoints;
+      return leafCoords;
     }
   }
 
-  generateLeaves() {
+  generateLeafShapes() {
     let {p, leafWidth, leafHeight, startPoint, numLeavesPerPoint, points, fills, fillsSunlight} = this;
     let leaves: Leaf[] = [];
-    let num = numLeavesPerPoint;
     points.forEach(({ x: px, y: py, boundary: b }) => {
-      for (let i = 0; i < num; i++) {
+      for (let i = 0; i < numLeavesPerPoint; i++) {
+        let sunAngle
         //Angle leaf towards startP of its boundary
         let angle = p.random(b.start, b.stop)
         let r = p.random(0, b.radius)
-        let isSunLeaf = (angle > p.HALF_PI + p.QUARTER_PI && angle < p.TWO_PI-p.QUARTER_PI);
+        let isSunLeaf = getIsSunLeaf(angle)
         let isFallenLeaf = py + (p.sin(angle) * r) >= (startPoint.y) //If py is below the ground, we flag it so we can create fallen leaves later
         let leaf_w, leaf_h, fill_c;
+
+        function getIsSunLeaf (angle:number) {
+          return angle > p.HALF_PI + p.QUARTER_PI && angle < p.TWO_PI-p.QUARTER_PI;
+        }
         
         // Leaf size and fill settings
         if (isSunLeaf) {
-          r = p.random(b.radius/2, b.radius);
           leaf_w = leafWidth + 1;
           leaf_h = leafHeight + 1;
-          fill_c = fillsSunlight();
+          fill_c = r > b.radius/1.5 ? fillsSunlight() : fills(); //this makes sure we dont create sunleafs too close to the center, which makes the shading strange
         } else {
           //Width and Height of leaves
           leaf_w = leafWidth;

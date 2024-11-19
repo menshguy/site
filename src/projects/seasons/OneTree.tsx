@@ -9,7 +9,7 @@ const mySketch = (p: p5) => {
   let cw: number = 600; 
   let ch: number = 600;
   let bottom = 20;
-  let debug = false;
+  let debug = true;
   let tree: VermontTree;
   let season: Season;
   let textureImg: p5.Image;
@@ -52,22 +52,25 @@ const mySketch = (p: p5) => {
     let fills = colors[season];
     let fillsSunlight = colorsSunlight[season];
 
-    let trunkHeight = p.random(100, 500);
-    let trunkWidth = p.random(100,300);
-    let treeHeight = p.random(trunkHeight-50, trunkHeight+100); // total height including leaves
-    let treeWidth = p.random(trunkWidth+20, 300); // total width including leaves
+    // Trunk & Tree
+    let trunkHeight = p.random(50, 200);
+    let trunkWidth = p.random(100, 150);
+    let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
+    let treeWidth = p.random(trunkWidth+20, 200); // total width including leaves
     let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
 
-    let numPointsPerRow = p.random(20 , 50); // X points are draw within a boundary radius
-    let pointBoundaryRadius = {min: 20, max: 50};
-    let avg = season === "winter" ? 10 : 30
-    let numLeavesPerPoint = p.random(avg, avg); // X leaves are draw around each point.
-    let leavesStartY = p.height - bottom - pointBoundaryRadius.min; //where on y axis do leaves start
+    // Points & Leaves
+    let numPointsPerRow = p.random(8,10); // X points are draw within a boundary radius
+    let avg = 200
+    let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
+    let pointBoundaryRadius = {min: 22, max: 25};
+    let leavesStartY = p.height - bottom - pointBoundaryRadius.min-10; //where on y axis do leaves start
     let leafWidth = p.random(2, 3);
     let leafHeight = p.random(4, 5);
-    let rowHeight = 20; //x points will drawn p.randominly in each row. rows increment up by this amount
+    let rowHeight = treeHeight/5; //x points will drawn p.randominly in each row. rows increment up by this amount
 
-    let startPoint = {x:cw/2, y:ch-bottom};
+    // Start / Mid / Bulge
+    let startPoint = {x: 300, y: ch-bottom};
     let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + bottom};
     let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
   
@@ -115,7 +118,7 @@ const mySketch = (p: p5) => {
     if (debug) {
       //bulge
       p.stroke("red")
-      p.strokeWeight(3)
+      p.strokeWeight(1)
       p.line(0, tree.bulgePoint.y, cw, tree.bulgePoint.y)
       p.stroke("yellow")
       p.point(tree.bulgePoint.x, tree.bulgePoint.y)
@@ -126,17 +129,17 @@ const mySketch = (p: p5) => {
       //height
       p.stroke("blue")
       p.line(0, ch - tree.treeHeight - bottom, cw, ch - tree.treeHeight - bottom)
-      //points
-      tree.points.forEach(treePoint => {
-        p.strokeWeight(5);
-        p.stroke("red");
-        p.point(treePoint.x, treePoint.y)
-      })
       //leaves
       tree.leaves.forEach(leaf => {
         p.strokeWeight(5);
         p.stroke("yellow");
         p.point(leaf.x, leaf.y)
+      })
+      //points
+      tree.points.forEach(treePoint => {
+        p.strokeWeight(5);
+        p.stroke("red");
+        p.point(treePoint.x, treePoint.y)
       })
     }
   }
