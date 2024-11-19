@@ -124,19 +124,6 @@ class VermontTree {
     let upperRowIncrement = treeWidth / numUpperRows;
     let rowWidth = lowerRowIncrement;
     
-    //Lower Half -- expand row width until you reach the bulge
-    // while (start_y >= bulgePoint.y) {
-    //   let leafPoints = genLeafPoints(
-    //     startPoint.x - (rowWidth/2),
-    //     startPoint.x + (rowWidth/2),
-    //     start_y, 
-    //     start_y - rowHeight, 
-    //     midpoint
-    //   )
-    //   points.push(...leafPoints)
-    //   start_y -= rowHeight;
-    //   rowWidth += lowerRowIncrement; 
-    // }
     // Lower Half -- expand row width until you reach the bulge
     // let lowerRowIncrement = treeWidth / numLowerRows;
     let totalRows = numLowerRows;
@@ -265,52 +252,44 @@ class VermontTree {
 
 function drawLeaf(p: p5, leaf: Leaf) {
   let {x, y, w, h, angle, start: _start, stop: _stop, fill_c} = leaf;
+
   p.push();
   p.noStroke();
   p.fill(fill_c)
   p.translate(x,y);
   p.rotate(angle);
 
-  // Dark shadow
-  let d = 1;
-  // Darken the fill color
-  let darkenedFill = p.color(fill_c);
-  darkenedFill = p.color(p.hue(darkenedFill), p.saturation(darkenedFill), p.brightness(darkenedFill) * 0.3); // Reduce brightness by 20%
-
-  // p.fill(darkenedFill);
-  // p.ellipse(0, 0, w, h)
-  
   // Main Leaf
-  p.fill(fill_c)
-  p.ellipse(d, d, w, h)
-
+  p.ellipse(0, 0, w, h)
   p.pop();
 }
 
-function drawTrunk(p: p5, lines: Line[]){
-  let trunkBuffer = p.createGraphics(p.width, p.height);
+function drawTrunk(p: p5, lines: Line[], customStyles: boolean){
+  // let trunkBuffer = p.createGraphics(p.width, p.height);
   lines.forEach(line => {
     let {startPoint:s, controlPoints:cps, endPoint:e} = line
 
     //Set Styles
-    trunkBuffer.push()
-    trunkBuffer.stroke('black')
-    trunkBuffer.strokeWeight(1);
-    trunkBuffer.noFill()
+    if (!customStyles) {
+      p.push()
+      p.stroke('black')
+      p.strokeWeight(1);
+      p.noFill()
+    }
 
     // -- Curve Style -- //
-    trunkBuffer.beginShape();
-    trunkBuffer.vertex(s.x, s.y)
-    trunkBuffer.bezierVertex(
+    p.beginShape();
+    p.vertex(s.x, s.y)
+    p.bezierVertex(
       cps[0].x, cps[0].y,
       cps[1].x, cps[1].y,
       e.x, e.y
     )
-    trunkBuffer.endShape();
-    trunkBuffer.pop(); //Unset Styles
+    p.endShape();
+    if (!customStyles) p.pop(); //Unset Styles
   })
 
-  p.image(trunkBuffer, 0, 0)
+  // p.image(trunkBuffer, 0, 0)
 }
 
 function drawGroundLine(
