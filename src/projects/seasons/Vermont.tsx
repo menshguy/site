@@ -6,7 +6,7 @@ import p5 from 'p5';
 
 const mySketch = (p: p5) => {
 
-  let cw: number = 600; 
+  let cw: number = 1000; 
   let ch: number = 600;
   let bottom = 20;
   let debug = false;
@@ -31,9 +31,9 @@ const mySketch = (p: p5) => {
 
     /** Colors */
     colors = {
-      winter: (s: number = 1, l: number = 1) => () => p.color(p.random(70,130), 25*s, 70*l),
+      winter: (s: number = 1, l: number = 1) => () => p.color(p.random(70,130), 20*s, 70*l),
       fall: (s: number = 1, l: number = 1) => () => p.color(p.random(5,45), 65*s, 100*l),
-      spring: (s: number = 1, l: number = 1) => () => p.color(p.random(5,45), 65*s, 80*l),
+      spring: (s: number = 1, l: number = 1) => () => p.color(p.random(5,45), 75*s, 100*l),
       summer: (s: number = 1, l: number = 1) => () => p.color(p.random(70,125), 80*s, 55*l)
     }
     colorsSunlight = {
@@ -44,24 +44,24 @@ const mySketch = (p: p5) => {
     }
     colorsBG = {
       'summer': p.color(56,85,91), //light yellow
-      'winter': p.color(208,18,83), //deep blue
-      'spring': p.color(43, 62, 80), //orange
-      'fall': p.color(39, 26, 53) //brown
+      'winter': p.color(208,18,98), //deep blue
+      'spring': p.color(43, 62, 90), //orange
+      'fall': p.color(39, 26, 83) //brown
     }
   
     /** General Settings */
-    season = p.random(['spring', 'fall', 'winter', 'summer']);
+    season = p.random(['spring', 'fall', 'summer']);
     console.log("season", season)
     bgColor = colorsBG[season];
 
     /** FRONT TREES */
-    let numTreesInFront = 12;
+    let numTreesInFront = 26;
     for (let i = 0; i < numTreesInFront; i++) {
 
       // Trunk & Tree
-      let trunkHeight = p.random(50, 200);
+      let trunkHeight = p.random(50, 250);
       let trunkWidth = p.random(200, 200);
-      let treeHeight = p.random(50, 250); // total height including leaves
+      let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
       let treeWidth = p.random(trunkWidth+20, 300); // total width including leaves
       let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
 
@@ -76,7 +76,7 @@ const mySketch = (p: p5) => {
       let rowHeight = treeHeight/10; //x points will drawn p.randominly in each row. rows increment up by this amount
 
       // Start / Mid / Bulge
-      let startPoint = {x: p.random(0, cw), y: ch-bottom};
+      let startPoint = {x: p.random(-100, cw+100), y: ch-bottom};
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + bottom};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
     
@@ -93,7 +93,7 @@ const mySketch = (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[season](0.8, 0.65),
+        fills: colors[season](0.8, 0.55),
         fillsSunlight: colors[season](0.8, 0.7),  
         leafWidth, 
         leafHeight,
@@ -107,20 +107,20 @@ const mySketch = (p: p5) => {
 
     /** MIDDLE TREES */
     let middleBottom = bottom;
-    let numTreesInMiddle = 15;
+    let numTreesInMiddle = 29;
     for (let i = 0; i < numTreesInMiddle; i++) {
 
       // Trunk & Tree
-      let trunkHeight = p.random(150, 250);
+      let trunkHeight = p.random(300, 400);
       let trunkWidth = p.random(100,150);
-      let treeHeight = p.random(300, 400); // total height including leaves
+      let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
       let treeWidth = p.random(trunkWidth+20, 300); // total width including leaves
       let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
 
       // Points & Leaves
-      let numPointsPerRow = p.random(10, 15); // X points are draw within a boundary radius
-      let pointBoundaryRadius = {min: 20, max: 50};
-      let avg = season === "winter" ? 5 : 20
+      let numPointsPerRow = p.random(13, 15); // X points are draw within a boundary radius
+      let pointBoundaryRadius = {min: 20, max: 30};
+      let avg = season === "winter" ? 5 : 30
       let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
       let leavesStartY = p.height - middleBottom - pointBoundaryRadius.min; //where on y axis do leaves start
       let leafWidth = p.random(2, 3);
@@ -128,7 +128,7 @@ const mySketch = (p: p5) => {
       let rowHeight = treeHeight/10; //x points will drawn p.randominly in each row. rows increment up by this amount
 
       // Start / Mid / Bulge
-      let startPoint = {x: p.random(0, cw), y: ch - middleBottom};
+      let startPoint = {x: p.random(-100, cw+100), y: ch - middleBottom};
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + middleBottom};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
     
@@ -145,7 +145,7 @@ const mySketch = (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[season](0.6, 0.3), 
+        fills: colors[season](0.6, 0.4), 
         fillsSunlight: colors[season](0.65, 0.5), 
         leafWidth, 
         leafHeight,
@@ -159,7 +159,7 @@ const mySketch = (p: p5) => {
 
     /** BACK TREES */
     let backBottom = middleBottom;
-    let numTreesInBack = 27;
+    let numTreesInBack = 14;
     for (let i = 0; i < numTreesInBack; i++) {
 
       // Trunk & Tree
@@ -170,9 +170,9 @@ const mySketch = (p: p5) => {
       let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
 
       // Points & Leaves
-      let numPointsPerRow = p.random(25, 30); // X points are draw within a boundary radius
-      let pointBoundaryRadius = {min: 20, max: 30};
-      let avg = season === "winter" ? 1 : 35
+      let numPointsPerRow = p.random(30, 35); // X points are draw within a boundary radius
+      let pointBoundaryRadius = {min: 50, max: 60};
+      let avg = season === "winter" ? 1 : 25
       let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
       let leavesStartY = p.height - backBottom - pointBoundaryRadius.min; //where on y axis do leaves start
       let leafWidth = p.random(2, 3);
@@ -180,7 +180,7 @@ const mySketch = (p: p5) => {
       let rowHeight = treeHeight/10; //x points will drawn p.randominly in each row. rows increment up by this amount
 
       // Start / Mid / Bulge
-      let startPoint = {x: p.random(0, cw), y: ch - backBottom};
+      let startPoint = {x: p.random(-100, cw+100), y: ch - backBottom};
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + backBottom};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
     
