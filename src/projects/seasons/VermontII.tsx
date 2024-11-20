@@ -12,12 +12,12 @@ const mySketch = (p: p5) => {
   let debug = false;
   let tree: VermontTree;
   let timeOfDay: string;
+  let sunAngle: number;
+  let sunFillPercentage: number;
   let season: Season;
   let textureImg: p5.Image;
   let colors: Record<any, (s:number, l:number) => () => p5.Color>;
-  let colorsSunlight: Record<Season, () => p5.Color>;
   let colorsBG: Record<Season, p5.Color>;
-  let bgColor: p5.Color;
   let treesInFront: VermontTree[] = [];
   let treesInMiddle: VermontTree[] = [];
   let treesInBack: VermontTree[] = [];
@@ -33,15 +33,9 @@ const mySketch = (p: p5) => {
     /** Colors */
     colors = {
       green: (s: number = 1, l: number = 1) => () => p.color(p.random(74,107), 40*s, 40.3*l),
-      yellow: (s: number = 1, l: number = 1) => () => p.color(p.random(42,46), p.random(77,89.6)*s, 70*l),
-      orange: (s: number = 1, l: number = 1) => () => p.color(p.random(27,29), p.random(65,80)*s, 70*l),
+      yellow: (s: number = 1, l: number = 1) => () => p.color(p.random(42,46), p.random(67,79.6)*s, 65*l),
+      orange: (s: number = 1, l: number = 1) => () => p.color(p.random(27,29), p.random(65,80)*s, 66*l),
       red: (s: number = 1, l: number = 1) => () => p.color(p.random(2,17), p.random(65,77)*s, 67*l),
-    }
-    colorsSunlight = {
-      winter: () => p.color(p.random(205,225), 80, 90),
-      fall: () => p.color(p.random(15,50), 80, 60),
-      spring: () => p.color(p.random(5,60), 75, 70),
-      summer: () => p.color(p.random(100,135), 70, 95)
     }
     colorsBG = {
       'summer': p.color(56,85,91), //light yellow
@@ -54,8 +48,10 @@ const mySketch = (p: p5) => {
     // season = p.random(['spring', 'winter', 'fall', 'summer']);
     season = 'fall';
     console.log("season", season)
-    timeOfDay = p.random(["day", "night"])
-    bgColor = colorsBG[season]
+    timeOfDay = p.random(["day", "night"]);
+    sunAngle = p.radians(p.random(200, 340));
+    sunFillPercentage = p.random(0.1, 0.9);
+    console.log("sunAngle / Fill", sunAngle, sunFillPercentage)
 
     /** FRONT TREES */
     let numTreesInFront = 13;
@@ -84,7 +80,10 @@ const mySketch = (p: p5) => {
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
 
       // Sunlight
-      let sunlight = {angle: p.PI + p.QUARTER_PI, fillPercentage: p.random(0.75, 0.85)}
+      let sunlight = {
+        angle: sunAngle,
+        fillPercentage: sunFillPercentage
+      }
       
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
@@ -149,7 +148,10 @@ const mySketch = (p: p5) => {
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
       
       // Sunlight
-      let sunlight = {angle: p.PI + p.QUARTER_PI, fillPercentage: p.random(0.5, 0.75)}
+      let sunlight = {
+        angle: sunAngle,
+        fillPercentage: sunFillPercentage
+      }
       
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red'])
@@ -157,7 +159,7 @@ const mySketch = (p: p5) => {
         ? colors[fallColor](0.2, 0.1)
         : colors[fallColor](0.5, 0.4)
       let fillsSunlight = timeOfDay === "night" 
-        ? colors[fallColor](0.1, 0.2)
+        ? colors[fallColor](0.1, 0.25)
         : colors[fallColor](0.5, 0.8);
         
       /** Create Tree */
@@ -188,20 +190,20 @@ const mySketch = (p: p5) => {
 
     /** BACK TREES */
     let backBottom = middleBottom;
-    let numTreesInBack = 10;
+    let numTreesInBack = 15;
     for (let i = 0; i < numTreesInBack; i++) {
 
       // Trunk & Tree
       let trunkHeight = p.random(215, 250);
-      let trunkWidth = p.random(150, 200);
+      let trunkWidth = p.random(150, 175);
       let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
       let treeWidth = p.random(trunkWidth, trunkWidth+20); // total width including leaves
       let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
 
       // Points & Leaves
-      let numPointsPerRow = 11; // X points are draw within a boundary radius
-      let pointBoundaryRadius = {min: 28, max: 30};
-      let avg = 100
+      let numPointsPerRow = 15; // X points are draw within a boundary radius
+      let pointBoundaryRadius = {min: 25, max: 30};
+      let avg = 150
       let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
       let leavesStartY = p.height - backBottom - pointBoundaryRadius.min; //where on y axis do leaves start
       let leafWidth = p.random(2, 3);
@@ -214,16 +216,19 @@ const mySketch = (p: p5) => {
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
     
       // Sunlight
-      let sunlight = {angle: p.PI + p.QUARTER_PI, fillPercentage: p.random(0.5, 0.75)}
+      let sunlight = {
+        angle: sunAngle,
+        fillPercentage: sunFillPercentage
+      }
 
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
       let fills = timeOfDay === "night" 
-        ? colors[fallColor](0.2, .13)
-        : colors[fallColor](0.3, .5)
+        ? colors[fallColor](0.2, 0.13)
+        : colors[fallColor](0.3, 0.5)
       let fillsSunlight = timeOfDay === "night" 
-        ? colors[fallColor](0.1, .2)
-        : colors[fallColor](0.4, .75);
+        ? colors[fallColor](0.1, 0.3)
+        : colors[fallColor](0.4, 0.75);
       
       /** Create Tree */
       tree = new VermontTree({
@@ -250,21 +255,21 @@ const mySketch = (p: p5) => {
       
       treesInBack.push(tree);
     }
-
-
-
   }
   
   p.draw = () => {
     p.noLoop();
 
-    // p.background(bgColor);
-    
     //Sky
     p.noStroke();
     let skyColor = timeOfDay === "night" ? p.color(223,43,18) : p.color("#68ADF6")
     p.fill(skyColor);
     p.rect(0, 0, p.width, p.height)
+
+    if (timeOfDay === "night") {
+      drawMoon(p, 0, p.height-bottom); // Draw Moon
+      drawStars(p, 100, 0, p.height-bottom); // Draw Stars
+    }
     
     //Shadow
     p.noStroke()
@@ -339,6 +344,10 @@ const mySketch = (p: p5) => {
 
   const drawReflection = () => {
     let buffer = p.createGraphics(cw, ch);
+    if (timeOfDay === "night"){
+      drawMoon(buffer, p.height-bottom, p.height);
+      drawStars(buffer, 100, p.height-bottom, p.height);
+    }
     buffer.push();
     buffer.colorMode(buffer.HSL);
     buffer.scale(1, -1); // Flip the y-axis to draw upside down
@@ -356,6 +365,7 @@ const mySketch = (p: p5) => {
         drawLeaf(buffer, leaf)
       });
     });
+    
     buffer.filter(p.BLUR, 3); // Add blur to buffer
     p.image(buffer, 0, 0); // Draw Buffer
     buffer.pop();
@@ -370,7 +380,7 @@ const mySketch = (p: p5) => {
     lakeBuffer.fill(timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2))
     lakeBuffer.rect(0, p.height-bottom, p.width, p.height)
     // Erase random ovals from the rectangle - start from bottom half of lake to ensure more circles get drawn toward the top
-    for (let i = 0; i <= 2; i++) { // Adjust the number of ovals as needed
+    for (let i = 0; i <= 5; i++) { // Adjust the number of ovals as needed
       let inceptionBuffer = p.createGraphics(cw, ch);
       inceptionBuffer.push();
       let isUpperHalfOfLake = i <= 1
@@ -379,19 +389,14 @@ const mySketch = (p: p5) => {
         ? p.random(inceptionBuffer.height-bottom, inceptionBuffer.height-(bottom/2))
         : p.random(inceptionBuffer.height-(bottom/2), inceptionBuffer.height);
 
-      let x = isUpperHalfOfLake
-        ? p.random(0, inceptionBuffer.width)
-        : p.random([
-            100 - p.random(0, 40), 
-            inceptionBuffer.width + p.random(0,40)
-          ])
+      let x = p.random(inceptionBuffer.width/2 - 100, inceptionBuffer.width/2 + 100)
       
       let w = isUpperHalfOfLake // Random width of the oval
-        ? p.random(800, 1200)
+        ? p.random(1200, 1600)
         : p.random(1600, 2000); 
       
       let h = isUpperHalfOfLake // Circle Height increases with y
-        ? p.map(y, inceptionBuffer.height-bottom, inceptionBuffer.height-(bottom/2), 5, 30)
+        ? p.map(y, inceptionBuffer.height-bottom, inceptionBuffer.height-(bottom/2), 5, 20)
         : p.map(y, inceptionBuffer.height-(bottom/2), inceptionBuffer.height, 50, 80);
 
       // Draw ellipse with soft edges
@@ -410,6 +415,25 @@ const mySketch = (p: p5) => {
     }
     lakeBuffer.pop();
     p.image(lakeBuffer, 0, 0);
+  }
+
+  const drawStars = (p: p5, numStars: number, minY, maxY) => {
+    for (let i = 0; i < numStars; i++) {
+      let x = p.random(0, cw);
+      let y = p.random(minY, maxY);
+      let r = p.random(1, 3);
+      p.noStroke();
+      p.fill(255, 100, 100); // white for stars
+      p.circle(x, y, r)
+    }
+  }
+
+  const drawMoon = (p: p5, minY, maxY) => {
+    let x = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
+    let y = p.random(minY, maxY);
+    let r = p.random(20, 50);
+    p.fill(63, 89, 94); //yellowish white for moon
+    p.circle(x, y, r);
   }
   
   // p.mousePressed = redraw(p, cw, ch);
