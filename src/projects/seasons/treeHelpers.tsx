@@ -14,7 +14,8 @@ class VermontTree {
   leavesStartY: number; 
   pointBoundaryRadius: { min: number, max: number }; 
   fills: () => p5.Color; 
-  fillsSunlight: () => p5.Color; 
+  fillsSunlight: () => p5.Color;
+  sunlight: {angle: number, fillPercentage: number};
   leafWidth: number; 
   leafHeight: number;
   midpoint: {x: number, y: number};
@@ -38,6 +39,7 @@ class VermontTree {
     pointBoundaryRadius, 
     fills,
     fillsSunlight,
+    sunlight,
     leafWidth, 
     leafHeight,
     rowHeight,
@@ -55,13 +57,14 @@ class VermontTree {
     trunkWidth: number, 
     leavesStartY: number, 
     pointBoundaryRadius: { min: number, max: number }, 
-    fills: () => p5.Color,
-    fillsSunlight: () => p5.Color, 
     leafWidth: number, 
     leafHeight: number,
     rowHeight: number,
-    midpoint: {x: number, y: number};
-    bulgePoint: {x: number, y: number};
+    fills: () => p5.Color,
+    fillsSunlight: () => p5.Color,
+    sunlight?: {angle: number, fillPercentage: number},
+    midpoint: {x: number, y: number},
+    bulgePoint: {x: number, y: number},
   }){
     this.p = p5Instance;
     this.treeHeight = treeHeight;  
@@ -74,10 +77,14 @@ class VermontTree {
     this.trunkWidth = trunkWidth;  
     this.leavesStartY = leavesStartY; 
     this.pointBoundaryRadius = pointBoundaryRadius;  
-    this.fills = fills;
-    this.fillsSunlight = fillsSunlight;
     this.leafWidth = leafWidth;
     this.leafHeight = leafHeight;
+    this.fills = fills;
+    this.fillsSunlight = fillsSunlight;
+    this.sunlight = sunlight || {
+      angle: p5Instance.PI + p5Instance.QUARTER_PI, 
+      fillPercentage: 0.5
+    };
     this.rowHeight = rowHeight;
     this.midpoint = midpoint;
     this.bulgePoint = bulgePoint;
@@ -196,27 +203,24 @@ class VermontTree {
   }
 
   generateLeafShapes() {
-    let {p, leafWidth, leafHeight, startPoint, numLeavesPerPoint, points, fills, fillsSunlight} = this;
+    let {p, leafWidth, leafHeight, startPoint, numLeavesPerPoint, points, fills, fillsSunlight, sunlight} = this;
+    let {angle: sunlightAngle, fillPercentage} = sunlight
+
     let leaves: Leaf[] = [];
     points.forEach(({ x: px, y: py, boundary: b }) => {
       for (let i = 0; i < numLeavesPerPoint; i++) {
-        let sunAngle
         //Angle leaf towards startP of its boundary
         let angle = p.random(b.start, b.stop)
         let r = p.random(0, b.radius)
-        let isSunLeaf = getIsSunLeaf(angle)
+        let isSunLeaf = getIsSunLeaf(angle, sunlightAngle)
         let isFallenLeaf = py + (p.sin(angle) * r) >= (startPoint.y) //If py is below the ground, we flag it so we can create fallen leaves later
         let leaf_w, leaf_h, fill_c;
-
-        function getIsSunLeaf (angle:number) {
-          return angle > p.HALF_PI + p.QUARTER_PI && angle < p.TWO_PI-p.QUARTER_PI;
-        }
         
         // Leaf size and fill settings
         if (isSunLeaf) {
           leaf_w = leafWidth + 1;
           leaf_h = leafHeight + 1;
-          fill_c = r > b.radius/1.5 ? fillsSunlight() : fills(); //this makes sure we dont create sunleafs too close to the center, which makes the shading strange
+          fill_c = r > b.radius - (b.radius*fillPercentage) ? fillsSunlight() : fills(); //this calculates fillPercentage by only filling in leafs far enough from center
         } else {
           //Width and Height of leaves
           leaf_w = leafWidth;
@@ -253,6 +257,12 @@ class VermontTree {
       }
     })
     return leaves;
+
+    function getIsSunLeaf (leafAngle: number, sunlightAngle: number) {
+      let min = sunlightAngle - p.HALF_PI
+      let max = sunlightAngle + p.HALF_PI
+      return leafAngle > min && leafAngle < max;
+    }
   }
 
   clear() {
