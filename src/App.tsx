@@ -14,7 +14,11 @@ interface Doodle {
 }
 
 const rawDoodles: Doodle[] = [
+  {bg: 'red', title:"Couch", href: "/couch"}, 
   {bg: 'red', title:"Vermont", href: "/vermont"}, 
+  {bg: 'red', title:"Vermont", href: "/vermontii"}, 
+  {bg: 'red', title:"Vermont", href: "/vermontiii"}, 
+  {bg: 'red', title:"Vermont", href: "/vermontiiii"}, 
   {bg: 'red', title:"OneTree", href: "/onetree"}, 
   {bg: 'red', title:"Fall Sunlight", href: "/fallsunlight"}, 
   {bg: 'blue', title:"Fall Breeze", href:"/fallbreeze"}, 

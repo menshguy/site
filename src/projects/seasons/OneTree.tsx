@@ -52,28 +52,28 @@ const mySketch = (p: p5) => {
     let fills = colors[season];
     let fillsSunlight = colorsSunlight[season];
 
-    // Trunk & Tree
-    let trunkHeight = p.random(50, 200);
-    let trunkWidth = p.random(100, 150);
+    let trunkHeight = p.random(10, 25);
+    let trunkWidth = p.random(10, 25);
     let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
-    let treeWidth = p.random(trunkWidth+20, 200); // total width including leaves
+    let treeWidth = p.random(trunkWidth, trunkWidth+10); // total width including leaves
     let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
 
     // Points & Leaves
-    let numPointsPerRow = p.random(8,10); // X points are draw within a boundary radius
-    let avg = 200
+    let numPointsPerRow = 3; // X points are draw within a boundary radius
+    let avg = 15
     let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
-    let pointBoundaryRadius = {min: 22, max: 25};
-    let leavesStartY = p.height - bottom - pointBoundaryRadius.min-10; //where on y axis do leaves start
-    let leafWidth = p.random(2, 3);
-    let leafHeight = p.random(4, 5);
-    let rowHeight = treeHeight/5; //x points will drawn p.randominly in each row. rows increment up by this amount
+    let pointBoundaryRadius = {min: 8, max: 15};
+    let leavesStartY = p.height - bottom - pointBoundaryRadius.min-5; //where on y axis do leaves start
+    let leafWidth = p.random(1, 1);
+    let leafHeight = p.random(2, 2);
+    let rowHeight = treeHeight/3; //x points will drawn p.randominly in each row. rows increment up by this amount
 
     // Start / Mid / Bulge
-    let startPoint = {x: 300, y: ch-bottom};
-    let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + bottom};
-    let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
-  
+    let startPoint = {x: p.random(-100, cw+100), y: ch-bottom};
+    let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
+    let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};
+
+      
     /** Create Tree */
     tree = new VermontTree({
       p5Instance: p,
@@ -158,7 +158,7 @@ const mySketch = (p: p5) => {
 const OneTree: React.FC = () => {
   return (
     <div>
-      <h1>Vermont</h1>
+      <h1>One Tree Debugger</h1>
       {/* <p>11/14/24</p> */}
       <p>Click to redraw.</p>
       <P5Wrapper sketch={mySketch} />

@@ -5,10 +5,13 @@ import App from './App.tsx'
 import OneTree from './projects/seasons/OneTree.tsx';
 import Vermont from './projects/seasons/Vermont.tsx';
 import VermontII from './projects/seasons/VermontII.tsx';
+import VermontIII from './projects/seasons/VermontIII.tsx';
+import VermontIIII from './projects/seasons/VermontIIII.tsx';
 import FallSunlight from './projects/seasons/FallSunlight.tsx';
 import FallBreeze from './projects/seasons/FallBreeze.tsx';
 import SeasonalForests from './projects/seasons/SeasonalForests.tsx';
 import ThreeDTest from './projects/3dtest/ThreeDTest.tsx';
+import Couch from './projects/couch/Couch.tsx';
 import Tree1 from './projects/trees/Tree5.tsx';
 import Tree2 from './projects/trees/Tree4.tsx';
 import Tree3 from './projects/trees/Tree3.tsx';
@@ -27,6 +30,9 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<App />} />
         <Route path="/vermont" element={<Vermont />} />
         <Route path="/vermontii" element={<VermontII />} />
+        <Route path="/vermontiii" element={<VermontIII />} />
+        <Route path="/vermontiiii" element={<VermontIIII />} />
+        <Route path="/couch" element={<Couch />} />
         <Route path="/OneTree" element={<OneTree />} />
         <Route path="/fallsunlight" element={<FallSunlight />} />
         <Route path="/fallbreeze" element={<FallBreeze />} />

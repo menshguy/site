@@ -267,8 +267,8 @@ const mySketch = (p: p5) => {
     p.rect(0, 0, p.width, p.height)
 
     if (timeOfDay === "night") {
-      drawMoon(p, 0, p.height-bottom); // Draw Moon
-      drawStars(p, 100, 0, p.height-bottom); // Draw Stars
+      drawMoon(p, 0, 100); // Draw Moon
+      drawStars(p, 250, 0, p.height-bottom); // Draw Stars
     }
     
     //Shadow
