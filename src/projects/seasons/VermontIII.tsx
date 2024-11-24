@@ -1,8 +1,8 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from './types.ts';
-import {VermontTree, drawTrunk, drawLeaf, drawGroundLine} from './treeHelpers.tsx';
-import {drawMoon, drawStars} from './skyHelpers.tsx';
+import {VermontTree, drawGroundLine} from './treeHelpers.tsx';
+import {drawMoon, drawStars, drawReflection, drawLake, Moon, Stars, TimeOfDay} from './skyHelpers.tsx';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -12,7 +12,6 @@ const mySketch = (p: p5) => {
   let bottom = 200;
   let debug = false;
   let tree: VermontTree;
-  let timeOfDay: string;
   let sunAngle: number;
   let sunFillPercentage: number;
   let season: Season;
@@ -21,8 +20,9 @@ const mySketch = (p: p5) => {
   let treesInFront: VermontTree[] = [];
   let treesInMiddle: VermontTree[] = [];
   let treesInBack: VermontTree[] = [];
-  let moon: {x: number, y: number, r: number};
-  let stars: {numStars: number, minR: number, maxR: number, minX: number, maxX: number, minY: number, maxY: number};
+  let timeOfDay: TimeOfDay;
+  let moon: Moon;
+  let stars: Stars;
   
   p.preload = () => {
     textureImg = p.loadImage('../textures/coldpressed_1.PNG');
@@ -303,7 +303,7 @@ const mySketch = (p: p5) => {
     p.rect(0, p.height-bottom, p.width, p.height)
     
     treesInBack.forEach(tree => {
-      tree.leaves.forEach(leaf => drawLeaf(p, leaf));
+      tree.leaves.forEach(leaf => tree.drawLeaf(p, leaf));
     })
 
     treesInMiddle.forEach(tree => {
@@ -312,9 +312,9 @@ const mySketch = (p: p5) => {
       p.noFill();
       p.stroke(12, 10, 55);
       p.stroke(timeOfDay === "night" ? p.color(12, 10, 15) : p.color(12, 10, 55));
-      drawTrunk(p, tree.trunk, true)
+      tree.drawTrunk(p, tree.trunkLines, true)
       p.pop();
-      tree.leaves.forEach(leaf => drawLeaf(p, leaf));
+      tree.leaves.forEach(leaf => tree.drawLeaf(p, leaf));
     })
     
     treesInFront.forEach(tree => {
@@ -322,19 +322,35 @@ const mySketch = (p: p5) => {
       p.strokeWeight(1);
       p.noFill()
       p.stroke(timeOfDay === "night" ? p.color(12, 20, 10) : p.color(12, 20, 40));
-      drawTrunk(p, tree.trunk, true)
+      tree.drawTrunk(p, tree.trunkLines, true)
       p.pop();
-      tree.leaves.forEach(leaf => drawLeaf(p, leaf));
+      tree.leaves.forEach(leaf => tree.drawLeaf(p, leaf));
     })
 
     // Ground Line
     drawGroundLine(p, 25, ch-bottom, cw-25, p.color(27, 20, 18))
     
-    // Lake
+    // Draw Reflection
     let reflectionBuffer = p.createGraphics(cw, ch);
-    drawReflection(reflectionBuffer)
+    let allTrees = [...treesInBack, ...treesInMiddle, ...treesInFront];
+    drawReflection(
+      reflectionBuffer, 
+      p, 
+      allTrees, 
+      reflectionBuffer.height - bottom,
+      timeOfDay, 
+      moon, 
+      stars
+    )
+    
+    // Draw Lake on top of Reflection
     let lakeBuffer = p.createGraphics(cw, ch);
-    drawLake(lakeBuffer);
+    drawLake(
+      lakeBuffer, 
+      p,
+      lakeBuffer.height - bottom,
+      timeOfDay
+    );
 
     //Draw Texture
     p.blendMode(p.MULTIPLY);
@@ -363,90 +379,6 @@ const mySketch = (p: p5) => {
         p.point(treePoint.x, treePoint.y)
       })
     }
-  }
-
-  const drawLake = (buffer: p5.Graphics) => {
-
-    // Create a rectangle for the lake
-    buffer.colorMode(buffer.HSL);
-    buffer.noStroke()
-    buffer.fill(timeOfDay === "night" ? p.color(223, 68, 8) : buffer.color(215, 40.7, 64.2))
-    buffer.rect(0, buffer.height-bottom, buffer.width, buffer.height)
-    
-    // Erase random ovals from the rectangle - the erased sections will expose the reflection underneath
-    let eraserBuffer = p.createGraphics(cw, bottom);
-    let eraserImage = generateEraserCircles(eraserBuffer, 5)
-    
-    // Erase the eraserBuffer circles from buffer
-    buffer.blendMode(buffer.REMOVE as any); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
-    buffer.image(eraserImage, 0, p.height-bottom);
-    buffer.blendMode(buffer.BLEND); // Reset to normal blend mode
-    
-    // Draw the rectangle with erased circles
-    p.image(buffer, 0, 0);
-  }
-
-  const drawReflection = (buffer: p5.Graphics) => {
-
-    // If its night, draw the moon & stars
-    if (timeOfDay === "night"){
-      drawMoon(buffer, moon.x, (p.height-bottom) + (p.height - bottom - moon.y), moon.r);
-      drawStars(
-        p, 
-        stars.numStars, 
-        stars.minX, 
-        stars.maxX, 
-        (p.height-bottom) + (p.height - bottom - stars.minY), 
-        (p.height-bottom) + (p.height - bottom - stars.maxY), 
-        stars.minR, 
-        stars.maxR);
-    }
-
-    // Flip and translate to draw updside down
-    buffer.push();
-    buffer.colorMode(buffer.HSL);
-    buffer.scale(1, -1); // Flip the y-axis to draw upside down
-    buffer.translate(0, -(ch-bottom)*2); // Adjust translation for the buffer
-    
-    // Draw all of the trees upside down, starting from bottom
-    let allTrees = [...treesInBack, ...treesInMiddle, ...treesInFront];
-    allTrees.forEach(tree => {
-      tree.leaves.forEach(leaf => {
-        // Darken and desaturate the reflection leaves
-        let c = leaf.fill_c;
-        leaf.fill_c = buffer.color(
-          buffer.hue(c), 
-          buffer.saturation(c) * 0.6, 
-          buffer.lightness(c) * 0.85
-        )
-        drawLeaf(buffer, leaf)
-      });
-    });
-    
-    // Add blur and draw to buffer
-    buffer.filter(p.BLUR, 3); // Add blur to buffer
-    p.image(buffer, 0, 0); // Draw Buffer
-    buffer.pop();
-  }
-
-  function generateEraserCircles(buffer: p5.Graphics, numCirlces: number) {
-    for (let i = 0; i <= numCirlces; i++) { // Adjust the number of ovals as needed
-      buffer.push();
-      let y = buffer.random(0, buffer.height)
-      let x = buffer.random(buffer.width/2 - 100, buffer.width/2 + 100)
-      let w = buffer.random(1600, 2000); 
-      let h = buffer.map(y, 0, buffer.height, 5, 80);
-
-      // Draw ellipse with soft edges
-      buffer.colorMode(buffer.HSL);
-      buffer.noStroke();
-      buffer.fill("white");
-      buffer.ellipse(x, y, w, h);
-      let blurAmount = buffer.map(y, 0, buffer.height, 0, 3) // Increase blur as y increases
-      buffer.filter(buffer.BLUR, blurAmount); // Apply blur to soften edges
-      buffer.pop();
-    }
-    return buffer;
   }
   
   // p.mousePressed = redraw(p, cw, ch);

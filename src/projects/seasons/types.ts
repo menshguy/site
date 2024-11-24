@@ -39,7 +39,7 @@ export type Trunk = {
   endPoint: { x: number, y: number } 
 }[]
 
-export type Line = {
+export type TrunkLine = {
   startPoint: Point, 
   controlPoints: Point[],
   initialControlPoints?: Point[],

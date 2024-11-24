@@ -1,5 +1,5 @@
 import p5 from 'p5';
-import {Leaf, Line} from './types.ts';
+import {Leaf, TrunkLine} from './types.ts';
 
 class VermontTree {
   private p: p5;
@@ -20,7 +20,7 @@ class VermontTree {
   leafHeight: number;
   midpoint: {x: number, y: number};
   bulgePoint: {x: number, y: number};
-  trunk: any[];
+  trunkLines: any[];
   leaves: Leaf[];
   points: any[];
   rowHeight: number;
@@ -89,12 +89,12 @@ class VermontTree {
     this.midpoint = midpoint;
     this.bulgePoint = bulgePoint;
 
-    this.trunk = this.generateTrunk();
+    this.trunkLines = this.generateTrunkLines();
     this.points = this.generatePoints();
     this.leaves = this.generateLeafShapes();
   }
 
-  generateTrunk() {
+  generateTrunkLines() {
     let {p, numTrunkLines, startPoint, trunkHeight, trunkWidth} = this;
     // Use pre-calculated trunk widths
     let lines = [];
@@ -193,7 +193,7 @@ class VermontTree {
         let x = p.random(min_x, max_x);
         let y = p.random(min_y, max_y)
         let r = pointBoundaryRadius;
-        let boundary = getPointBoundary(p, r, x, y, m.x, m.y)
+        let boundary = _getPointBoundary(p, r, x, y, m.x, m.y)
         let leaf = {x, y, boundary};
         leafCoords.push(leaf);
       }
@@ -265,53 +265,50 @@ class VermontTree {
     }
   }
 
+  drawLeaf(p: p5, leaf: Leaf) {
+    let {x, y, w, h, angle, start: _start, stop: _stop, fill_c} = leaf;
+  
+    p.push();
+    p.noStroke();
+    p.fill(fill_c)
+    p.translate(x,y);
+    p.rotate(angle);
+  
+    // Main Leaf
+    p.ellipse(0, 0, w, h)
+    p.pop();
+  }
+  
+  drawTrunk(p: p5, trunkLines: TrunkLine[], customStyles: boolean){
+    trunkLines.forEach(line => {
+      let {startPoint:s, controlPoints:cps, endPoint:e} = line
+  
+      //Set Styles
+      if (!customStyles) {
+        p.push()
+        p.stroke('black')
+        p.strokeWeight(1);
+        p.noFill()
+      }
+  
+      // -- Curve Style -- //
+      p.beginShape();
+      p.vertex(s.x, s.y)
+      p.bezierVertex(
+        cps[0].x, cps[0].y,
+        cps[1].x, cps[1].y,
+        e.x, e.y
+      )
+      p.endShape();
+      if (!customStyles) p.pop(); //Unset Styles
+    })
+  }
+
   clear() {
     this.leaves = []
     this.points = []
-    this.trunk = []
+    this.trunkLines = []
   }
-}
-
-function drawLeaf(p: p5, leaf: Leaf) {
-  let {x, y, w, h, angle, start: _start, stop: _stop, fill_c} = leaf;
-
-  p.push();
-  p.noStroke();
-  p.fill(fill_c)
-  p.translate(x,y);
-  p.rotate(angle);
-
-  // Main Leaf
-  p.ellipse(0, 0, w, h)
-  p.pop();
-}
-
-function drawTrunk(p: p5, lines: Line[], customStyles: boolean){
-  // let trunkBuffer = p.createGraphics(p.width, p.height);
-  lines.forEach(line => {
-    let {startPoint:s, controlPoints:cps, endPoint:e} = line
-
-    //Set Styles
-    if (!customStyles) {
-      p.push()
-      p.stroke('black')
-      p.strokeWeight(1);
-      p.noFill()
-    }
-
-    // -- Curve Style -- //
-    p.beginShape();
-    p.vertex(s.x, s.y)
-    p.bezierVertex(
-      cps[0].x, cps[0].y,
-      cps[1].x, cps[1].y,
-      e.x, e.y
-    )
-    p.endShape();
-    if (!customStyles) p.pop(); //Unset Styles
-  })
-
-  // p.image(trunkBuffer, 0, 0)
 }
 
 function drawGroundLine(
@@ -374,7 +371,7 @@ function darkenColors(p: p5, colors: p5.Color[], amount: number): p5.Color[] {
   });
 }
 
-function getPointBoundary(
+function _getPointBoundary(
   p:p5,
   max_r: {min: number, max: number}, 
   px: number, 
@@ -398,4 +395,4 @@ function getPointBoundary(
   return {start, stop, angle, radius};
 }
 
-export {VermontTree, drawLeaf, drawTrunk, drawGroundLine, darkenColors}
+export {VermontTree, drawGroundLine, darkenColors}

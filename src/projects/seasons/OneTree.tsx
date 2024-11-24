@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from './types.ts';
-import {VermontTree, drawTrunk, drawLeaf} from './treeHelpers.tsx';
+import {VermontTree} from './treeHelpers.tsx';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -104,8 +104,8 @@ const mySketch = (p: p5) => {
     p.background(bgColor)
     
     //Draw Tree
-    drawTrunk(p, tree.trunk, false)
-    tree.leaves.forEach(leaf => !leaf.isSunLeaf && drawLeaf(p, leaf));
+    tree.drawTrunk(p, tree.trunkLines, false)
+    tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     
     //Draw Texture
     p.blendMode(p.MULTIPLY);
@@ -113,7 +113,7 @@ const mySketch = (p: p5) => {
     p.blendMode(p.BLEND);
     
     // Draw Sunleaves
-    tree.leaves.forEach(leaf => leaf.isSunLeaf && drawLeaf(p, leaf));
+    tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
 
     if (debug) {
       //bulge

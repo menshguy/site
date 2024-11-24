@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from './types.ts';
-import {VermontTree, drawTrunk, drawLeaf, drawGroundLine} from './treeHelpers.tsx';
+import {VermontTree, drawGroundLine} from './treeHelpers.tsx';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -208,19 +208,19 @@ const mySketch = (p: p5) => {
     p.background(bgColor)
     
     treesInBack.forEach(tree => {
-      drawTrunk(p, tree.trunk, false)
-      tree.leaves.forEach(leaf => !leaf.isSunLeaf && drawLeaf(p, leaf));
-      tree.leaves.forEach(leaf => leaf.isSunLeaf && drawLeaf(p, leaf));
+      tree.drawTrunk(p, tree.trunkLines, false)
+      tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+      tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     })
     treesInMiddle.forEach(tree => {
-      drawTrunk(p, tree.trunk, false)
-      tree.leaves.forEach(leaf => !leaf.isSunLeaf && drawLeaf(p, leaf));
-      // tree.leaves.forEach(leaf => leaf.isSunLeaf && drawLeaf(p, leaf));
+      tree.drawTrunk(p, tree.trunkLines, false)
+      tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+      // tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     })
     treesInFront.forEach(tree => {
-      drawTrunk(p, tree.trunk, false)
-      tree.leaves.forEach(leaf => !leaf.isSunLeaf && drawLeaf(p, leaf));
-      // tree.leaves.forEach(leaf => leaf.isSunLeaf && drawLeaf(p, leaf));
+      tree.drawTrunk(p, tree.trunkLines, false)
+      tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+      // tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     })
 
     drawGroundLine(p, 25, ch-bottom, cw-25, colors[season](1, 0.2)())
@@ -232,14 +232,14 @@ const mySketch = (p: p5) => {
 
     // Draw sunleaves on top of texture so that it pops.
     // treesInBack.forEach(tree => {
-    //   tree.leaves.forEach(leaf => leaf.isSunLeaf && drawLeaf(p, leaf));
+    //   tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     // })
     // treesInMiddle.forEach(tree => {
-    //   tree.leaves.forEach(leaf => leaf.isSunLeaf && drawLeaf(p, leaf));
+    //   tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     // })
     treesInFront.forEach(tree => {
-      tree.leaves.forEach(leaf => !leaf.isSunLeaf && drawLeaf(p, leaf));
-      // tree.leaves.forEach(leaf => leaf.isSunLeaf && drawLeaf(p, leaf));
+      tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+      // tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     })
 
     if (debug) {
