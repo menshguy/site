@@ -20,13 +20,13 @@ const mySketch = (p: p5) => {
       handleError
     );
 
-    function handleModel(data) {
+    function handleModel(data: p5.Geometry) {
       model = data;
-      console.log(model.gid);
+      console.log(model);
     }
     
     // Print an error message if the file doesn't load.
-    function handleError(error) {
+    function handleError(error: unknown) {
       console.error('Oops!', error);
     }
   }

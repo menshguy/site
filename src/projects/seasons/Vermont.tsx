@@ -215,17 +215,17 @@ const mySketch = (p: p5) => {
     p.background(bgColor)
     
     treesInBack.forEach(tree => {
-      drawTrunk(p, tree.trunk)
+      drawTrunk(p, tree.trunk, false)
       tree.leaves.forEach(leaf => !leaf.isSunLeaf && drawLeaf(p, leaf));
       tree.leaves.forEach(leaf => leaf.isSunLeaf && drawLeaf(p, leaf));
     })
     treesInMiddle.forEach(tree => {
-      drawTrunk(p, tree.trunk)
+      drawTrunk(p, tree.trunk, false)
       tree.leaves.forEach(leaf => !leaf.isSunLeaf && drawLeaf(p, leaf));
       // tree.leaves.forEach(leaf => leaf.isSunLeaf && drawLeaf(p, leaf));
     })
     treesInFront.forEach(tree => {
-      drawTrunk(p, tree.trunk)
+      drawTrunk(p, tree.trunk, false)
       tree.leaves.forEach(leaf => !leaf.isSunLeaf && drawLeaf(p, leaf));
       // tree.leaves.forEach(leaf => leaf.isSunLeaf && drawLeaf(p, leaf));
     })

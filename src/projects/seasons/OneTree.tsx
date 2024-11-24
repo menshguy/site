@@ -104,7 +104,7 @@ const mySketch = (p: p5) => {
     p.background(bgColor)
     
     //Draw Tree
-    drawTrunk(p, tree.trunk)
+    drawTrunk(p, tree.trunk, false)
     tree.leaves.forEach(leaf => !leaf.isSunLeaf && drawLeaf(p, leaf));
     
     //Draw Texture

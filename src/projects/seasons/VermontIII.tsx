@@ -73,7 +73,7 @@ const mySketch = (p: p5) => {
 
       // Points & Leaves
       let numPointsPerRow = 3; // X points are draw within a boundary radius
-      let avg = 300
+      let avg = 300;
       let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
       let pointBoundaryRadius = {min: 20, max: 30};
       let leavesStartY = p.height - bottom - pointBoundaryRadius.max; //where on y axis do leaves start
@@ -378,7 +378,7 @@ const mySketch = (p: p5) => {
     let eraserImage = generateEraserCircles(eraserBuffer, 5)
     
     // Erase the eraserBuffer circles from buffer
-    buffer.blendMode(buffer.REMOVE); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
+    buffer.blendMode(buffer.REMOVE as any); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
     buffer.image(eraserImage, 0, p.height-bottom);
     buffer.blendMode(buffer.BLEND); // Reset to normal blend mode
     

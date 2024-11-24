@@ -442,7 +442,7 @@ const mySketch = (p: p5) => {
     p.image(lakeBuffer, 0, 0);
   }
 
-  const drawStars = (p: p5, numStars: number, minY, maxY) => {
+  const drawStars = (p: p5, numStars: number, minY: number, maxY: number) => {
     for (let i = 0; i < numStars; i++) {
       let x = p.random(0, cw);
       let y = p.random(minY, maxY);
@@ -453,7 +453,7 @@ const mySketch = (p: p5) => {
     }
   }
 
-  const drawMoon = (p: p5, r, minY, maxY) => {
+  const drawMoon = (p: p5, r: number, minY: number, maxY: number) => {
     let x = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
     let y = p.random(minY, maxY);
     p.fill(63, 89, 94); //yellowish white for moon

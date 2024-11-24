@@ -409,7 +409,7 @@ const mySketch = (p: p5) => {
       inceptionBuffer.pop();
       
       // Erase the inceptionBuffer circles from lakeBuffer
-      lakeBuffer.blendMode(lakeBuffer.REMOVE); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
+      lakeBuffer.blendMode(lakeBuffer.REMOVE as any); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
       lakeBuffer.image(inceptionBuffer, 0, 0);
       lakeBuffer.blendMode(lakeBuffer.BLEND); // Reset to normal blend mode
     }
@@ -417,7 +417,7 @@ const mySketch = (p: p5) => {
     p.image(lakeBuffer, 0, 0);
   }
 
-  const drawStars = (p: p5, numStars: number, minY, maxY) => {
+  const drawStars = (p: p5, numStars: number, minY: number, maxY: number) => {
     for (let i = 0; i < numStars; i++) {
       let x = p.random(0, cw);
       let y = p.random(minY, maxY);
@@ -428,7 +428,7 @@ const mySketch = (p: p5) => {
     }
   }
 
-  const drawMoon = (p: p5, minY, maxY) => {
+  const drawMoon = (p: p5, minY: number, maxY: number) => {
     let x = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
     let y = p.random(minY, maxY);
     let r = p.random(20, 50);

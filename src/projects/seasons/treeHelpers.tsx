@@ -398,4 +398,4 @@ function getPointBoundary(
   return {start, stop, angle, radius};
 }
 
-export {VermontTree, drawLeaf, drawTrunk, drawGroundLine}
+export {VermontTree, drawLeaf, drawTrunk, drawGroundLine, darkenColors}
