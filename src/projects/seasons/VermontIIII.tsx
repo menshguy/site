@@ -2,6 +2,7 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from './types.ts';
 import {VermontTree, drawTrunk, drawLeaf, drawGroundLine} from './treeHelpers.tsx';
+import {drawMoon, drawStars} from './skyHelpers.tsx';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -22,6 +23,8 @@ const mySketch = (p: p5) => {
   let treesInFront: VermontTree[] = [];
   let treesInMiddle: VermontTree[] = [];
   let treesInBack: VermontTree[] = [];
+  let moon: {x: number, y: number, r: number};
+  let stars: {numStars: number, minR: number, maxR: number, minX: number, maxX: number, minY: number, maxY: number};
   
   p.preload = () => {
     textureImg = p.loadImage('../textures/coldpressed_1.PNG');
@@ -45,7 +48,15 @@ const mySketch = (p: p5) => {
     console.log("season", season)
     timeOfDay = p.random(["day", "night"])
     sunAngle = p.radians(p.random(200, 340));
-    sunFillPercentage = p.random(0.1, 0.9);
+    sunFillPercentage = p.random(
+      0.1,
+      timeOfDay === 'night' ? 0.5 : 0.9
+    );
+    // Sunlight
+    let sunlight = {
+      angle: sunAngle,
+      fillPercentage: sunFillPercentage
+    }
     console.log("sunAngle / Fill", sunAngle, sunFillPercentage)
 
     /** LONE TREE */
@@ -73,12 +84,6 @@ const mySketch = (p: p5) => {
       let startPoint = {x: cw/2, y: ch-bottom};
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};
-
-      // Sunlight
-      let sunlight = {
-        angle: sunAngle,
-        fillPercentage: sunFillPercentage
-      }
       
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
@@ -86,7 +91,7 @@ const mySketch = (p: p5) => {
         ? colors[fallColor](0.3, .2)
         : colors[fallColor](0.9, .5)
       let fillsSunlight = timeOfDay === "night" 
-        ? colors[fallColor](0.1, .3)
+        ? colors[fallColor](0.1, .5)
         : colors[fallColor](0.8, .95);
         
       /** Create Tree */
@@ -140,12 +145,6 @@ const mySketch = (p: p5) => {
       let startPoint = {x: p.random(-100, cw+100), y: ch-bottom};
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};
-
-      // Sunlight
-      let sunlight = {
-        angle: sunAngle,
-        fillPercentage: sunFillPercentage
-      }
       
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
@@ -153,7 +152,7 @@ const mySketch = (p: p5) => {
         ? colors[fallColor](0.3, .2)
         : colors[fallColor](0.9, .5)
       let fillsSunlight = timeOfDay === "night" 
-        ? colors[fallColor](0.1, .3)
+        ? colors[fallColor](0.1, .5)
         : colors[fallColor](0.8, .95);
         
       /** Create Tree */
@@ -209,19 +208,13 @@ const mySketch = (p: p5) => {
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + middleBottom};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
       
-      // Sunlight
-      let sunlight = {
-        angle: sunAngle,
-        fillPercentage: sunFillPercentage
-      }
-      
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red'])
       let fills = timeOfDay === "night" 
         ? colors[fallColor](0.2, 0.1)
         : colors[fallColor](0.5, 0.4)
       let fillsSunlight = timeOfDay === "night" 
-        ? colors[fallColor](0.1, 0.25)
+        ? colors[fallColor](0.1, 0.45)
         : colors[fallColor](0.5, 0.8);
         
       /** Create Tree */
@@ -317,6 +310,22 @@ const mySketch = (p: p5) => {
       
       treesInBack.push(tree);
     }
+
+     /** Moon */
+     let moonR = p.random(50, 200);
+     let moonX = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
+     let moonY = p.random(0, p.height-bottom-moonR);
+     moon = {x: moonX, y: moonY, r: moonR}
+ 
+     /** Stars */
+     let numStars = 250;
+     let minR = 0.25;
+     let maxR = 1;
+     let minX = 0;
+     let maxX = cw;
+     let minY = 0;
+     let maxY = p.height - bottom;
+     stars = {numStars, minR, maxR, minX, maxX, minY, maxY}
   }
   
   p.draw = () => {
@@ -328,8 +337,8 @@ const mySketch = (p: p5) => {
     p.fill(skyColor);
     p.rect(0, 0, p.width, p.height)
     if (timeOfDay === "night") {
-      drawMoon(p, moonRadius, 0, p.height); // Draw Moon
-      drawStars(p, 150, 0, p.height-bottom); // Draw Stars
+      drawMoon(p, moon.x, moon.y, moon.r); // Draw Moon
+      drawStars(p, stars.numStars, stars.minX, stars.maxX, stars.minY, stars.maxY, stars.minR, stars.maxR); // Draw Stars
     }
     
     //Lake Background - this will essentially be the sky color in the lake reflection
@@ -386,9 +395,18 @@ const mySketch = (p: p5) => {
 
   const drawReflection = () => {
     let buffer = p.createGraphics(cw, ch);
+    // If its night, draw the moon & stars
     if (timeOfDay === "night"){
-      drawMoon(buffer, moonRadius, p.height-bottom+moonRadius, p.height);
-      drawStars(buffer, 150, p.height-bottom, p.height);
+      drawMoon(buffer, moon.x, (p.height-bottom) + (p.height - bottom - moon.y), moon.r);
+      drawStars(
+        p, 
+        stars.numStars, 
+        stars.minX, 
+        stars.maxX, 
+        (p.height-bottom) + (p.height - bottom - stars.minY), 
+        (p.height-bottom) + (p.height - bottom - stars.maxY), 
+        stars.minR, 
+        stars.maxR);
     }
     buffer.push();
     buffer.colorMode(buffer.HSL);
@@ -435,23 +453,23 @@ const mySketch = (p: p5) => {
     p.image(lakeBuffer, 0, 0);
   }
 
-  const drawStars = (p: p5, numStars: number, minY: number, maxY: number) => {
-    for (let i = 0; i < numStars; i++) {
-      let x = p.random(0, cw);
-      let y = p.random(minY, maxY);
-      let r = p.random(0.25, 1);
-      p.noStroke();
-      p.fill(255, 100, 100); // white for stars
-      p.circle(x, y, r)
-    }
-  }
+  // const drawStars = (p: p5, numStars: number, minY: number, maxY: number) => {
+  //   for (let i = 0; i < numStars; i++) {
+  //     let x = p.random(0, cw);
+  //     let y = p.random(minY, maxY);
+  //     let r = p.random(0.25, 1);
+  //     p.noStroke();
+  //     p.fill(255, 100, 100); // white for stars
+  //     p.circle(x, y, r)
+  //   }
+  // }
 
-  const drawMoon = (p: p5, r: number, minY: number, maxY: number) => {
-    let x = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
-    let y = p.random(minY, maxY);
-    p.fill(63, 89, 94); //yellowish white for moon
-    p.circle(x, y, r);
-  }
+  // const drawMoon = (p: p5, r: number, minY: number, maxY: number) => {
+  //   let x = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
+  //   let y = p.random(minY, maxY);
+  //   p.fill(63, 89, 94); //yellowish white for moon
+  //   p.circle(x, y, r);
+  // }
   
   // p.mousePressed = redraw(p, cw, ch);
   p.mousePressed = () => {

@@ -2,6 +2,7 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from './types.ts';
 import {VermontTree, drawTrunk, drawLeaf, drawGroundLine} from './treeHelpers.tsx';
+import {drawMoon, drawStars} from './skyHelpers.tsx';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -32,29 +33,40 @@ const mySketch = (p: p5) => {
     p.createCanvas(cw, ch);
 
     /** Colors */
-    // colors = {
-    //   green: (s: number = 1, l: number = 1) => () => p.color(p.random(74,107), 40*s, 40.3*l),
-    //   yellow: (s: number = 1, l: number = 1) => () => p.color(p.random(42,46), p.random(67,79.6)*s, 65*l),
-    //   orange: (s: number = 1, l: number = 1) => () => p.color(p.random(27,29), p.random(65,80)*s, 66*l),
-    //   red: (s: number = 1, l: number = 1) => () => p.color(p.random(2,17), p.random(65,77)*s, 67*l),
-    // }
     colors = {
       green: (s: number = 1, l: number = 1) => () => p.color(p.random(74,107), 70*s, 40.3*l),
       yellow: (s: number = 1, l: number = 1) => () => p.color(p.random(42,80), 70*s, 55*l),
       orange: (s: number = 1, l: number = 1) => () => p.color(p.random(27,50), 70*s, 56*l),
       red: (s: number = 1, l: number = 1) => () => p.color(p.random(2,35), 70*s, 57*l),
     }
+    // green = {
+    //   light: "#4A5D3F",
+    //   medium: "#293410",
+    //   dark: "#010100"
+    // }
+    // yellow = {
+    //   light: "#FEF82E"
+    // }
   
-    /** General Settings */
+    // Season & Time
     // season = p.random(['spring', 'winter', 'fall', 'summer']);
     season = 'fall';
     timeOfDay = p.random(["day", "night"]);
     console.log("season", season, timeOfDay)
+    
+    // Sunlight
     sunAngle = p.radians(p.random(200, 340));
-    sunFillPercentage = p.random(0.1, 0.9);
+    sunFillPercentage = p.random(
+      0.1,
+      timeOfDay === 'night' ? 0.5 : 0.9
+    );
+    let sunlight = {
+      angle: sunAngle,
+      fillPercentage: sunFillPercentage
+    }
 
     /** FRONT TREES */
-    let numTreesInFront = 50;
+    let numTreesInFront = 20;
     for (let i = 0; i < numTreesInFront; i++) {
 
       // Trunk & Tree
@@ -70,20 +82,15 @@ const mySketch = (p: p5) => {
       let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
       let pointBoundaryRadius = {min: 20, max: 30};
       let leavesStartY = p.height - bottom - pointBoundaryRadius.max; //where on y axis do leaves start
-      let leafWidth = p.random(1, 1);
-      let leafHeight = p.random(2, 2);
+      let leafWidth = p.random(2, 2);
+      let leafHeight = p.random(3, 3);
       let rowHeight = treeHeight/5; //x points will drawn p.randominly in each row. rows increment up by this amount
 
       // Start / Mid / Bulge
-      let startPoint = {x: p.random(-100, cw+100), y: ch-bottom};
+      let startX = i * (cw/numTreesInFront) + p.random(-10, 10)
+      let startPoint = {x: startX, y: ch-bottom};
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};
-
-      // Sunlight
-      let sunlight = {
-        angle: sunAngle,
-        fillPercentage: sunFillPercentage
-      }
       
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
@@ -121,11 +128,11 @@ const mySketch = (p: p5) => {
     }
 
     /** MIDDLE TREES */
-    let numTreesInMiddle = 13;
+    let numTreesInMiddle = 25;
     for (let i = 0; i < numTreesInMiddle; i++) {
 
       // Trunk & Tree
-      let trunkHeight = p.random(25, 50);
+      let trunkHeight = p.random(60, 80);
       let trunkWidth = p.random(25, 50);
       let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
       let treeWidth = p.random(trunkWidth, trunkWidth+20); // total width including leaves
@@ -133,24 +140,24 @@ const mySketch = (p: p5) => {
 
       // Points & Leaves
       let numPointsPerRow = 3; // X points are draw within a boundary radius
-      let avg = 300
+      let avg = 300;
       let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
       let pointBoundaryRadius = {min: 20, max: 30};
       let leavesStartY = p.height - bottom - pointBoundaryRadius.max; //where on y axis do leaves start
-      let leafWidth = p.random(1, 1);
-      let leafHeight = p.random(2, 2);
+      let leafWidth = p.random(2, 2);
+      let leafHeight = p.random(3, 3);
       let rowHeight = treeHeight/5; //x points will drawn p.randominly in each row. rows increment up by this amount
 
       // Start / Mid / Bulge
-      let startPoint = {x: p.random(-100, cw+100), y: ch-bottom-40};
+      let startX = i * (cw/numTreesInMiddle)
+      let minStartY = ch-bottom-10
+      let maxStartY = ch-bottom-50
+      let startY = i < numTreesInMiddle/2
+        ? p.map(i, 0, numTreesInMiddle/2, minStartY, maxStartY )
+        : p.map(i, numTreesInMiddle/2, numTreesInMiddle, maxStartY, minStartY)
+      let startPoint = {x: startX, y: startY};
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};
-
-      // Sunlight
-      let sunlight = {
-        angle: sunAngle,
-        fillPercentage: sunFillPercentage
-      }
       
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
@@ -158,10 +165,10 @@ const mySketch = (p: p5) => {
         ? colors[fallColor](0.3, .2)
         : colors[fallColor](0.9, .5)
       let fillsSunlight = timeOfDay === "night" 
-        ? colors[fallColor](0.1, .3)
+        ? colors[fallColor](0.1, .5)
         : colors[fallColor](0.8, .95);
         
-      /** Create Tree */
+      // Tree
       tree = new VermontTree({
         p5Instance: p,
         treeHeight, 
@@ -209,15 +216,15 @@ const mySketch = (p: p5) => {
       let rowHeight = treeHeight/5; //x points will drawn p.randominly in each row. rows increment up by this amount
 
       // Start / Mid / Bulge
-      let startPoint = {x: p.random(-100, cw+100), y: ch-bottom-80};
+      let startX = i * (cw/numTreesInMiddle)
+      let minStartY = ch-bottom-60
+      let maxStartY = ch-bottom-90
+      let startY = i < numTreesInMiddle/2
+        ? p.map(i, 0, numTreesInMiddle/2, minStartY, maxStartY )
+        : p.map(i, numTreesInMiddle/2, numTreesInMiddle, maxStartY, minStartY)
+      let startPoint = {x: startX, y: startY};
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};
-
-      // Sunlight
-      let sunlight = {
-        angle: sunAngle,
-        fillPercentage: sunFillPercentage
-      }
       
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
@@ -225,7 +232,7 @@ const mySketch = (p: p5) => {
         ? colors[fallColor](0.3, .2)
         : colors[fallColor](0.9, .5)
       let fillsSunlight = timeOfDay === "night" 
-        ? colors[fallColor](0.1, .3)
+        ? colors[fallColor](0.1, .5)
         : colors[fallColor](0.8, .95);
         
       /** Create Tree */
@@ -287,8 +294,8 @@ const mySketch = (p: p5) => {
     
     //Shadow
     p.noStroke()
-    p.fill("#27221A")
-    p.rect(0, p.height-bottom-50, p.width, 50)
+    p.fill(timeOfDay === "night" ? p.color("#27221A") : p.color(30, 30, 40))
+    p.rect(0, p.height-bottom-30, p.width, 50)
     
     //Lake Background - this will essentially be the sky color in the lake reflection
     p.noStroke()
@@ -440,31 +447,6 @@ const mySketch = (p: p5) => {
       buffer.pop();
     }
     return buffer;
-  }
-
-  const drawStars = (
-    p: p5, 
-    numStars: number, 
-    minX: number, 
-    maxX: number, 
-    minY: number, 
-    maxY: number,
-    minR: number,
-    maxR: number,
-  ) => {
-    for (let i = 0; i < numStars; i++) {
-      let x = p.random(minX, maxX);
-      let y = p.random(minY, maxY);
-      let r = p.random(minR, maxR);
-      p.noStroke();
-      p.fill(255, 100, 100); // white for stars
-      p.circle(x, y, r)
-    }
-  }
-
-  const drawMoon = (p: p5, x: number, y: number, r: number) => {
-    p.fill(63, 89, 92); //yellowish white for moon
-    p.circle(x, y, r);
   }
   
   // p.mousePressed = redraw(p, cw, ch);
