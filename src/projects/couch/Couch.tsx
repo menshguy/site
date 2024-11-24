@@ -87,7 +87,7 @@ const mySketch = (p: p5) => {
           const r = p.pixels[index];
           const g = p.pixels[index + 1];
           const b = p.pixels[index + 2];
-          const a = p.pixels[index + 3];
+          // const a = p.pixels[index + 3];
   
           // Calculate brightness using HSB mode
           const color = p.color(r, g, b);

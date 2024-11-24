@@ -14,7 +14,6 @@ const mySketch = (p: p5) => {
   let season: Season;
   let textureImg: p5.Image;
   let colors: Record<Season, (s:number, l:number) => () => p5.Color>;
-  let colorsSunlight: Record<Season, () => p5.Color>;
   let colorsBG: Record<Season, p5.Color>;
   let bgColor: p5.Color;
   let treesInFront: VermontTree[] = [];
@@ -35,12 +34,6 @@ const mySketch = (p: p5) => {
       fall: (s: number = 1, l: number = 1) => () => p.color(p.random(5,45), 65*s, 100*l),
       spring: (s: number = 1, l: number = 1) => () => p.color(p.random(5,45), 75*s, 100*l),
       summer: (s: number = 1, l: number = 1) => () => p.color(p.random(70,125), 80*s, 55*l)
-    }
-    colorsSunlight = {
-      winter: () => p.color(p.random(205,225), 80, 90),
-      fall: () => p.color(p.random(15,50), 80, 60),
-      spring: () => p.color(p.random(5,60), 75, 70),
-      summer: () => p.color(p.random(100,135), 70, 95)
     }
     colorsBG = {
       'summer': p.color(56,85,91), //light yellow
