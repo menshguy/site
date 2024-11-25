@@ -2,108 +2,81 @@ import p5 from 'p5';
 import {VermontTree} from './treeHelpers.tsx';
 
 type TimeOfDay = "night" | "day";
-type Moon = {x: number, y: number, r: number}
-type Stars = {numStars: number, minR: number, maxR: number, minX: number, maxX: number, minY: number, maxY: number}
+type Moon = {x: number, y: number, r: number, fill: p5.Color}
+type Stars = {numStars: number, fill: p5.Color, minR: number, maxR: number, minX: number, maxX: number, minY: number, maxY: number}
 
-const drawStars = (
-  p: p5, 
-  numStars: number, 
-  minX: number, 
-  maxX: number, 
-  minY: number, 
-  maxY: number,
-  minR: number,
-  maxR: number,
-) => {
+const drawStars = (p: p5, settings: Stars) => {
+  let {numStars, minX, maxX, minY, maxY, minR, maxR, fill} = settings
   for (let i = 0; i < numStars; i++) {
     let x = p.random(minX, maxX);
     let y = p.random(minY, maxY);
     let r = p.random(minR, maxR);
+    
+    p.push()
     p.noStroke();
-    p.fill(255, 100, 100); // white for stars
+    p.fill(fill); // white for stars
     p.circle(x, y, r)
+    p.pop()
   }
 }
 
-const drawMoon = (p: p5, x: number, y: number, r: number) => {
-  p.fill(63, 89, 92); //yellowish white for moon
+const drawMoon = (p: p5, settings: Moon) => {
+  let {x, y, r, fill} = settings
+  p.push()
+  p.noStroke()
+  p.fill(fill); //yellowish white for moon
   p.circle(x, y, r);
+  p.pop()
 }
 
 const drawLake = (
-  buffer: p5.Graphics, 
-  canvas: p5,
-  bottomY: number,
-  timeOfDay: TimeOfDay
+  p: p5,
+  y: number,
+  lakeFill: p5.Color
 ) => {
-
+  let buffer = p.createGraphics(p.width, p.height);
   // Create a rectangle for the lake
   buffer.colorMode(buffer.HSL);
   buffer.noStroke()
-  buffer.fill(timeOfDay === "night" ? canvas.color(223, 68, 8) : buffer.color(215, 40.7, 64.2))
-  buffer.rect(0, bottomY, buffer.width, buffer.height)
-  
+  buffer.fill(lakeFill)
+  buffer.rect(0, y, buffer.width, buffer.height);
+  return buffer;
+}
+
+const eraseCirclesFromBuffer = (p: p5, buffer: p5.Graphics, bottomY: number) => {
   // Erase random ovals from the rectangle - the erased sections will expose the reflection underneath
-  let eraserBuffer = canvas.createGraphics(canvas.width, buffer.height - bottomY);
+  let eraserBuffer = p.createGraphics(p.width, p.height - bottomY);
   let eraserImage = _generateEraserCircles(eraserBuffer, 5)
   
   // Erase the eraserBuffer circles from buffer
   buffer.blendMode(buffer.REMOVE as any); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
   buffer.image(eraserImage, 0, bottomY);
   buffer.blendMode(buffer.BLEND); // Reset to normal blend mode
-  
-  // Draw the rectangle with erased circles
-  canvas.image(buffer, 0, 0);
+  return buffer;
 }
 
 const drawReflection = (
-  buffer: p5.Graphics, 
-  canvas: p5, 
-  trees: VermontTree[],
-  bottomY: number,
-  timeOfDay: TimeOfDay, 
-  moon: Moon, 
-  stars: Stars
+  p: p5, 
+  imageToReflect: p5.Graphics,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
 ) => {
-
-  // If its night, draw the moon & stars
-  if (timeOfDay === "night"){
-    drawMoon(buffer, moon.x, (bottomY) + (bottomY - moon.y), moon.r);
-    drawStars(
-      buffer, 
-      stars.numStars, 
-      stars.minX, 
-      stars.maxX, 
-      (bottomY) + (bottomY - stars.minY), 
-      (bottomY) + (bottomY - stars.maxY), 
-      stars.minR, 
-      stars.maxR);
-  }
-
-  // Flip and translate to draw updside down
-  buffer.push();
-  buffer.colorMode(buffer.HSL);
-  buffer.scale(1, -1); // Flip the y-axis to draw upside down
-  buffer.translate(0, -(bottomY)*2); // Adjust translation for the buffer
   
-  // Draw all of the trees upside down, starting from bottom
-  trees.forEach((tree: VermontTree) => {
-    tree.leaves.forEach(leaf => {
-      // Darken and desaturate the reflection leaves
-      let c = leaf.fill_c;
-      leaf.fill_c = buffer.color(
-        buffer.hue(c), 
-        buffer.saturation(c) * 0.6, 
-        buffer.lightness(c) * 0.85
-      )
-      tree.drawLeaf(buffer, leaf)
-    });
-  });
+  // Draw image to a buffer, flip, and then translate to correct x & y coords
+  let reflectionBuffer = p.createGraphics(w, h)
+  reflectionBuffer.push();
+  reflectionBuffer.colorMode(reflectionBuffer.HSL);
+  reflectionBuffer.scale(1, -1); // Flip the y-axis to draw upside down
+  reflectionBuffer.translate(x, -(y)*2); // Adjust translation for the buffer
+  reflectionBuffer.image(imageToReflect, 0, 0);
   
-  // Add blur and draw to buffer
-  buffer.filter(buffer.BLUR, 3); // Add blur to buffer
-  canvas.image(buffer, 0, 0)
-  buffer.pop();
+  // Add blur 
+  reflectionBuffer.filter(reflectionBuffer.BLUR, 3); // Add blur to buffer
+  reflectionBuffer.pop();
+
+  return reflectionBuffer;
 }
 
 function _generateEraserCircles(buffer: p5.Graphics, numCirlces: number) {
@@ -126,5 +99,5 @@ function _generateEraserCircles(buffer: p5.Graphics, numCirlces: number) {
   return buffer;
 }
 
-export {drawMoon, drawStars, drawLake, drawReflection}
+export {drawMoon, drawStars, drawLake, drawReflection, eraseCirclesFromBuffer}
 export type {Moon, Stars, TimeOfDay};

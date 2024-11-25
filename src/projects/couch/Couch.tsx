@@ -40,12 +40,6 @@ const mySketch = (p: p5) => {
     // Limit frame rate to 30 FPS
     p.frameRate(30); 
 
-    // Create a button to save the canvas
-    const saveButton = p.createButton('Save Canvas');
-    saveButton.position(10, 10); // Position the button on the canvas
-    saveButton.mousePressed(() => {
-      p.saveCanvas('myCanvas', 'png'); // Save the canvas as a PNG file
-    });
   }
   
   p.draw = () => {

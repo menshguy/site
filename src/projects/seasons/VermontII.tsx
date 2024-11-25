@@ -2,7 +2,7 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from './types.ts';
 import {VermontTree, drawGroundLine} from './treeHelpers.tsx';
-import {drawMoon, drawStars, drawReflection, drawLake, Moon, Stars, TimeOfDay} from './skyHelpers.tsx';
+import {drawMoon, drawStars, drawReflection, drawLake, eraseCirclesFromBuffer, Moon, Stars, TimeOfDay} from './skyHelpers.tsx';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -21,8 +21,8 @@ const mySketch = (p: p5) => {
   let treesInMiddle: VermontTree[] = [];
   let treesInBack: VermontTree[] = [];
   let timeOfDay: TimeOfDay;
-  let moon: Moon;
-  let stars: Stars;
+  let moonConfig: Moon;
+  let starsConfig: Stars;
 
   p.preload = () => {
     textureImg = p.loadImage('../textures/coldpressed_1.PNG');
@@ -255,93 +255,91 @@ const mySketch = (p: p5) => {
     let moonR = p.random(50, 200);
     let moonX = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
     let moonY = p.random(0, p.height-bottom-moonR);
-    moon = {x: moonX, y: moonY, r: moonR}
+    let moonFill = p.color(255, 100, 100);
+    moonConfig = {x: moonX, y: moonY, r: moonR, fill: moonFill}
 
     /** Stars */
     let numStars = 250;
+    let starFill = p.color(255, 100, 100);
     let minR = 0.25;
     let maxR = 1;
     let minX = 0;
     let maxX = cw;
     let minY = 0;
     let maxY = p.height - bottom;
-    stars = {numStars, minR, maxR, minX, maxX, minY, maxY}
+    starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
   }
   
   p.draw = () => {
     p.noLoop();
+    
+    // Create a buffer for main image to be drawn to.
+    let m = p.createGraphics(p.width, p.height)
 
-    //Sky
+    // Sky to canvas
+    let skyColor = timeOfDay === "night" ? p.color(223,43,18) : p.color("#68ADF6");
+    p.push();
     p.noStroke();
-    let skyColor = timeOfDay === "night" ? p.color(223,43,18) : p.color("#68ADF6")
     p.fill(skyColor);
-    p.rect(0, 0, p.width, p.height)
+    p.rect(0, 0, p.width, p.height);
+    p.pop();
 
+    // Draw Moon and Stars to buffer
     if (timeOfDay === "night") {
-      drawMoon(p, moon.x, moon.y, moon.r); // Draw Moon
-      drawStars(p, stars.numStars, stars.minX, stars.maxX, stars.minY, stars.maxY, stars.minR, stars.maxR); // Draw Stars
+      drawMoon(m, moonConfig); // Draw Moon
+      drawStars(m, starsConfig); // Draw Stars
     }
     
-    //Shadow
-    p.noStroke()
-    p.fill("#27221A")
-    p.rect(0, p.height-bottom-50, p.width, 50)
+    // Shadow
+    p.noStroke();
+    p.fill("#27221A");
+    p.rect(0, p.height-bottom-50, p.width, 50);
     
-    //Lake Background - this will essentially be the sky color in the lake reflection
-    p.noStroke()
-    p.fill(skyColor)
-    p.rect(0, p.height-bottom, p.width, p.height)
+    // Sky Reflection
+    p.noStroke();
+    p.fill(skyColor);
+    p.rect(0, p.height-bottom, p.width, p.height);
     
+    // Draw trees to a buffer image (this will let us more effeciently create reflection later)
     treesInBack.forEach(tree => {
-      tree.leaves.forEach(leaf => tree.drawLeaf(p, leaf));
+      tree.leaves.forEach(leaf => tree.drawLeaf(m, leaf));
+    })
+    treesInMiddle.forEach(tree => {
+      m.push();
+      m.strokeWeight(1);
+      m.noFill();
+      m.stroke(12, 10, 55);
+      m.stroke(timeOfDay === "night" ? m.color(12, 10, 15) : m.color(12, 10, 55));
+      tree.drawTrunk(m, tree.trunkLines, true)
+      m.pop();
+      tree.leaves.forEach(leaf => tree.drawLeaf(m, leaf));
+    })
+    treesInFront.forEach(tree => {
+      m.push();
+      m.strokeWeight(1);
+      m.noFill()
+      m.stroke(timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 40));
+      tree.drawTrunk(m, tree.trunkLines, true)
+      m.pop();
+      tree.leaves.forEach(leaf => tree.drawLeaf(m, leaf));
     })
 
-    treesInMiddle.forEach(tree => {
-      p.push();
-      p.strokeWeight(1);
-      p.noFill();
-      p.stroke(12, 10, 55);
-      p.stroke(timeOfDay === "night" ? p.color(12, 10, 15) : p.color(12, 10, 55));
-      tree.drawTrunk(p, tree.trunkLines, true)
-      p.pop();
-      tree.leaves.forEach(leaf => tree.drawLeaf(p, leaf));
-    })
-    
-    treesInFront.forEach(tree => {
-      p.push();
-      p.strokeWeight(1);
-      p.noFill()
-      p.stroke(timeOfDay === "night" ? p.color(12, 20, 10) : p.color(12, 20, 40));
-      tree.drawTrunk(p, tree.trunkLines, true)
-      p.pop();
-      tree.leaves.forEach(leaf => tree.drawLeaf(p, leaf));
-    })
+    // Draw tree buffer image
+    p.image(m, 0, 0);
 
     // Ground Line
-    drawGroundLine(p, 25, ch-bottom, cw-25, colors['red'](1, 0.2)())
+    drawGroundLine(p, 25, ch-bottom, cw-25, p.color(27, 20, 18));
     
     // Draw Reflection
-    let reflectionBuffer = p.createGraphics(cw, ch);
-    let allTrees = [...treesInBack, ...treesInMiddle, ...treesInFront];
-    drawReflection(
-      reflectionBuffer, 
-      p, 
-      allTrees, 
-      reflectionBuffer.height - bottom,
-      timeOfDay, 
-      moon, 
-      stars
-    )
-    
-    // Draw Lake on top of Reflection
-    let lakeBuffer = p.createGraphics(cw, ch);
-    drawLake(
-      lakeBuffer, 
-      p,
-      lakeBuffer.height - bottom,
-      timeOfDay
-    );
+    let b = drawReflection(p, m, 0, p.height - bottom, p.width, p.height);
+    p.image(b, 0, 0);
 
+    // Draw a rect for the lake, and erase circles from that buffer image
+    let lakeFill = timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2);
+    let c = drawLake(p, p.height - bottom, lakeFill);
+    let d = eraseCirclesFromBuffer(p, c, p.height - bottom);
+    p.image(d, 0, 0);
+    
     //Draw Texture
     p.blendMode(p.MULTIPLY);
     p.image(textureImg, 0, 0, cw, ch);
@@ -370,81 +368,6 @@ const mySketch = (p: p5) => {
       })
     }
   }
-
-  // const drawReflection = () => {
-  //   let buffer = p.createGraphics(cw, ch);
-  //   if (timeOfDay === "night"){
-  //     drawMoon(buffer, p.height-bottom, p.height);
-  //     drawStars(buffer, 100, p.height-bottom, p.height);
-  //   }
-  //   buffer.push();
-  //   buffer.colorMode(buffer.HSL);
-  //   buffer.scale(1, -1); // Flip the y-axis to draw upside down
-  //   buffer.translate(0, -p.height-bottom); // Adjust translation for the buffer
-  //   let allTrees = [...treesInBack, ...treesInMiddle, ...treesInFront];
-  //   allTrees.forEach(tree => {
-  //     tree.leaves.forEach(leaf => {
-  //       // Darken and desaturate the reflection leaves
-  //       let c = leaf.fill_c;
-  //       leaf.fill_c = p.color(
-  //         p.hue(c), 
-  //         p.saturation(c) * 0.6, 
-  //         p.lightness(c) * 0.85
-  //       )
-  //       tree.drawLeaf(buffer, leaf)
-  //     });
-  //   });
-    
-  //   buffer.filter(p.BLUR, 3); // Add blur to buffer
-  //   p.image(buffer, 0, 0); // Draw Buffer
-  //   buffer.pop();
-  // }
-
-  // const drawLake = () => {
-  //   // Draw Lake Rect and Erase Circles so that reflection image comes through
-  //   let lakeBuffer = p.createGraphics(cw, ch);
-  //   lakeBuffer.push();
-  //   lakeBuffer.colorMode(lakeBuffer.HSL);
-  //   lakeBuffer.noStroke()
-  //   lakeBuffer.fill(timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2))
-  //   lakeBuffer.rect(0, p.height-bottom, p.width, p.height)
-  //   // Erase random ovals from the rectangle - start from bottom half of lake to ensure more circles get drawn toward the top
-  //   for (let i = 0; i <= 5; i++) { // Adjust the number of ovals as needed
-  //     let inceptionBuffer = p.createGraphics(cw, ch);
-  //     inceptionBuffer.push();
-  //     let isUpperHalfOfLake = i <= 1
-      
-  //     let y = isUpperHalfOfLake
-  //       ? p.random(inceptionBuffer.height-bottom, inceptionBuffer.height-(bottom/2))
-  //       : p.random(inceptionBuffer.height-(bottom/2), inceptionBuffer.height);
-
-  //     let x = p.random(inceptionBuffer.width/2 - 100, inceptionBuffer.width/2 + 100)
-      
-  //     let w = isUpperHalfOfLake // Random width of the oval
-  //       ? p.random(1200, 1600)
-  //       : p.random(1600, 2000); 
-      
-  //     let h = isUpperHalfOfLake // Circle Height increases with y
-  //       ? p.map(y, inceptionBuffer.height-bottom, inceptionBuffer.height-(bottom/2), 5, 20)
-  //       : p.map(y, inceptionBuffer.height-(bottom/2), inceptionBuffer.height, 50, 80);
-
-  //     // Draw ellipse with soft edges
-  //     inceptionBuffer.colorMode(inceptionBuffer.HSL);
-  //     inceptionBuffer.noStroke();
-  //     inceptionBuffer.fill("white");
-  //     inceptionBuffer.ellipse(x, y, w, h);
-  //     let blurAmount = p.map(y, inceptionBuffer.height-bottom, inceptionBuffer.height, 0, 5) // Increase blur as y increases
-  //     inceptionBuffer.filter(p.BLUR, blurAmount); // Apply blur to soften edges
-  //     inceptionBuffer.pop();
-      
-  //     // Erase the inceptionBuffer circles from lakeBuffer
-  //     lakeBuffer.blendMode(lakeBuffer.REMOVE as any); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
-  //     lakeBuffer.image(inceptionBuffer, 0, 0);
-  //     lakeBuffer.blendMode(lakeBuffer.BLEND); // Reset to normal blend mode
-  //   }
-  //   lakeBuffer.pop();
-  //   p.image(lakeBuffer, 0, 0);
-  // }
   
   // p.mousePressed = redraw(p, cw, ch);
   p.mousePressed = () => {

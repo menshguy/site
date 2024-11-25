@@ -135,10 +135,8 @@ class VermontTree {
     let rowWidth = lowerRowIncrement;
     
     // Lower Half -- expand row width until you reach the bulge
-    // let lowerRowIncrement = treeWidth / numLowerRows;
     let lowerRows = numLowerRows;
     let upperRows = numUpperRows;
-    // let accumulatedHeight = 0;
 
     for (let i = 0; i < lowerRows; i++) {
         // Calculate the increment for start_y using a quadratic function
@@ -154,10 +152,9 @@ class VermontTree {
         points.push(...leafPoints);
         start_y -= lowerRowHeightIncrement; // Increase start_y by the calculated increment
         rowWidth += lowerRowIncrement;
-        // accumulatedHeight += lowerRowHeightIncrement;
     }
+    
     // Upper Half -- reduce row width until you reach the top
-    // while (start_y > end_y) {
     rowWidth = treeWidth
     for (let i = 0; i < upperRows - 1; i++) {
       // Calculate the increment for start_y using a quadratic function

@@ -2,7 +2,7 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from './types.ts';
 import {VermontTree, drawGroundLine} from './treeHelpers.tsx';
-import {drawMoon, drawStars, drawReflection, drawLake, Moon, Stars, TimeOfDay} from './skyHelpers.tsx';
+import {drawMoon, drawStars, drawReflection, eraseCirclesFromBuffer, drawLake, Moon, Stars, TimeOfDay} from './skyHelpers.tsx';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -21,8 +21,8 @@ const mySketch = (p: p5) => {
   let treesInMiddle: VermontTree[] = [];
   let treesInBack: VermontTree[] = [];
   let timeOfDay: TimeOfDay;
-  let moon: Moon;
-  let stars: Stars;
+  let moonConfig: Moon;
+  let starsConfig: Stars;
   
   p.preload = () => {
     textureImg = p.loadImage('../textures/coldpressed_1.PNG');
@@ -265,92 +265,87 @@ const mySketch = (p: p5) => {
     let moonR = p.random(50, 200);
     let moonX = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
     let moonY = p.random(0, p.height-bottom-moonR);
-    moon = {x: moonX, y: moonY, r: moonR}
+    let moonFill = p.color(255, 100, 100);
+    moonConfig = {x: moonX, y: moonY, r: moonR, fill: moonFill}
 
     /** Stars */
     let numStars = 250;
+    let starFill = p.color(255, 100, 100);
     let minR = 0.25;
     let maxR = 1;
     let minX = 0;
     let maxX = cw;
     let minY = 0;
     let maxY = p.height - bottom;
-    stars = {numStars, minR, maxR, minX, maxX, minY, maxY}
+    starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
   }
   
   p.draw = () => {
     p.noLoop();
 
-    //Sky
+    // Create a buffer for main image to be drawn to.
+    let m = p.createGraphics(p.width, p.height)
+
+    // Sky to canvas
     let skyColor = timeOfDay === "night" ? p.color(223,43,18) : p.color("#68ADF6")
     p.noStroke();
     p.fill(skyColor);
     p.rect(0, 0, p.width, p.height)
 
+    // Draw Moon and Stars to buffer
     if (timeOfDay === "night") {
-      drawMoon(p, moon.x, moon.y, moon.r); // Draw Moon
-      drawStars(p, stars.numStars, stars.minX, stars.maxX, stars.minY, stars.maxY, stars.minR, stars.maxR); // Draw Stars
+      drawMoon(m, moonConfig); // Draw Moon
+      drawStars(m, starsConfig); // Draw Stars
     }
     
-    //Shadow
+    // Shadow
     p.noStroke()
     p.fill(timeOfDay === "night" ? p.color("#27221A") : p.color(30, 30, 40))
     p.rect(0, p.height-bottom-30, p.width, 50)
     
-    //Lake Background - this will essentially be the sky color in the lake reflection
+    // Sky Reflection
     p.noStroke()
     p.fill(skyColor)
     p.rect(0, p.height-bottom, p.width, p.height)
     
     treesInBack.forEach(tree => {
-      tree.leaves.forEach(leaf => tree.drawLeaf(p, leaf));
+      tree.leaves.forEach(leaf => tree.drawLeaf(m, leaf));
     })
-
     treesInMiddle.forEach(tree => {
-      p.push();
-      p.strokeWeight(1);
-      p.noFill();
-      p.stroke(12, 10, 55);
-      p.stroke(timeOfDay === "night" ? p.color(12, 10, 15) : p.color(12, 10, 55));
-      tree.drawTrunk(p, tree.trunkLines, true)
-      p.pop();
-      tree.leaves.forEach(leaf => tree.drawLeaf(p, leaf));
+      m.push();
+      m.strokeWeight(1);
+      m.noFill();
+      m.stroke(12, 10, 55);
+      m.stroke(timeOfDay === "night" ? m.color(12, 10, 15) : m.color(12, 10, 55));
+      tree.drawTrunk(m, tree.trunkLines, true)
+      m.pop();
+      tree.leaves.forEach(leaf => tree.drawLeaf(m, leaf));
+    })
+    treesInFront.forEach(tree => {
+      m.push();
+      m.strokeWeight(1);
+      m.noFill()
+      m.stroke(timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 40));
+      tree.drawTrunk(m, tree.trunkLines, true)
+      m.pop();
+      tree.leaves.forEach(leaf => tree.drawLeaf(m, leaf));
     })
     
-    treesInFront.forEach(tree => {
-      p.push();
-      p.strokeWeight(1);
-      p.noFill()
-      p.stroke(timeOfDay === "night" ? p.color(12, 20, 10) : p.color(12, 20, 40));
-      tree.drawTrunk(p, tree.trunkLines, true)
-      p.pop();
-      tree.leaves.forEach(leaf => tree.drawLeaf(p, leaf));
-    })
+    // Draw tree buffer image
+    p.image(m, 0, 0)
 
     // Ground Line
     drawGroundLine(p, 25, ch-bottom, cw-25, p.color(27, 20, 18))
     
     // Draw Reflection
-    let reflectionBuffer = p.createGraphics(cw, ch);
-    let allTrees = [...treesInBack, ...treesInMiddle, ...treesInFront];
-    drawReflection(
-      reflectionBuffer, 
-      p, 
-      allTrees, 
-      reflectionBuffer.height - bottom,
-      timeOfDay, 
-      moon, 
-      stars
-    )
-    
-    // Draw Lake on top of Reflection
-    let lakeBuffer = p.createGraphics(cw, ch);
-    drawLake(
-      lakeBuffer, 
-      p,
-      lakeBuffer.height - bottom,
-      timeOfDay
-    );
+    let b = drawReflection(p, m, 0, p.height - bottom, p.width, p.height)
+    p.image(b, 0, 0)
+
+    // Draw a rect for the lake, and erase circles from that buffer image
+    let lakeFill = timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2)
+    let c = drawLake(p, p.height - bottom, lakeFill);
+    let d = eraseCirclesFromBuffer(p, c, p.height - bottom)
+    p.image(d, 0, 0)
 
     //Draw Texture
     p.blendMode(p.MULTIPLY);
@@ -392,16 +387,14 @@ const mySketch = (p: p5) => {
       p.draw();
     }
   };
-  
 };
 
 const VermontIII: React.FC = () => {
   return (
     <div>
       <h1>Vermont III</h1>
-      {/* <p>11/14/24</p> */}
       <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch} />
+      <P5Wrapper sketch={mySketch} includeSaveButton />
     </div>
   );
 };
