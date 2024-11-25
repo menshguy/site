@@ -1,6 +1,6 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
-import {Season, Leaf, Line} from './types.ts';
+import {Season, Leaf, TrunkLine} from './types.ts';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -371,7 +371,7 @@ const mySketch = (p: p5) => {
     p.pop();
   }
   
-  function drawTrunkInWind(lines: Line[]){
+  function drawTrunkInWind(lines: TrunkLine[]){
     let trunkBuffer = p.createGraphics(cw, ch);
     let time = p.frameCount * 0.02; // Adjust the speed of the wind effect
     lines.forEach(line => {

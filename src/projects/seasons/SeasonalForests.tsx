@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { Season, Leaf, Line } from './types';
+import { Season, Leaf, TrunkLine } from './types';
 
 const mySketch = (p: p5) => {
   let cw: number, ch: number;
@@ -438,11 +438,11 @@ const mySketch = (p: p5) => {
     }
   }
   
-  function drawTrunk(trunk: Line[]){
+  function drawTrunk(trunk: TrunkLine[]){
     
     let trunkBuffer = p.createGraphics(cw, ch);
     
-    trunk.forEach((line: Line) => {
+    trunk.forEach((line: TrunkLine) => {
       let {startPoint:s, controlPoints:cps, endPoint:e} = line;
   
       //Set Styles

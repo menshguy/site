@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import {Leaf, Line} from '../seasons/types.ts';
+import {Leaf, TrunkLine, Point} from '../seasons/types.ts';
 
 const mySketch = (p: p5) => {
   let cw: number, ch: number;
@@ -41,7 +41,7 @@ const mySketch = (p: p5) => {
       tree.drawLeaves();
     }); 
   
-    //Draw Base Line
+    //Draw Base TrunkLine
     p.stroke(5, 42, 12);
     p.strokeWeight(1);
     drawBaseLine(100, ch-bottom, cw-100)
@@ -93,7 +93,7 @@ const mySketch = (p: p5) => {
   }
   
   class Tree {
-    lines: Line[];
+    lines: TrunkLine[];
     numLines: number;
     startPoint: { x: number, y: number };
     treeHeight: number;
@@ -218,7 +218,7 @@ const mySketch = (p: p5) => {
           //Draw Control Points for Reference
           p.stroke("red");
           p.strokeWeight(5);
-          controlPoints.forEach(point => {
+          controlPoints.forEach((point: Point) => {
             p.point(point.x, point.y)
           })
         

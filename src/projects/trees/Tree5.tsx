@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import {Leaf, Line} from '../seasons/types.ts';
+import {Leaf, TrunkLine} from '../seasons/types.ts';
 
 
 const mySketch = (p: p5) => {
@@ -345,9 +345,9 @@ const mySketch = (p: p5) => {
     }
   }
   
-  function drawTrunk(tree: Line[]){
+  function drawTrunk(tree: TrunkLine[]){
     let trunkBuffer = p.createGraphics(cw, ch);
-    tree.forEach((line: Line) => {
+    tree.forEach((line: TrunkLine) => {
       let {startPoint:s, controlPoints:cps, endPoint:e} = line
   
       //Set Styles

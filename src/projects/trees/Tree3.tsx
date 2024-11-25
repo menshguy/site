@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import {Leaf, Line, Point} from '../seasons/types.ts';
+import {Leaf, TrunkLine, Point} from '../seasons/types.ts';
 
 const mySketch = (p: p5) => {
   let cw:number, ch:number;
@@ -46,7 +46,7 @@ const mySketch = (p: p5) => {
       tree.drawLeaves();
     }); 
   
-    //Draw Base Line
+    //Draw Base TrunkLine
     p.stroke(5, 42, 12);
     p.strokeWeight(1.5);
     drawBaseLine(0, ch-bottom, cw)
@@ -102,7 +102,7 @@ const mySketch = (p: p5) => {
     startPoint: {x: number, y: number}; 
     treeHeight: number; 
     treeWidth: number;
-    lines: Line[];
+    lines: TrunkLine[];
     leaves: Leaf[]
 
     constructor({
@@ -254,7 +254,7 @@ const mySketch = (p: p5) => {
       if (drawControls){
         trees.forEach(tree => {
           let {lines} = tree;
-          lines.forEach((line: Line) => {
+          lines.forEach((line: TrunkLine) => {
             let cp = line.controlPoints
             let x1 = cp[0].x
             let y1 = cp[0].y
@@ -282,7 +282,7 @@ const mySketch = (p: p5) => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
       trees.forEach(tree => {
         let {lines} = tree;
-        lines.forEach((line: Line) => {
+        lines.forEach((line: TrunkLine) => {
           let cp = line.controlPoints
           if (line.isDragging) {
             cp[line.isDragging.i].x = p.mouseX;
@@ -298,7 +298,7 @@ const mySketch = (p: p5) => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
       trees.forEach(tree => {
         let {lines} = tree;
-        lines.forEach((line: Line) => {
+        lines.forEach((line: TrunkLine) => {
           line.isDragging = false;
         });
       })
