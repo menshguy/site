@@ -1,5 +1,4 @@
 import p5 from 'p5';
-import {VermontTree} from './treeHelpers.tsx';
 
 type TimeOfDay = "night" | "day";
 type Moon = {x: number, y: number, r: number, fill: p5.Color}
