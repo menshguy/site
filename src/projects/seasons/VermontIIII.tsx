@@ -43,13 +43,11 @@ const mySketch = (p: p5) => {
     season = 'fall';
     timeOfDay = p.random(["day", "night"])
     console.log("season", season, timeOfDay)
-    sunAngle = p.radians(p.random(200, 340));
-    sunFillPercentage = p.random(
-      0.1,
-      timeOfDay === 'night' ? 0.5 : 0.9
-    );
+    
     // Sunlight
-    let sunlight = { angle: sunAngle, fillPercentage: sunFillPercentage}
+    sunAngle = p.radians(p.random(200, 340));
+    sunFillPercentage = p.random(0.1, timeOfDay === 'night' ? 0.5 : 0.9);
+    let sunlight = {angle: sunAngle, fillPercentage: sunFillPercentage}
     console.log("sunAngle / Fill", sunAngle, sunFillPercentage)
 
     /** LONE TREE */
@@ -312,7 +310,7 @@ const mySketch = (p: p5) => {
     let minX = 0;
     let maxX = cw;
     let minY = 0;
-    let maxY = p.height - bottom;
+    let maxY = p.height;
     starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
   }
   
@@ -320,7 +318,7 @@ const mySketch = (p: p5) => {
     p.noLoop();
 
     // Create a buffer for the reflection
-    let m = p.createGraphics(p.width, p.height*4);
+    let m = p.createGraphics(p.width, p.height);
     m.colorMode(m.HSL)
 
     //Sky
@@ -331,17 +329,16 @@ const mySketch = (p: p5) => {
     
     // Draw Moon and Stars to buffer
     if (timeOfDay === "night") {
-      drawMoon(m, moonConfig); // Draw Moon
-      drawStars(m, starsConfig); // Draw Moon
+      drawMoon(p, moonConfig); // Draw Moon to canvas
+      drawMoon(m, moonConfig); // Draw Moon to reflection
       
-      drawMoon(p, moonConfig); // Draw Moon
-      drawStars(p, starsConfig); // Draw Stars
+      drawStars(p, starsConfig); // Draw Stars full height
     }
     
     // Sky Reflection
-    p.noStroke()
-    p.fill(skyColor)
-    p.rect(0, p.height-bottom, p.width, p.height)
+    // p.noStroke()
+    // p.fill(skyColor)
+    // p.rect(0, p.height-bottom, p.width, p.height)
     
     // Tree
     loneTree.forEach(tree => {
@@ -354,7 +351,6 @@ const mySketch = (p: p5) => {
       tree.leaves.forEach(leaf => tree.drawLeaf(p, leaf));
     })
 
-    
     // Draw Reflection
     allTrees.forEach(tree => {
       tree.leaves.forEach(leaf => {
@@ -364,19 +360,20 @@ const mySketch = (p: p5) => {
       });
     });
 
-    // Draw a rect for the lake, and erase circles from that buffer image
+    // Draw reflection
     let b = drawReflection(p, m, 0, p.height - bottom, p.width, p.height);
     p.image(b, 0, 0);
     
+    // Fade into Reflection
     let rectHeight = 100;
     for (let y = p.height-bottom; y < p.height-bottom+rectHeight; y++) {
       let alpha = p.map(y, p.height-bottom, p.height-bottom+rectHeight, 1, 0); // Map y to alpha from 255 to 0
       let lakeFill = timeOfDay === "night" ? p.color(223, 68, 8, alpha) : p.color(215, 40.7, 64.2, alpha);
-      p.push(); // Black color with varying alpha
-      p.strokeWeight(1); // Black color with varying alpha
-      p.stroke(lakeFill); // Black color with varying alpha
+      p.push();
+      p.strokeWeight(1);
+      p.stroke(lakeFill);
       p.line(0, y, p.width, y);
-      p.pop(); // Black color with varying alpha
+      p.pop();
     }
 
     // Ground Line

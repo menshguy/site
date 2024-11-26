@@ -40,13 +40,15 @@ const mySketch = (p: p5) => {
       red: (s: number = 1, l: number = 1) => () => p.color(p.random(2,17), p.random(65,77)*s, 67*l),
     }
   
-    /** General Settings */
-    // season = p.random(['spring', 'winter', 'fall', 'summer']);
+    // Season & Time
     season = 'fall';
     timeOfDay = p.random(["day", "night"]);
     console.log("season", season, timeOfDay)
+    
+    // Sunlight
     sunAngle = p.radians(p.random(200, 340));
     sunFillPercentage = p.random(0.1, 0.9);
+    let sunlight = {angle: sunAngle, fillPercentage: sunFillPercentage}
 
     /** FRONT TREES */
     let numTreesInFront = 13;
@@ -74,12 +76,6 @@ const mySketch = (p: p5) => {
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + bottom};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
 
-      // Sunlight
-      let sunlight = {
-        angle: sunAngle,
-        fillPercentage: sunFillPercentage
-      }
-      
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
       let fills = timeOfDay === "night" 
@@ -142,11 +138,7 @@ const mySketch = (p: p5) => {
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + middleBottom};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
       
-      // Sunlight
-      let sunlight = {
-        angle: sunAngle,
-        fillPercentage: sunFillPercentage
-      }
+      
       
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red'])
@@ -209,12 +201,6 @@ const mySketch = (p: p5) => {
       let startPoint = {x: p.random(-100, cw+100), y: ch - backBottom};
       let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + backBottom};
       let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
-    
-      // Sunlight
-      let sunlight = {
-        angle: sunAngle,
-        fillPercentage: sunFillPercentage
-      }
 
       // Colors
       let fallColor = p.random(['green', 'yellow', 'orange', 'red']);

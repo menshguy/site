@@ -45,11 +45,23 @@ const drawLake = (
 const eraseCirclesFromBuffer = (p: p5, buffer: p5.Graphics, bottomY: number) => {
   // Erase random ovals from the rectangle - the erased sections will expose the reflection underneath
   let eraserBuffer = p.createGraphics(p.width, p.height - bottomY);
-  let eraserImage = _generateEraserCircles(eraserBuffer, 5)
+  let eraserImage = _generateCircles(eraserBuffer, 5)
   
   // Erase the eraserBuffer circles from buffer
   buffer.blendMode(buffer.REMOVE as any); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
   buffer.image(eraserImage, 0, bottomY);
+  buffer.blendMode(buffer.BLEND); // Reset to normal blend mode
+  return buffer;
+}
+
+const drawCirclesToBuffer = (p: p5, buffer: p5.Graphics, y: number, fill: p5.Color) => {
+  // Erase random ovals from the rectangle - the erased sections will expose the reflection underneath
+  let circlesBuffer = p.createGraphics(p.width, p.height - y);
+  let circlesImage = _generateCircles(circlesBuffer, 3, fill)
+  
+  // Erase the eraserBuffer circles from buffer
+  // buffer.blendMode(buffer.REMOVE as any); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
+  buffer.image(circlesImage, 0, y);
   buffer.blendMode(buffer.BLEND); // Reset to normal blend mode
   return buffer;
 }
@@ -78,7 +90,7 @@ const drawReflection = (
   return reflectionBuffer;
 }
 
-function _generateEraserCircles(buffer: p5.Graphics, numCirlces: number) {
+function _generateCircles(buffer: p5.Graphics, numCirlces: number, fill?: p5.Color) {
   for (let i = 0; i <= numCirlces; i++) { // Adjust the number of ovals as needed
     buffer.push();
     let y = buffer.random(0, buffer.height)
@@ -89,7 +101,7 @@ function _generateEraserCircles(buffer: p5.Graphics, numCirlces: number) {
     // Draw ellipse with soft edges
     buffer.colorMode(buffer.HSL);
     buffer.noStroke();
-    buffer.fill("white");
+    buffer.fill(fill || buffer.color("white"));
     buffer.ellipse(x, y, w, h);
     let blurAmount = buffer.map(y, 0, buffer.height, 0, 3) // Increase blur as y increases
     buffer.filter(buffer.BLUR, blurAmount); // Apply blur to soften edges
@@ -98,5 +110,5 @@ function _generateEraserCircles(buffer: p5.Graphics, numCirlces: number) {
   return buffer;
 }
 
-export {drawMoon, drawStars, drawLake, drawReflection, eraseCirclesFromBuffer}
+export {drawMoon, drawStars, drawLake, drawReflection, eraseCirclesFromBuffer, drawCirclesToBuffer}
 export type {Moon, Stars, TimeOfDay};

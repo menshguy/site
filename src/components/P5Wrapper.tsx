@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import p5 from 'p5';
 
 interface P5WrapperProps {
@@ -8,12 +8,25 @@ interface P5WrapperProps {
 
 const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton }) => {
   const canvasRef = useRef<HTMLDivElement | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     let p5Instance: p5 | null = null;
 
     if (canvasRef.current) {
       p5Instance = new p5(sketch, canvasRef.current);
+
+      // Once the sketch is ready, set loading to false
+      const originalDraw = p5Instance.draw;
+      p5Instance.draw = () => {
+        setIsLoading(true);
+        console.log("draw start")
+        if (originalDraw) {
+          originalDraw.call(p5Instance);
+          console.log("draw fin")
+          setIsLoading(false);
+        }
+      };
 
       // Create a button to save the canvas
       if (includeSaveButton && p5Instance) {
@@ -32,7 +45,12 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton }) => {
     };
   }, [sketch]);
 
-  return <div ref={canvasRef} />;
+  return (
+    <>
+    {isLoading && <div>Loading...</div>}
+    {!isLoading && <div ref={canvasRef} />}
+    </>
+  );
 };
 
 export default P5Wrapper;

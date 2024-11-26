@@ -1,3 +1,13 @@
+// These are the colors from that image of my dad out back
+// green = {
+//   light: "#4A5D3F",
+//   medium: "#293410",
+//   dark: "#010100"
+// }
+// yellow = {
+//   light: "#FEF82E"
+// }
+
 // const treeColors = (p: p5) => ({
 //   winter: [
 //     p.color(5, 15, 68),   // Red
