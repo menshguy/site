@@ -8,11 +8,13 @@ const mySketch = (p: p5) => {
   let ch: number = 600;
   let model: p5.Geometry;
   let drawing: p5.Image;
+  let textureImg: p5.Image;
   let buffer: p5.Graphics;
   let y: number = -100;
   let prevY: number = 0;
   
   p.preload = () => {
+    textureImg = p.loadImage('../textures/coldpressed_1.PNG');
     drawing = p.loadImage('/couch3d/couch.png');
 
     p.loadModel(
@@ -43,62 +45,70 @@ const mySketch = (p: p5) => {
 
     // Limit frame rate to 30 FPS
     buffer.frameRate(30); 
-
   }
   
   p.draw = () => {
     p.noLoop();
+    p.background("antiquewhite");
 
-    // Camera Controls
-    buffer.orbitControl(); // Allows mouse control of the camera
-    
+
+    /** REMEMBER IT 
+     * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
+     * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
+     * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
+     * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
+     * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
+     */
     // Translation
     buffer.translate(-60, -140, 0); // Try different values to bring the model into view
     buffer.rotateX(buffer.radians(180)); // Rotate 180 degrees around the y-axis
     buffer.rotateY(buffer.radians(195)); // Rotate 180 degrees around the y-axis
     buffer.rotateZ(0); // Rotate 180 degrees around the z-axis
     buffer.scale(6); 
-    
+
     // Lighting
     // buffer.ambientLight(150);
     buffer.pointLight(200, 200, 200, 0, y, 0);
 
+    // Camera Controls
+    buffer.orbitControl(); // Allows mouse control of the camera
+
     // Get pixel data from b3d
-    console.log("inner y", y)
     if (prevY !== y) {
-      buffer.background("antiquewhite");
-      buffer.noStroke(); // Disable drawing the edges of the model
+      console.log("inner y", y)
 
       // Model
+      buffer.noStroke(); // Disable drawing the edges of the model
       buffer.model(model); // Render the 3D model
 
+      // Load Pixels
       buffer.loadPixels();
+
+      // Loop Through pixels and only draw pixels below brightnessThreshold
       const density = buffer.pixelDensity();
       const adjustedWidth = buffer.width * density;
       const adjustedHeight = buffer.height * density;
-      
-  
       for (let x = 0; x < adjustedWidth; x++) {
         for (let y = 0; y < adjustedHeight; y++) {
           const index = (x + y * adjustedWidth) * 4;
           const r = buffer.pixels[index];
           const g = buffer.pixels[index + 1];
           const b = buffer.pixels[index + 2];
-          // const a = buffer.pixels[index + 3];
+          const a = buffer.pixels[index + 3];
   
           // Calculate brightness using HSB mode
-          const color = buffer.color(r, g, b);
+          const color = buffer.color(r, g, b, a);
           const brightness = buffer.brightness(color);
-          const brightnessThreshold = 40; // Set your desired brightness threshold
+          const brightnessThreshold = 45; // Set your desired brightness threshold
           if (brightness < brightnessThreshold) {
             buffer.pixels[index] = r;
             buffer.pixels[index + 1] = g;
             buffer.pixels[index + 2] = b;
             buffer.pixels[index + 3] = 255;
           } else {
-            // buffer.pixels[index] = 0;
-            // buffer.pixels[index + 1] = 0;
-            // buffer.pixels[index + 2] = 0;
+            buffer.pixels[index] = r;
+            buffer.pixels[index + 1] = g;
+            buffer.pixels[index + 2] = b;
             buffer.pixels[index + 3] = 0;
           }
         }
@@ -108,16 +118,20 @@ const mySketch = (p: p5) => {
       buffer.updatePixels();
     }
 
+    // buffer.filter(p.BLUR, 2); // Soften edges with blur
     p.image(buffer, 0, 0, cw, ch)
     p.image(drawing, 0, 0, cw, ch)
+
+    //Draw Texture
+    p.blendMode(p.MULTIPLY);
+    p.image(textureImg, 0, 0, cw, ch);
+    p.blendMode(p.BLEND);
   }
   
   p.mousePressed = () => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
       console.log("click runs", y)
       y += 10;
-      p.clear()
-      p.redraw()
     }
   };
   
