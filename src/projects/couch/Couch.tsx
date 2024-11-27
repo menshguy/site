@@ -2,7 +2,7 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 
-const mySketch = (p: p5) => {
+const couchSketch = (p: p5) => {
 
   let cw: number = 600; 
   let ch: number = 600;
@@ -49,8 +49,7 @@ const mySketch = (p: p5) => {
   
   p.draw = () => {
     p.noLoop();
-    p.background("antiquewhite");
-
+    // p.background("antiquewhite");
 
     /** REMEMBER IT 
      * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
@@ -122,10 +121,10 @@ const mySketch = (p: p5) => {
     p.image(buffer, 0, 0, cw, ch)
     p.image(drawing, 0, 0, cw, ch)
 
-    //Draw Texture
-    p.blendMode(p.MULTIPLY);
-    p.image(textureImg, 0, 0, cw, ch);
-    p.blendMode(p.BLEND);
+    //Draw Texture - ***APPLYING THIS WILL REMOVE ALPHA CHANNELS****
+    // p.blendMode(p.MULTIPLY);
+    // p.image(textureImg, 0, 0, cw, ch);
+    // p.blendMode(p.BLEND);
   }
   
   p.mousePressed = () => {
@@ -134,17 +133,48 @@ const mySketch = (p: p5) => {
       y += 10;
     }
   };
-  
 };
 
-const ThreeDTest: React.FC = () => {
+const bgSketch = (p: p5) => {
+  p.draw = () => {
+    p.createCanvas(600, 180);
+    p.background("azure");
+    p.translate(p.width / 2, p.height);
+    drawBranch(100);
+    
+  }
+
+  function drawBranch(len: number) {
+    p.line(0, 0, 0, -len);
+    p.translate(0, -len);
+    if (len > 4) {
+      p.push();
+      p.rotate(p.PI / 6);
+      drawBranch(len * 0.67);
+      p.pop();
+      p.push();
+      p.rotate(-p.PI / 6);
+      drawBranch(len * 0.67);
+      p.pop();
+    }
+  }
+}
+
+const Couch: React.FC = () => {
   return (
     <div>
       <h1>3D</h1>
       <p>Click to redraw.</p>
-      <P5Wrapper includeSaveButton sketch={mySketch} />
+      <div style={{position: "relative", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", margin: "0 auto"}}>
+        <div style={{position: "absolute", top: 0, left: 0}}>
+          <P5Wrapper sketch={bgSketch} />
+        </div>
+        <div style={{position: "absolute", top: 0, left: 0}}>
+          <P5Wrapper sketch={couchSketch} />
+        </div>
+      </div>
     </div>
   );
 };
 
-export default ThreeDTest;
+export default Couch;
