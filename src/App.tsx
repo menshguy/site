@@ -2,7 +2,6 @@ import { useState, useEffect, CSSProperties } from 'react'
 import Doodle from './components/Doodle'
 import './App.css'
 
-
 interface Doodle {
   bg: string;
   col?: number;
@@ -16,8 +15,9 @@ interface Doodle {
 const rawDoodles: Doodle[] = [
   {bg: 'red', title:"Couch", href: "/couch"}, 
   {bg: 'red', title:"Vermont", href: "/vermont"}, 
-  {bg: 'red', title:"Vermont", href: "/vermontii"}, 
-  {bg: 'red', title:"Vermont", href: "/vermontiii"}, 
+  {bg: 'red', title:"Vermont ii", href: "/vermontii"}, 
+  {bg: 'red', title:"Vermont iii", href: "/vermontiii"}, 
+  {bg: 'red', title:"Vermont iii Animated", href: "/vermontiiia"}, 
   {bg: 'red', title:"Vermont", href: "/vermontiiii"}, 
   {bg: 'red', title:"OneTree", href: "/onetree"}, 
   {bg: 'red', title:"Fall Sunlight", href: "/fallsunlight"}, 

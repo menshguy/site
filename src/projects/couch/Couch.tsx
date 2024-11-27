@@ -7,11 +7,14 @@ const mySketch = (p: p5) => {
   let cw: number = 600; 
   let ch: number = 600;
   let model: p5.Geometry;
+  let drawing: p5.Image;
+  let buffer: p5.Graphics;
   let y: number = -100;
   let prevY: number = 0;
   
   p.preload = () => {
-    
+    drawing = p.loadImage('/couch3d/couch.png');
+
     p.loadModel(
       '/couch3d/11_20_2024.obj',
       true,
@@ -32,83 +35,89 @@ const mySketch = (p: p5) => {
   
   p.setup = () => {
     p.colorMode(p.HSL);
-    p.createCanvas(cw, ch, p.WEBGL);
+    p.createCanvas(cw, ch);
+    buffer = p.createGraphics(cw, ch, p.WEBGL);
 
     // Camera position
-    p.camera(0, 0, (p.height / 2) / p.tan(p.PI / 6), 0, 0, 0, 0, 1, 0);
+    buffer.camera(0, 0, (buffer.height / 2) / buffer.tan(buffer.PI / 6), 0, 0, 0, 0, 1, 0);
 
     // Limit frame rate to 30 FPS
-    p.frameRate(30); 
+    buffer.frameRate(30); 
 
   }
   
   p.draw = () => {
-    // p.noLoop();
+    p.noLoop();
 
     // Camera Controls
-    p.orbitControl(); // Allows mouse control of the camera
+    buffer.orbitControl(); // Allows mouse control of the camera
     
     // Translation
-    p.translate(-60, -140, 0); // Try different values to bring the model into view
-    p.rotateX(p.radians(180)); // Rotate 180 degrees around the y-axis
-    p.rotateY(p.radians(195)); // Rotate 180 degrees around the y-axis
-    p.rotateZ(0); // Rotate 180 degrees around the z-axis
-    p.scale(6); 
+    buffer.translate(-60, -140, 0); // Try different values to bring the model into view
+    buffer.rotateX(buffer.radians(180)); // Rotate 180 degrees around the y-axis
+    buffer.rotateY(buffer.radians(195)); // Rotate 180 degrees around the y-axis
+    buffer.rotateZ(0); // Rotate 180 degrees around the z-axis
+    buffer.scale(6); 
     
     // Lighting
-    // p.ambientLight(150);
-    p.pointLight(50, 50, 50, 0, y, 0);
+    // buffer.ambientLight(150);
+    buffer.pointLight(200, 200, 200, 0, y, 0);
 
-    // Get pixel data from buffer3d
+    // Get pixel data from b3d
+    console.log("inner y", y)
     if (prevY !== y) {
-      p.background("antiquewhite");
-      p.noStroke(); // Disable drawing the edges of the model
-      console.log("y", y)
+      buffer.background("antiquewhite");
+      buffer.noStroke(); // Disable drawing the edges of the model
 
       // Model
-      p.model(model); // Render the 3D model
+      buffer.model(model); // Render the 3D model
 
-      p.loadPixels();
-      const density = p.pixelDensity();
-      const adjustedWidth = p.width * density;
-      const adjustedHeight = p.height * density;
+      buffer.loadPixels();
+      const density = buffer.pixelDensity();
+      const adjustedWidth = buffer.width * density;
+      const adjustedHeight = buffer.height * density;
       
-      const brightnessThreshold = 70; // Set your desired brightness threshold
   
       for (let x = 0; x < adjustedWidth; x++) {
         for (let y = 0; y < adjustedHeight; y++) {
           const index = (x + y * adjustedWidth) * 4;
-          const r = p.pixels[index];
-          const g = p.pixels[index + 1];
-          const b = p.pixels[index + 2];
-          // const a = p.pixels[index + 3];
+          const r = buffer.pixels[index];
+          const g = buffer.pixels[index + 1];
+          const b = buffer.pixels[index + 2];
+          // const a = buffer.pixels[index + 3];
   
           // Calculate brightness using HSB mode
-          const color = p.color(r, g, b);
-          const brightness = p.brightness(color);
-  
-          if (brightness > brightnessThreshold) {
-            p.pixels[index] = r;
-            p.pixels[index + 1] = g;
-            p.pixels[index + 2] = b;
-            p.pixels[index + 3] = 255;
+          const color = buffer.color(r, g, b);
+          const brightness = buffer.brightness(color);
+          const brightnessThreshold = 40; // Set your desired brightness threshold
+          if (brightness < brightnessThreshold) {
+            buffer.pixels[index] = r;
+            buffer.pixels[index + 1] = g;
+            buffer.pixels[index + 2] = b;
+            buffer.pixels[index + 3] = 255;
           } else {
-            // p.pixels[index] = 0;
-            // p.pixels[index + 1] = 0;
-            // p.pixels[index + 2] = 0;
-            p.pixels[index + 3] = 0;
+            // buffer.pixels[index] = 0;
+            // buffer.pixels[index + 1] = 0;
+            // buffer.pixels[index + 2] = 0;
+            buffer.pixels[index + 3] = 0;
           }
         }
       }
       
       prevY = y;
-      p.updatePixels();
+      buffer.updatePixels();
     }
+
+    p.image(buffer, 0, 0, cw, ch)
+    p.image(drawing, 0, 0, cw, ch)
   }
   
   p.mousePressed = () => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      y += 10
+      console.log("click runs", y)
+      y += 10;
+      p.clear()
+      p.redraw()
     }
   };
   
@@ -119,7 +128,7 @@ const ThreeDTest: React.FC = () => {
     <div>
       <h1>3D</h1>
       <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch} />
+      <P5Wrapper includeSaveButton sketch={mySketch} />
     </div>
   );
 };

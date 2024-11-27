@@ -2,6 +2,7 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from './types.ts';
 import {VermontTree, drawGroundLine} from './treeHelpers.tsx';
+import {shuffleArray} from '../../helpers/arrays.ts';
 import {drawMoon, drawStars, drawReflection, drawCirclesToBuffer, Moon, Stars, TimeOfDay} from './skyHelpers.tsx';
 import p5 from 'p5';
 
@@ -110,17 +111,20 @@ const mySketch = (p: p5) => {
       treesInFront.push(tree);
     }
 
+    shuffleArray(treesInFront)
+
     /** BACKGROUND TREES */
     let numBGTreeColumns = 20;
     for (let i = 0; i < numBGTreeColumns; i++) {
 
       // Start / Mid / Bulge
+      let offset = treeHeight / 2;
       let minStartY = ch-bottom;
       let maxStartY = ch-bottom-(treeHeight*i);
       let numTreesInColumn = (minStartY - maxStartY) / treeHeight
-      for (let j = numTreesInColumn; j > 0; j--) {
+      for (let j = numTreesInColumn; j >= 0; j--) {
         let startX = i * ( (p.width+treeWidth)/numBGTreeColumns ) + p.random(-25, 25) // add an extra treeWidth for some bufferspace
-        let startY = minStartY - (numTreesInColumn * j)
+        let startY = minStartY - (numTreesInColumn * j) + offset;
         let startPoint = {x: startX, y: startY};
         let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
         let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};

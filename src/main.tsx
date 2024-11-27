@@ -6,6 +6,7 @@ import OneTree from './projects/seasons/OneTree.tsx';
 import Vermont from './projects/seasons/Vermont.tsx';
 import VermontII from './projects/seasons/VermontII.tsx';
 import VermontIII from './projects/seasons/VermontIII.tsx';
+import VermontIIIAnimated from './projects/seasons/VermontIIIAnimated.tsx';
 import VermontIIII from './projects/seasons/VermontIIII.tsx';
 import FallSunlight from './projects/seasons/FallSunlight.tsx';
 import FallBreeze from './projects/seasons/FallBreeze.tsx';
@@ -31,6 +32,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/vermont" element={<Vermont />} />
         <Route path="/vermontii" element={<VermontII />} />
         <Route path="/vermontiii" element={<VermontIII />} />
+        <Route path="/vermontiiia" element={<VermontIIIAnimated />} />
         <Route path="/vermontiiii" element={<VermontIIII />} />
         <Route path="/couch" element={<Couch />} />
         <Route path="/OneTree" element={<OneTree />} />

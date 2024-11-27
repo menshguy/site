@@ -19,12 +19,36 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton }) => {
       // Once the sketch is ready, set loading to false
       const originalDraw = p5Instance.draw;
       p5Instance.draw = () => {
-        setIsLoading(true);
-        console.log("draw start")
+        
+        let startTime = new Date()
+        console.log("draw start");
+
         if (originalDraw) {
           originalDraw.call(p5Instance);
-          console.log("draw fin")
+          
+          let endTime = new Date()
+          let duration = (endTime.getTime() - startTime.getTime())/1000;
+          console.log("draw fin", duration)
+          
           setIsLoading(false);
+        }
+      };
+      
+      // Once the sketch is ready, set loading to false
+      const originalSetup = p5Instance.setup;
+      p5Instance.setup = () => {
+        
+        setIsLoading(true);
+        
+        let startTime = new Date()
+        console.log("setup start");
+        
+        if (originalSetup) {
+          originalSetup.call(p5Instance);
+          
+          let endTime = new Date()
+          let duration = (endTime.getTime() - startTime.getTime())/1000;
+          console.log("setup fin", duration)
         }
       };
 
@@ -47,8 +71,7 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton }) => {
 
   return (
     <>
-    {isLoading && <div>Loading...</div>}
-    {!isLoading && <div ref={canvasRef} />}
+    <div ref={canvasRef} />
     </>
   );
 };
