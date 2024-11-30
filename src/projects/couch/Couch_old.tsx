@@ -8,13 +8,13 @@ const couchSketch = (p: p5) => {
   let ch: number = 600;
   let model: p5.Geometry;
   let drawing: p5.Image;
-  let textureImg: p5.Image;
+  // let textureImg: p5.Image;
   let buffer: p5.Graphics;
   let y: number = -140;
   let prevY: number = 0;
   
   p.preload = () => {
-    textureImg = p.loadImage('../textures/coldpressed_1.PNG');
+    // textureImg = p.loadImage('../textures/coldpressed_1.PNG');
     drawing = p.loadImage('/couch3d/couch.png');
 
     p.loadModel(
@@ -142,7 +142,10 @@ const couchSketch = (p: p5) => {
     p.image(buffer, 0, 0, cw, ch)
     p.image(drawing, 0, 0, cw, ch)
 
-    //Draw Texture - ***APPLYING THIS WILL REMOVE ALPHA CHANNELS****
+    /**
+     *  Draw Texture - ***APPLYING THIS WILL REMOVE ALPHA CHANNELS****
+     * To Bring back, try using a MAP to cut out the alpha channel.
+     */
     // p.blendMode(p.MULTIPLY);
     // p.image(textureImg, 0, 0, cw, ch);
     // p.blendMode(p.BLEND);

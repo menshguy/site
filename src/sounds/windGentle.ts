@@ -1,10 +1,9 @@
-let audioContext;
 let noiseNode;
 let filterNode;
 let gainNode;
 
 function createGentleWindSound() {
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  let audioContext = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
 
   // Create a buffer for noise
   const bufferSize = 2 * audioContext.sampleRate;
@@ -39,15 +38,19 @@ function createGentleWindSound() {
   noiseNode.start();
 
   // Simulate gentle wind by modulating the filter frequency and gain
-  simulateGentleWind();
+  simulateGentleWind(audioContext, filterNode, gainNode);
+
+  function simulateGentleWind(audioContext: AudioContext, filterNode: BiquadFilterNode, gainNode: GainNode) {
+    setInterval(() => {
+      const newFreq = Math.random() * 100 + 200; // Random frequency between 200 and 300 Hz
+      const newGain = Math.random() * 0.02 + 0.03; // Random gain between 0.03 and 0.05
+  
+      filterNode.frequency.setTargetAtTime(newFreq, audioContext.currentTime, 1);
+      gainNode.gain.setTargetAtTime(newGain, audioContext.currentTime, 1);
+    }, 3000); // Change every 3 seconds for a more relaxed variation
+  }
 }
 
-function simulateGentleWind() {
-  setInterval(() => {
-    const newFreq = Math.random() * 100 + 200; // Random frequency between 200 and 300 Hz
-    const newGain = Math.random() * 0.02 + 0.03; // Random gain between 0.03 and 0.05
 
-    filterNode.frequency.setTargetAtTime(newFreq, audioContext.currentTime, 1);
-    gainNode.gain.setTargetAtTime(newGain, audioContext.currentTime, 1);
-  }, 3000); // Change every 3 seconds for a more relaxed variation
-}
+
+export {createGentleWindSound}

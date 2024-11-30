@@ -3,7 +3,7 @@ import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 
 const couchSketch = (
-  setters: React.Dispatch<React.SetStateAction<number>>[], 
+  _setters: React.Dispatch<React.SetStateAction<number>>[], 
   getters: () => number[]
 ) => (p: p5) => {
 
@@ -18,15 +18,13 @@ const couchSketch = (
   let cw: number = 600; 
   let ch: number = 600;
   let model: p5.Geometry;
-  let drawing: p5.Image;
-  let textureImg: p5.Image;
-  let buffer: p5.Graphics;
+  // let textureImg: p5.Image;
+  // let drawing: p5.Image;
   let y: number = -140;
-  let prevY: number = 0;
   
   p.preload = () => {
-    textureImg = p.loadImage('../textures/coldpressed_1.PNG');
-    drawing = p.loadImage('/couch3d/couch.png');
+    // textureImg = p.loadImage('../textures/coldpressed_1.PNG');
+    // drawing = p.loadImage('/couch3d/couch.png');
 
     p.loadModel(
       '/couch3d/11_20_2024.obj',
@@ -138,7 +136,7 @@ const couchSketch = (
           const r = p.pixels[index];
           const g = p.pixels[index + 1];
           const b = p.pixels[index + 2];
-          const a = p.pixels[index + 3];
+          // const a = p.pixels[index + 3];
   
           // Calculate brightness using HSB mode
             p.pixels[index] = r;
@@ -161,30 +159,30 @@ const couchSketch = (
   };
 };
 
-const bgSketch = (p: p5) => {
-  p.draw = () => {
-    p.createCanvas(600, 180);
-    p.background("azure");
-    p.translate(p.width / 2, p.height);
-    drawBranch(100);
+// const bgSketch = (p: p5) => {
+//   p.draw = () => {
+//     p.createCanvas(600, 180);
+//     p.background("azure");
+//     p.translate(p.width / 2, p.height);
+//     drawBranch(100);
     
-  }
+//   }
 
-  function drawBranch(len: number) {
-    p.line(0, 0, 0, -len);
-    p.translate(0, -len);
-    if (len > 4) {
-      p.push();
-      p.rotate(p.PI / 6);
-      drawBranch(len * 0.67);
-      p.pop();
-      p.push();
-      p.rotate(-p.PI / 6);
-      drawBranch(len * 0.67);
-      p.pop();
-    }
-  }
-}
+//   function drawBranch(len: number) {
+//     p.line(0, 0, 0, -len);
+//     p.translate(0, -len);
+//     if (len > 4) {
+//       p.push();
+//       p.rotate(p.PI / 6);
+//       drawBranch(len * 0.67);
+//       p.pop();
+//       p.push();
+//       p.rotate(-p.PI / 6);
+//       drawBranch(len * 0.67);
+//       p.pop();
+//     }
+//   }
+// }
 
 const Couch: React.FC = () => {
 
@@ -274,6 +272,7 @@ const Couch: React.FC = () => {
       </label>
 
       <div style={{position: "relative", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", margin: "0 auto"}}>
+        
         {/* <div style={{position: "absolute", top: 0, left: 0}}>
           <P5Wrapper sketch={bgSketch} />
         </div> */}
@@ -281,6 +280,7 @@ const Couch: React.FC = () => {
         <div style={{position: "absolute", top: 40, left: 0}}>
           <P5Wrapper sketch={sketchWrapper} />
         </div>
+        
       </div>
     </div>
   );

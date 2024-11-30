@@ -1,10 +1,10 @@
-let audioContext;
-let noiseNode;
-let filterNode;
-let gainNode;
+let audioContext: AudioContext;
+let noiseNode: AudioBufferSourceNode;
+let filterNode: BiquadFilterNode; // Specify the type here
+let gainNode: GainNode;
 
 function createStrongWindSound() {
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  audioContext = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
 
   // Create a buffer for noise
   const bufferSize = 2 * audioContext.sampleRate;

@@ -16,7 +16,9 @@ type Dot = {
 }
 
 function animateDot(p: p5, dot: Dot) {
-  let {movementFactor, movementDirection, x, y, w, h, angle, fill_c} = dot;
+
+  /** REFERENCE - this is what leaves looked like. shape dots similarly */
+  // let {movementFactor, movementDirection, x, y, w, h, angle, fill_c} = dot;
 
   /** 
    * Set movement factor - will affect the speed of movement in animation (0.1 is slow, 1 is fast)

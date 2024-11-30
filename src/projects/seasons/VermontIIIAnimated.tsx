@@ -3,7 +3,10 @@ import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season, Leaf} from './types.ts';
 import {VermontTree, drawGroundLine} from './treeHelpers.tsx';
 import {shuffleArray} from '../../helpers/arrays.ts';
-import {drawMoon, drawStars, drawReflection, drawCirclesToBuffer, Moon, Stars, TimeOfDay} from './skyHelpers.tsx';
+import {
+  drawMoon, 
+  drawStars, 
+  drawReflection, drawCirclesToBuffer, Moon, Stars, TimeOfDay} from './skyHelpers.tsx';
 import p5 from 'p5';
 
 /** 
@@ -35,7 +38,6 @@ const mySketch = (p: p5) => {
   let starsConfig: Stars;
   
   p.preload = () => {
-    // textureImg = p.loadImage('../textures/coldpressed_1.PNG');
     textureImg = p.loadImage('../textures/coldpressed_1.PNG');
   }
   
@@ -268,10 +270,10 @@ const mySketch = (p: p5) => {
     p.rect(0, 0, p.width, p.height)
     
     // Draw Moon and Stars to buffer
-    // if (timeOfDay === "night") {
-    //   drawMoon(p, moonConfig); // Draw Moon
-    //   drawStars(p, starsConfig); // Draw Stars
-    // }
+    if (timeOfDay === "night") {
+      drawMoon(p, moonConfig); // Draw Moon
+      drawStars(p, starsConfig); // Draw Stars
+    }
 
     // Draw tree buffer image
     // p.image(m, 0, 0)
@@ -291,12 +293,12 @@ const mySketch = (p: p5) => {
     drawGroundLine(p, 25, ch-bottom, cw-25, timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 20))
     
     // Draw Reflection
-    // p.image(d, 0, 0);
+    p.image(d, 0, 0);
 
     //Draw Texture
-    // p.blendMode(p.MULTIPLY);
-    // p.image(textureImg, 0, 0, cw, ch);
-    // p.blendMode(p.BLEND);
+    p.blendMode(p.MULTIPLY);
+    p.image(textureImg, 0, 0, cw, ch);
+    p.blendMode(p.BLEND);
   }
 
   function animateLeaf(leaf: Leaf) {

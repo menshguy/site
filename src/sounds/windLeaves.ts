@@ -1,10 +1,10 @@
-let audioContext;
-let windNoiseNode, rustleNoiseNode;
-let windFilterNode, rustleFilterNode;
-let windGainNode, rustleGainNode;
+let windNoiseNode: AudioBufferSourceNode, rustleNoiseNode: AudioBufferSourceNode;
+let windFilterNode: BiquadFilterNode, rustleFilterNode: BiquadFilterNode;
+let windGainNode: GainNode, rustleGainNode: GainNode;
+
 
 function createGentleWindSound() {
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  let audioContext = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
 
   // Create a buffer for noise
   const bufferSize = 2 * audioContext.sampleRate;
@@ -60,26 +60,27 @@ function createGentleWindSound() {
   // Simulate gentle wind and rustling leaves
   simulateGentleWind();
   simulateRustlingLeaves();
+
+  // Helper Functions
+  function simulateGentleWind() {
+    setInterval(() => {
+      const newFreq = Math.random() * 100 + 200; // Random frequency between 200 and 300 Hz
+      const newGain = Math.random() * 0.02 + 0.03; // Random gain between 0.03 and 0.05
+  
+      windFilterNode.frequency.setTargetAtTime(newFreq, audioContext.currentTime, 1);
+      windGainNode.gain.setTargetAtTime(newGain, audioContext.currentTime, 1);
+    }, 3000);
+  }
+  
+  function simulateRustlingLeaves() {
+    setInterval(() => {
+      const newFreq = Math.random() * 200 + 900; // Random frequency between 900 and 1100 Hz
+      const newGain = Math.random() * 0.01 + 0.01; // Random gain between 0.01 and 0.02
+  
+      rustleFilterNode.frequency.setTargetAtTime(newFreq, audioContext.currentTime, 0.5);
+      rustleGainNode.gain.setTargetAtTime(newGain, audioContext.currentTime, 0.5);
+    }, 500); // Faster modulation for rustling effect
+  }
 }
 
-function simulateGentleWind() {
-  setInterval(() => {
-    const newFreq = Math.random() * 100 + 200; // Random frequency between 200 and 300 Hz
-    const newGain = Math.random() * 0.02 + 0.03; // Random gain between 0.03 and 0.05
-
-    windFilterNode.frequency.setTargetAtTime(newFreq, audioContext.currentTime, 1);
-    windGainNode.gain.setTargetAtTime(newGain, audioContext.currentTime, 1);
-  }, 3000);
-}
-
-function simulateRustlingLeaves() {
-  setInterval(() => {
-    const newFreq = Math.random() * 200 + 900; // Random frequency between 900 and 1100 Hz
-    const newGain = Math.random() * 0.01 + 0.01; // Random gain between 0.01 and 0.02
-
-    rustleFilterNode.frequency.setTargetAtTime(newFreq, audioContext.currentTime, 0.5);
-    rustleGainNode.gain.setTargetAtTime(newGain, audioContext.currentTime, 0.5);
-  }, 500); // Faster modulation for rustling effect
-}
-
-export {createGentleWindSound, simulateGentleWind, simulateRustlingLeaves}
+export {createGentleWindSound}

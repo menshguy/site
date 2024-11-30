@@ -8,9 +8,9 @@ interface P5WrapperProps {
 }
 
 const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton, debug = false }) => {
-  const [isDebugMode, setIsDebugMode] = useState(debug);
+  const [isDebugMode, _setIsDebugMode] = useState(debug);
   const canvasRef = useRef<HTMLDivElement | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     let p5Instance: p5 | null = null;
@@ -37,7 +37,7 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton, debug 
             console.log("draw fin", duration)
           }
           
-          setIsLoading(false);
+          // setIsLoading(false);
         }
       };
       
@@ -45,7 +45,7 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton, debug 
       const originalSetup = p5Instance.setup;
       p5Instance.setup = () => {
         let startTime;
-        setIsLoading(true);
+        // setIsLoading(true);
         
         if (isDebugMode) {
           startTime = new Date()

@@ -3,8 +3,8 @@ import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 
 const mySketch = (
-  setters: React.Dispatch<React.SetStateAction<number>>[], 
-  getters: () => number[]
+  _setters: React.Dispatch<React.SetStateAction<number>>[], 
+  _getters: () => number[]
 ) => (p: p5) => {
 
   let cw: number = window.innerWidth; 
@@ -16,13 +16,13 @@ const mySketch = (
   p.preload = () => {
     textureImg = p.loadImage('me3d/textures/color.jpg');
 
-    let [
-      xPos, yPos, zPos, 
-      xRot, yRot, zRot, 
-      scale, 
-      xLight, yLight, zLight, 
-      lightColorR, lightColorG, lightColorB
-    ] = getters();
+    // let [
+    //   xPos, yPos, zPos, 
+    //   xRot, yRot, zRot, 
+    //   scale, 
+    //   xLight, yLight, zLight, 
+    //   lightColorR, lightColorG, lightColorB
+    // ] = getters();
     
     p.loadModel(
       '/me3d/6_4_2023.obj',

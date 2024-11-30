@@ -1,4 +1,4 @@
-function toggleSound(createWindSound: Function) {
+function toggleSound(createWindSound: Function, audioContext: AudioContext) {
   if (!audioContext) {
     createWindSound();
   } else if (audioContext.state === 'suspended') {
@@ -12,8 +12,9 @@ function toggleSound(createWindSound: Function) {
   }
 }
 
-function createToggleElement () {
-  document.getElementById('startButton').addEventListener('click', toggleSound);
+/** Pass this function the toggleSound function */
+function createToggleElement(toggleFunction: (this: HTMLElement, ev: MouseEvent) => any) {
+  document.getElementById('startButton')?.addEventListener('click', toggleFunction);
 }
 
 export {toggleSound, createToggleElement}
