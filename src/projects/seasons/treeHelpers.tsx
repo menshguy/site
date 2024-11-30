@@ -228,13 +228,14 @@ class VermontTree {
         //Calculate polar coordinates
         let x = px + (p.cos(angle) * r);
         let y = isFallenLeaf //If y is below bottom (ground), set to y to bottom with some variance to draw "fallen leaves"
-          ? startPoint.y + p.random(0,15) 
+          ? startPoint.y + p.random(0, 15) 
           : py + (p.sin(angle) * r);
         angle = isFallenLeaf ? p.HALF_PI : angle; //Angle fallen leaves horizonally
         
-        //Set movement factor - will affect the speed of movement in animation
-        let movementFactor: number = p.random(0.1, 1.0);
-
+        //Set movement factor - will affect the speed of movement in animation (0.1 is slow, 1 is fast)
+        let movementFactor: number = p.random(0.5, 0.9);
+        let movementDirection: number = p.random(0, p.TWO_PI);
+        
         //Create Leaf
         let leaf: Leaf = {
           x, 
@@ -246,7 +247,8 @@ class VermontTree {
           stop: angle + p.HALF_PI,
           isSunLeaf,
           fill_c, 
-          movementFactor
+          movementFactor,
+          movementDirection
         }
 
         // Push Leaf into array

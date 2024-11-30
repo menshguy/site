@@ -2,7 +2,18 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 
-const couchSketch = (p: p5) => {
+const couchSketch = (
+  setters: React.Dispatch<React.SetStateAction<number>>[], 
+  getters: () => number[]
+) => (p: p5) => {
+
+  let [
+    xPos, yPos, zPos, 
+    xRot, yRot, zRot, 
+    scale, 
+    xLight, yLight, zLight, 
+    lightColorR, lightColorG, lightColorB
+  ] = getters();
 
   let cw: number = 600; 
   let ch: number = 600;
@@ -10,7 +21,7 @@ const couchSketch = (p: p5) => {
   let drawing: p5.Image;
   let textureImg: p5.Image;
   let buffer: p5.Graphics;
-  let y: number = -100;
+  let y: number = -140;
   let prevY: number = 0;
   
   p.preload = () => {
@@ -37,100 +48,115 @@ const couchSketch = (p: p5) => {
   
   p.setup = () => {
     p.colorMode(p.HSL);
-    p.createCanvas(cw, ch);
-    buffer = p.createGraphics(cw, ch, p.WEBGL);
-
-    // Camera position
-    buffer.camera(0, 0, (buffer.height / 2) / buffer.tan(buffer.PI / 6), 0, 0, 0, 0, 1, 0);
-
-    // Limit frame rate to 30 FPS
-    buffer.frameRate(30); 
+    p.createCanvas(cw, ch, p.WEBGL);
   }
   
   p.draw = () => {
-    p.noLoop();
-    // p.background("antiquewhite");
+    // p.noLoop();
+    p.background("antiquewhite");
 
-    /** REMEMBER IT 
-     * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
-     * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
-     * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
-     * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
-     * HAS SOMETHING TO DO WITH THE TRANSLATION!!!!! FUCKCKCKCKCKCKC
+    /**
+     * When you wrap lighting functions like ambientLight and directionalLight with push() 
+     * and pop(), the lighting settings are applied only within that specific block. 
+     * Once pop() is called, the lighting settings are reverted to what they were before the push(). 
      */
-    // Translation
-    buffer.translate(-60, -140, 0); // Try different values to bring the model into view
-    buffer.rotateX(buffer.radians(180)); // Rotate 180 degrees around the y-axis
-    buffer.rotateY(buffer.radians(195)); // Rotate 180 degrees around the y-axis
-    buffer.rotateZ(0); // Rotate 180 degrees around the z-axis
-    buffer.scale(6); 
+    p.pointLight(lightColorR, lightColorG, lightColorB, xLight, yLight, zLight); // y:-200, z: 500
+    // p.ambientLight(30);
+    // p.directionalLight(lightColorR, lightColorG, lightColorB, xLight, yLight, zLight);
 
-    // Lighting
-    // buffer.ambientLight(150);
-    buffer.pointLight(200, 200, 200, 0, y, 0);
+    p.push();
+    p.noStroke();
+    p.translate(xPos, yPos, zPos);
+    p.rotateX(p.radians(xRot));
+    p.rotateY(p.radians(yRot));
+    p.rotateZ(p.radians(zRot));
+    p.scale(scale);
+    p.model(model); // Render the 3D model
+    p.translate(0, -40, 0);
+    p.sphere(12); // Render the 3D model
+    p.pop();
 
-    // Camera Controls
-    buffer.orbitControl(); // Allows mouse control of the camera
+    // // Define the size of the plane and holes
+    // const planeSize = 400;
+    // const holeSize = 120;
+    // const gap = 80; // Gap between holes
+    // p.push();
+    // p.translate(-100, 0, 200); //(left/right, up/down, forward/back toward cam)
+    // p.rotateY(p.radians(-30));
+    // // Draw the plane with holes
+    // p.beginShape();
+    // // Outer rectangle (plane)
+    // p.vertex(-planeSize / 2, -planeSize / 2);
+    // p.vertex(planeSize / 2, -planeSize / 2);
+    // p.vertex(planeSize / 2, planeSize / 2);
+    // p.vertex(-planeSize / 2, planeSize / 2);
+    // // Hole 1
+    // p.beginContour();
+    // p.vertex(-holeSize / 2 - gap, -holeSize / 2 - gap);
+    // p.vertex(-holeSize / 2 - gap, holeSize / 2 - gap);
+    // p.vertex(holeSize / 2 - gap, holeSize / 2 - gap);
+    // p.vertex(holeSize / 2 - gap, -holeSize / 2 - gap);
+    // p.endContour();
+    // // Hole 2
+    // p.beginContour();
+    // p.vertex(-holeSize / 2 + gap, -holeSize / 2 - gap);
+    // p.vertex(-holeSize / 2 + gap, holeSize / 2 - gap);
+    // p.vertex(holeSize / 2 + gap, holeSize / 2 - gap);
+    // p.vertex(holeSize / 2 + gap, -holeSize / 2 - gap);
+    // p.endContour();
+    // // Hole 3
+    // p.beginContour();
+    // p.vertex(-holeSize / 2 - gap, -holeSize / 2 + gap);
+    // p.vertex(-holeSize / 2 - gap, holeSize / 2 + gap);
+    // p.vertex(holeSize / 2 - gap, holeSize / 2 + gap);
+    // p.vertex(holeSize / 2 - gap, -holeSize / 2 + gap);
+    // p.endContour();
+    // // Hole 4
+    // p.beginContour();
+    // p.vertex(-holeSize / 2 + gap, -holeSize / 2 + gap);
+    // p.vertex(-holeSize / 2 + gap, holeSize / 2 + gap);
+    // p.vertex(holeSize / 2 + gap, holeSize / 2 + gap);
+    // p.vertex(holeSize / 2 + gap, -holeSize / 2 + gap);
+    // p.endContour();
+    // p.endShape(p.CLOSE);
+    // p.pop();
 
-    // Get pixel data from b3d
-    if (prevY !== y) {
+    // if (prevY !== y) {
+    if (true) {
       console.log("inner y", y)
 
-      // Model
-      buffer.noStroke(); // Disable drawing the edges of the model
-      buffer.model(model); // Render the 3D model
-
       // Load Pixels
-      buffer.loadPixels();
+      p.loadPixels();
 
       // Loop Through pixels and only draw pixels below brightnessThreshold
-      const density = buffer.pixelDensity();
-      const adjustedWidth = buffer.width * density;
-      const adjustedHeight = buffer.height * density;
+      const density = p.pixelDensity();
+      const adjustedWidth = p.width * density;
+      const adjustedHeight = p.height * density;
       for (let x = 0; x < adjustedWidth; x++) {
         for (let y = 0; y < adjustedHeight; y++) {
           const index = (x + y * adjustedWidth) * 4;
-          const r = buffer.pixels[index];
-          const g = buffer.pixels[index + 1];
-          const b = buffer.pixels[index + 2];
-          const a = buffer.pixels[index + 3];
+          const r = p.pixels[index];
+          const g = p.pixels[index + 1];
+          const b = p.pixels[index + 2];
+          const a = p.pixels[index + 3];
   
           // Calculate brightness using HSB mode
-          const color = buffer.color(r, g, b, a);
-          const brightness = buffer.brightness(color);
-          const brightnessThreshold = 45; // Set your desired brightness threshold
-          if (brightness < brightnessThreshold) {
-            buffer.pixels[index] = r;
-            buffer.pixels[index + 1] = g;
-            buffer.pixels[index + 2] = b;
-            buffer.pixels[index + 3] = 255;
-          } else {
-            buffer.pixels[index] = r;
-            buffer.pixels[index + 1] = g;
-            buffer.pixels[index + 2] = b;
-            buffer.pixels[index + 3] = 0;
-          }
+            p.pixels[index] = r;
+            p.pixels[index + 1] = g;
+            p.pixels[index + 2] = b;
+            p.pixels[index + 3] = 255;
         }
       }
       
-      prevY = y;
-      buffer.updatePixels();
+      p.updatePixels();
     }
 
-    // buffer.filter(p.BLUR, 2); // Soften edges with blur
-    p.image(buffer, 0, 0, cw, ch)
-    p.image(drawing, 0, 0, cw, ch)
-
-    //Draw Texture - ***APPLYING THIS WILL REMOVE ALPHA CHANNELS****
-    // p.blendMode(p.MULTIPLY);
-    // p.image(textureImg, 0, 0, cw, ch);
-    // p.blendMode(p.BLEND);
   }
-  
+
   p.mousePressed = () => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
       console.log("click runs", y)
-      y += 10;
+      y += 1;
     }
   };
 };
@@ -161,16 +187,99 @@ const bgSketch = (p: p5) => {
 }
 
 const Couch: React.FC = () => {
+
+  const [xPos, setXPos] = React.useState(0);
+  const [yPos, setYPos] = React.useState(-150); //-250
+  const [zPos, setZPos] = React.useState(0);
+  
+  const [xRot, setXRot] = React.useState(0);
+  const [yRot, setYRot] = React.useState(0);
+  const [zRot, setZRot] = React.useState(180); //180
+  
+  const [scale, setScale] = React.useState(8);
+  
+  const [xLight, setXLight] = React.useState(-400);
+  const [yLight, setYLight] = React.useState(-50);
+  const [zLight, setZLight] = React.useState(100);
+  
+  const [lightColorR, setLightColorR] = React.useState(200);
+  const [lightColorG, setLightColorG] = React.useState(200);
+  const [lightColorB, setLightColorB] = React.useState(200);
+
+  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<number>>) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setter(Number(event.target.value));
+  };
+
+  let sketchWrapper = couchSketch([setXPos, setYPos, setZPos, setXRot, setYRot, setZRot, setScale, setXLight, setYLight, setZLight, setLightColorR, setLightColorG, setLightColorB], () => [xPos, yPos, zPos, xRot, yRot, zRot, scale, xLight, yLight, zLight, lightColorR, lightColorG, lightColorB]);
+
   return (
-    <div>
-      <h1>3D</h1>
-      <p>Click to redraw.</p>
+    <div style={{position: "absolute", top: 0}}>
+      {/* <h1>3D</h1>
+      <p>Click to redraw.</p> */}
+      <label>
+        Model X Position:
+        <input type="number" value={xPos} onChange={handleInputChange(setXPos)} />
+      </label>
+      <label>
+        Model Y Position:
+        <input type="number" value={yPos} onChange={handleInputChange(setYPos)} />
+      </label>
+      <label>
+        Model Z Position:
+        <input type="number" value={zPos} onChange={handleInputChange(setZPos)} />
+      </label>
+
+      <label>
+        Model X Rotation:
+        <input type="number" value={xRot} onChange={handleInputChange(setXRot)} />
+      </label>
+      <label>
+        Model Y Rotation:
+        <input type="number" value={yRot} onChange={handleInputChange(setYRot)} />
+      </label>
+      <label>
+        Model Z Rotation:
+        <input type="number" value={zRot} onChange={handleInputChange(setZRot)} />
+      </label>
+
+      <label>
+        Model Scale:
+        <input type="number" value={scale} onChange={handleInputChange(setScale)} />
+      </label>
+
+      <label>
+        Light X Position:
+        <input type="number" value={xLight} onChange={handleInputChange(setXLight)} />
+      </label>
+      <label>
+        Light Y Position:
+        <input type="number" value={yLight} onChange={handleInputChange(setYLight)} />
+      </label>
+      <label>
+        Light Z Position:
+        <input type="number" value={zLight} onChange={handleInputChange(setZLight)} />
+      </label>
+      
+      <label>
+        Light R Value:
+        <input type="number" value={lightColorR} onChange={handleInputChange(setLightColorR)} />
+      </label>
+      <label>
+        Light G Value:
+        <input type="number" value={lightColorG} onChange={handleInputChange(setLightColorG)} />
+      </label>
+      <label>
+        Light B Value:
+        <input type="number" value={lightColorB} onChange={handleInputChange(setLightColorB)} />
+      </label>
+
       <div style={{position: "relative", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", margin: "0 auto"}}>
-        <div style={{position: "absolute", top: 0, left: 0}}>
+        {/* <div style={{position: "absolute", top: 0, left: 0}}>
           <P5Wrapper sketch={bgSketch} />
-        </div>
-        <div style={{position: "absolute", top: 0, left: 0}}>
-          <P5Wrapper sketch={couchSketch} />
+        </div> */}
+        
+        <div style={{position: "absolute", top: 40, left: 0}}>
+          <P5Wrapper sketch={sketchWrapper} />
         </div>
       </div>
     </div>

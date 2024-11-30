@@ -1,0 +1,85 @@
+let audioContext;
+let windNoiseNode, rustleNoiseNode;
+let windFilterNode, rustleFilterNode;
+let windGainNode, rustleGainNode;
+
+function createGentleWindSound() {
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  // Create a buffer for noise
+  const bufferSize = 2 * audioContext.sampleRate;
+  const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+  const output = noiseBuffer.getChannelData(0);
+
+  // Fill the buffer with random values (white noise)
+  for (let i = 0; i < bufferSize; i++) {
+    output[i] = Math.random() * 2 - 1;
+  }
+
+  // Create a buffer source node for wind
+  windNoiseNode = audioContext.createBufferSource();
+  windNoiseNode.buffer = noiseBuffer;
+  windNoiseNode.loop = true;
+
+  // Create a buffer source node for rustling leaves
+  rustleNoiseNode = audioContext.createBufferSource();
+  rustleNoiseNode.buffer = noiseBuffer;
+  rustleNoiseNode.loop = true;
+
+  // Create a low-pass filter node for wind
+  windFilterNode = audioContext.createBiquadFilter();
+  windFilterNode.type = 'lowpass';
+  windFilterNode.frequency.setValueAtTime(300, audioContext.currentTime);
+
+  // Create a band-pass filter node for rustling leaves
+  rustleFilterNode = audioContext.createBiquadFilter();
+  rustleFilterNode.type = 'bandpass';
+  rustleFilterNode.frequency.setValueAtTime(1000, audioContext.currentTime);
+  rustleFilterNode.Q.setValueAtTime(1, audioContext.currentTime);
+
+  // Create gain nodes for volume control
+  windGainNode = audioContext.createGain();
+  windGainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+
+  rustleGainNode = audioContext.createGain();
+  rustleGainNode.gain.setValueAtTime(0.02, audioContext.currentTime);
+
+  // Connect the nodes
+  windNoiseNode.connect(windFilterNode);
+  windFilterNode.connect(windGainNode);
+  windGainNode.connect(audioContext.destination);
+
+  rustleNoiseNode.connect(rustleFilterNode);
+  rustleFilterNode.connect(rustleGainNode);
+  rustleGainNode.connect(audioContext.destination);
+
+  // Start the noise
+  windNoiseNode.start();
+  rustleNoiseNode.start();
+
+  // Simulate gentle wind and rustling leaves
+  simulateGentleWind();
+  simulateRustlingLeaves();
+}
+
+function simulateGentleWind() {
+  setInterval(() => {
+    const newFreq = Math.random() * 100 + 200; // Random frequency between 200 and 300 Hz
+    const newGain = Math.random() * 0.02 + 0.03; // Random gain between 0.03 and 0.05
+
+    windFilterNode.frequency.setTargetAtTime(newFreq, audioContext.currentTime, 1);
+    windGainNode.gain.setTargetAtTime(newGain, audioContext.currentTime, 1);
+  }, 3000);
+}
+
+function simulateRustlingLeaves() {
+  setInterval(() => {
+    const newFreq = Math.random() * 200 + 900; // Random frequency between 900 and 1100 Hz
+    const newGain = Math.random() * 0.01 + 0.01; // Random gain between 0.01 and 0.02
+
+    rustleFilterNode.frequency.setTargetAtTime(newFreq, audioContext.currentTime, 0.5);
+    rustleGainNode.gain.setTargetAtTime(newGain, audioContext.currentTime, 0.5);
+  }, 500); // Faster modulation for rustling effect
+}
+
+export {createGentleWindSound, simulateGentleWind, simulateRustlingLeaves}

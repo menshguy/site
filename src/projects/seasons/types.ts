@@ -12,7 +12,8 @@ export type Leaf = {
   stop: number, 
   fill_c: p5.Color,
   isSunLeaf?: boolean, 
-  movementFactor?: number
+  movementFactor: number,
+  movementDirection: number
 }
 
 export type Point = {

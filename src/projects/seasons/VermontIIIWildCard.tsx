@@ -51,24 +51,25 @@ const mySketch = (p: p5) => {
     let sunlight = {angle: sunAngle, fillPercentage: sunFillPercentage}
 
     // Trunk & Tree
-    let trunkHeight = p.random(50, 100);
+    let trunkHeight = p.random(50, 1200);
     let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
-    let trunkWidth = p.random(40, 60);
+    let trunkWidth = p.random(40, 150);
     let treeWidth = p.random(trunkWidth, trunkWidth+5); // total width including leaves
     let numTrunkLines = p.random(3,5); //trunks are made up of X bezier curves
 
     // Points & Leaves
-    let numPointsPerRow = 5; // X points are draw within a boundary radius
-    let avg = 150;
+    let numPointsPerRow = p.random(5, 15); // X points are draw within a boundary radius
+    let avg = p.random(50, 250);
     let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
     let pointBoundaryRadius = {min: 25, max: 30};
     let leavesStartY = p.height - bottom - pointBoundaryRadius.max; //where on y axis do leaves start
-    let leafWidth = p.random(2, 2);
-    let leafHeight = p.random(3, 3);
-    let rowHeight = treeHeight/3; //x points will drawn p.randominly in each row. rows increment up by this amount
+    let leaveSize = p.random(["small","large"]);
+    let leafWidth = leaveSize === "small" ? p.random(0.5, 1.5) : p.random(5, 10);
+    let leafHeight = leaveSize === "small" ? p.random(2, 3) : p.random(8, 15);
+    let rowHeight = treeHeight/p.random(3, 8); //x points will drawn p.randominly in each row. rows increment up by this amount
 
     /** FRONT TREES */
-    let numTreesInFront = 20;
+    let numTreesInFront = p.random(5, 20);
     for (let i = 0; i < numTreesInFront; i++) {
       // Start / Mid / Bulge
       let startX = i * (cw/numTreesInFront) + p.random(-10, 10);
@@ -115,7 +116,7 @@ const mySketch = (p: p5) => {
     shuffleArray(treesInFront)
 
     /** BACKGROUND TREES */
-    let numBGTreeColumns = 20;
+    let numBGTreeColumns = p.random(5, 20);
     for (let i = 0; i < numBGTreeColumns; i++) {
 
       // Start / Mid / Bulge
@@ -175,7 +176,7 @@ const mySketch = (p: p5) => {
     moonConfig = {x: moonX, y: moonY, r: moonR, fill: moonFill}
 
     /** Stars */
-    let numStars = 650;
+    let numStars = p.random(250, 2500);
     let starFill = p.color(255, 100, 100);
     let minR = 0.25;
     let maxR = 2;
@@ -293,14 +294,14 @@ const mySketch = (p: p5) => {
   };
 };
 
-const VermontIII: React.FC = () => {
+const VermontIIIWildCard: React.FC = () => {
   return (
     <div>
-      <h1>Vermont III</h1>
+      <h1>Vermont III Wild Card</h1>
       <p>Click to redraw.</p>
       <P5Wrapper sketch={mySketch} includeSaveButton />
     </div>
   );
 };
 
-export default VermontIII;
+export default VermontIIIWildCard;
