@@ -158,30 +158,30 @@ const couchSketch = (p: p5) => {
   };
 };
 
-const bgSketch = (p: p5) => {
-  p.draw = () => {
-    p.createCanvas(600, 180);
-    p.background("azure");
-    p.translate(p.width / 2, p.height);
-    drawBranch(100);
+// const bgSketch = (p: p5) => {
+//   p.draw = () => {
+//     p.createCanvas(600, 180);
+//     p.background("azure");
+//     p.translate(p.width / 2, p.height);
+//     drawBranch(100);
     
-  }
+//   }
 
-  function drawBranch(len: number) {
-    p.line(0, 0, 0, -len);
-    p.translate(0, -len);
-    if (len > 4) {
-      p.push();
-      p.rotate(p.PI / 6);
-      drawBranch(len * 0.67);
-      p.pop();
-      p.push();
-      p.rotate(-p.PI / 6);
-      drawBranch(len * 0.67);
-      p.pop();
-    }
-  }
-}
+//   function drawBranch(len: number) {
+//     p.line(0, 0, 0, -len);
+//     p.translate(0, -len);
+//     if (len > 4) {
+//       p.push();
+//       p.rotate(p.PI / 6);
+//       drawBranch(len * 0.67);
+//       p.pop();
+//       p.push();
+//       p.rotate(-p.PI / 6);
+//       drawBranch(len * 0.67);
+//       p.pop();
+//     }
+//   }
+// }
 
 const Couch: React.FC = () => {
   return (
