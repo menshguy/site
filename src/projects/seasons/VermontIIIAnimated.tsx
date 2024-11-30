@@ -305,12 +305,12 @@ const mySketch = (p: p5) => {
     let randomFactorY = p.random(-0.8, 0.8); // Random factor for y direction
 
     // Calculate directional movement
-    let directionX = Math.cos(leaf.movementDirection);
-    let directionY = Math.sin(leaf.movementDirection);
+    let directionX = Math.cos(leaf.movementDirection || 0);
+    let directionY = Math.sin(leaf.movementDirection || 0);
 
     // Update leaf position with direction
-    leaf.y = leaf.y + (Math.cos(time) / (leaf.movementFactor * 2)) * directionY + randomFactorY;
-    leaf.x = leaf.x + (Math.sin(time) * leaf.movementFactor) * directionX + randomFactorX;
+    leaf.y = leaf.y + (Math.cos(time) / (leaf.movementFactor || 1 * 2)) * directionY + randomFactorY;
+    leaf.x = leaf.x + (Math.sin(time) * (leaf.movementFactor || 1)) * directionX + randomFactorX;
 
     return leaf;
   }
