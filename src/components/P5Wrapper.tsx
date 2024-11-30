@@ -4,9 +4,11 @@ import p5 from 'p5';
 interface P5WrapperProps {
   sketch: (p: p5) => void;
   includeSaveButton?: boolean;
+  debug?: boolean;
 }
 
-const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton }) => {
+const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton, debug = false }) => {
+  const [isDebugMode, setIsDebugMode] = useState(debug);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,16 +21,21 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton }) => {
       // Once the sketch is ready, set loading to false
       const originalDraw = p5Instance.draw;
       p5Instance.draw = () => {
+        let startTime;
         
-        let startTime = new Date()
-        console.log("draw start");
+        if (isDebugMode) {
+          startTime = new Date()
+          console.log("draw start");
+        }
 
         if (originalDraw) {
           originalDraw.call(p5Instance);
           
-          let endTime = new Date()
-          let duration = (endTime.getTime() - startTime.getTime())/1000;
-          console.log("draw fin", duration)
+          if (isDebugMode && startTime) {
+            let endTime = new Date()
+            let duration = (endTime.getTime() - startTime.getTime())/1000;
+            console.log("draw fin", duration)
+          }
           
           setIsLoading(false);
         }
@@ -37,18 +44,22 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton }) => {
       // Once the sketch is ready, set loading to false
       const originalSetup = p5Instance.setup;
       p5Instance.setup = () => {
-        
+        let startTime;
         setIsLoading(true);
         
-        let startTime = new Date()
-        console.log("setup start");
+        if (isDebugMode) {
+          startTime = new Date()
+          console.log("setup start");
+        }
         
         if (originalSetup) {
           originalSetup.call(p5Instance);
           
-          let endTime = new Date()
-          let duration = (endTime.getTime() - startTime.getTime())/1000;
-          console.log("setup fin", duration)
+          if (isDebugMode && startTime) {
+            let endTime = new Date()
+            let duration = (endTime.getTime() - startTime.getTime()) / 1000;
+            console.log("setup fin", duration)
+          }
         }
       };
 
