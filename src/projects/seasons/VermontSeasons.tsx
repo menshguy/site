@@ -10,10 +10,11 @@ const mySketch = (p: p5) => {
 
   let cw: number = 1000; 
   let ch: number = 600;
+  let m: p5.Graphics;
+  let b: p5.Graphics;
   let r: p5.Graphics;
   let v: p5.Graphics;
   let bottom = 300;
-  let debug = false;
   let tree: VermontTree;
   let sunAngle: number;
   let sunFillPercentage: number;
@@ -31,9 +32,9 @@ const mySketch = (p: p5) => {
   let rows: number;
   let current: number[][]; // = new float[cols][rows];
   let previous: number[][]; // = new float[cols][rows];
-  let dampening = 0.9;
+  let dampening = 0.92;
   let pixelValue = 2500;
-  let interval = 100;
+  let interval = 10;
   let timer = 0;
 
   p.preload = () => {
@@ -41,181 +42,228 @@ const mySketch = (p: p5) => {
   }
   
   p.setup = () => {
-    // p.colorMode(p.HSL);
-    p.pixelDensity(1);
+    p.colorMode(p.HSL);
     p.createCanvas(cw, ch);
-    
-    /** Rain */
-    v = p.createGraphics(p.width, p.height, p.WEBGL);
-    r = p.createGraphics(p.width, p.height);
-    cols = r.width * p.pixelDensity();
-    rows = r.height * p.pixelDensity();
-    current = new Array(cols).fill(0).map( _ => new Array(rows).fill(0));
-    previous = new Array(cols).fill(0).map( _ => new Array(rows).fill(0));
 
     /** Colors */
-    // colors = {
-    //   green: (s: number = 1, l: number = 1) => () => p.color(p.random(74,107), 70*s, 40.3*l),
-    //   yellow: (s: number = 1, l: number = 1) => () => p.color(p.random(42,80), 70*s, 55*l),
-    //   orange: (s: number = 1, l: number = 1) => () => p.color(p.random(27,50), 70*s, 56*l),
-    //   red: (s: number = 1, l: number = 1) => () => p.color(p.random(2,35), 70*s, 57*l),
-    // }
+    colors = {
+      green: (s: number = 1, l: number = 1) => () => p.color(p.random(74,107), 70*s, 40.3*l),
+      yellow: (s: number = 1, l: number = 1) => () => p.color(p.random(42,80), 70*s, 55*l),
+      orange: (s: number = 1, l: number = 1) => () => p.color(p.random(27,50), 70*s, 56*l),
+      red: (s: number = 1, l: number = 1) => () => p.color(p.random(2,35), 70*s, 57*l),
+    }
   
     // Season & Time
-    // season = 'fall';
-    // timeOfDay = p.random(["day", "night"]);
-    // console.log("season", season, timeOfDay)
+    season = 'fall';
+    timeOfDay = p.random(["day", "night"]);
+    console.log("season", season, timeOfDay)
     
     // Sunlight
-    // sunAngle = p.radians(p.random(200, 340));
-    // sunFillPercentage = p.random(0.1, timeOfDay === 'night' ? 0.5 : 1);
-    // let sunlight = {angle: sunAngle, fillPercentage: sunFillPercentage}
+    sunAngle = p.radians(p.random(200, 340));
+    sunFillPercentage = p.random(0.1, timeOfDay === 'night' ? 0.5 : 1);
+    let sunlight = {angle: sunAngle, fillPercentage: sunFillPercentage}
 
     // Trunk & Tree
-    // let trunkHeight = p.random(50, 1200);
-    // let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
-    // let trunkWidth = p.random(40, 150);
-    // let treeWidth = p.random(trunkWidth, trunkWidth+5); // total width including leaves
-    // let numTrunkLines = p.random(3,5); //trunks are made up of X bezier curves
+    let trunkHeight = p.random(50, 1200);
+    let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
+    let trunkWidth = p.random(40, 150);
+    let treeWidth = p.random(trunkWidth, trunkWidth+5); // total width including leaves
+    let numTrunkLines = p.random(3,5); //trunks are made up of X bezier curves
 
     // Points & Leaves
-    // let numPointsPerRow = p.random(5, 15); // X points are draw within a boundary radius
-    // let avg = p.random(50, 250);
-    // let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
-    // let pointBoundaryRadius = {min: 25, max: 30};
-    // let leavesStartY = p.height - bottom - pointBoundaryRadius.max; //where on y axis do leaves start
-    // let leaveSize = p.random(["small","large"]);
-    // let leafWidth = leaveSize === "small" ? p.random(0.5, 1.5) : p.random(5, 10);
-    // let leafHeight = leaveSize === "small" ? p.random(2, 3) : p.random(8, 15);
-    // let rowHeight = treeHeight/p.random(3, 8); //x points will drawn p.randominly in each row. rows increment up by this amount
+    let numPointsPerRow = p.random(5, 15); // X points are draw within a boundary radius
+    let avg = p.random(50, 250);
+    let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
+    let pointBoundaryRadius = {min: 25, max: 30};
+    let leavesStartY = p.height - bottom - pointBoundaryRadius.max; //where on y axis do leaves start
+    let leaveSize = p.random(["small","large"]);
+    let leafWidth = leaveSize === "small" ? p.random(0.5, 1.5) : p.random(5, 10);
+    let leafHeight = leaveSize === "small" ? p.random(2, 3) : p.random(8, 15);
+    let rowHeight = treeHeight/p.random(3, 8); //x points will drawn p.randominly in each row. rows increment up by this amount
 
     // /** FRONT TREES */
-    // let numTreesInFront = p.random(5, 20);
-    // for (let i = 0; i < numTreesInFront; i++) {
-    //   // Start / Mid / Bulge
-    //   let startX = i * (cw/numTreesInFront) + p.random(-10, 10);
-    //   let startJitter = p.random(0, 10);
-    //   let startPoint = {x: startX, y: ch-bottom - startJitter};
-    //   let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
-    //   let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};
+    let numTreesInFront = p.random(5, 20);
+    for (let i = 0; i < numTreesInFront; i++) {
+      // Start / Mid / Bulge
+      let startX = i * (cw/numTreesInFront) + p.random(-10, 10);
+      let startJitter = p.random(0, 10);
+      let startPoint = {x: startX, y: ch-bottom - startJitter};
+      let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
+      let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};
       
-    //   // Colors
-    //   let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
-    //   let fills = timeOfDay === "night" 
-    //     ? colors[fallColor](0.4, .2)
-    //     : colors[fallColor](0.9, .5)
-    //   let fillsSunlight = timeOfDay === "night" 
-    //     ? colors[fallColor](0.1, .7)
-    //     : colors[fallColor](0.8, .95);
+      // Colors
+      let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
+      let fills = timeOfDay === "night" 
+        ? colors[fallColor](0.4, .2)
+        : colors[fallColor](0.9, .5)
+      let fillsSunlight = timeOfDay === "night" 
+        ? colors[fallColor](0.1, .7)
+        : colors[fallColor](0.8, .95);
         
-    //   /** Create Tree */
-    //   tree = new VermontTree({
-    //     p5Instance: p,
-    //     treeHeight, 
-    //     treeWidth, 
-    //     numTrunkLines, 
-    //     numPointsPerRow,
-    //     numLeavesPerPoint, 
-    //     startPoint, 
-    //     trunkHeight, 
-    //     trunkWidth, 
-    //     leavesStartY,
-    //     pointBoundaryRadius, 
-    //     fills,
-    //     fillsSunlight, 
-    //     sunlight,
-    //     leafWidth, 
-    //     leafHeight,
-    //     rowHeight,
-    //     midpoint,
-    //     bulgePoint
-    //   });
+      /** Create Tree */
+      tree = new VermontTree({
+        p5Instance: p,
+        treeHeight, 
+        treeWidth, 
+        numTrunkLines, 
+        numPointsPerRow,
+        numLeavesPerPoint, 
+        startPoint, 
+        trunkHeight, 
+        trunkWidth, 
+        leavesStartY,
+        pointBoundaryRadius, 
+        fills,
+        fillsSunlight, 
+        sunlight,
+        leafWidth, 
+        leafHeight,
+        rowHeight,
+        midpoint,
+        bulgePoint
+      });
 
-    //   treesInFront.push(tree);
-    // }
+      treesInFront.push(tree);
+    }
 
-    // shuffleArray(treesInFront)
+    shuffleArray(treesInFront)
 
     // /** BACKGROUND TREES */
-    // let numBGTreeColumns = p.random(5, 20);
-    // for (let i = 0; i < numBGTreeColumns; i++) {
+    let numBGTreeColumns = p.random(5, 20);
+    for (let i = 0; i < numBGTreeColumns; i++) {
 
-    //   // Start / Mid / Bulge
-    //   let offset = treeHeight / 2;
-    //   let minStartY = ch-bottom;
-    //   let maxStartY = ch-bottom-(treeHeight*i);
-    //   let numTreesInColumn = (minStartY - maxStartY) / treeHeight
-    //   for (let j = numTreesInColumn; j >= 0; j--) {
-    //     let startX = i * ( (p.width+treeWidth)/numBGTreeColumns ) + p.random(-25, 25) // add an extra treeWidth for some bufferspace
-    //     let startY = minStartY - (numTreesInColumn * j) + offset;
-    //     let startPoint = {x: startX, y: startY};
-    //     let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
-    //     let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};
+      // Start / Mid / Bulge
+      let offset = treeHeight / 2;
+      let minStartY = ch-bottom;
+      let maxStartY = ch-bottom-(treeHeight*i);
+      let numTreesInColumn = (minStartY - maxStartY) / treeHeight
+      for (let j = numTreesInColumn; j >= 0; j--) {
+        let startX = i * ( (p.width+treeWidth)/numBGTreeColumns ) + p.random(-25, 25) // add an extra treeWidth for some bufferspace
+        let startY = minStartY - (numTreesInColumn * j) + offset;
+        let startPoint = {x: startX, y: startY};
+        let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2)};
+        let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - treeHeight/3))};
         
-    //     // Colors
-    //     let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
-    //     let fills = timeOfDay === "night" 
-    //       ? colors[fallColor](0.4, .2)
-    //       : colors[fallColor](0.9, .5)
-    //     let fillsSunlight = timeOfDay === "night" 
-    //       ? colors[fallColor](0.1, .7)
-    //       : colors[fallColor](0.8, .95);
+        // Colors
+        let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
+        let fills = timeOfDay === "night" 
+          ? colors[fallColor](0.4, .2)
+          : colors[fallColor](0.9, .5)
+        let fillsSunlight = timeOfDay === "night" 
+          ? colors[fallColor](0.1, .7)
+          : colors[fallColor](0.8, .95);
           
-    //     /** Create Tree */
-    //     tree = new VermontTree({
-    //       p5Instance: p,
-    //       treeHeight, 
-    //       treeWidth, 
-    //       numTrunkLines, 
-    //       numPointsPerRow,
-    //       numLeavesPerPoint, 
-    //       startPoint, 
-    //       trunkHeight, 
-    //       trunkWidth, 
-    //       leavesStartY,
-    //       pointBoundaryRadius, 
-    //       fills,
-    //       fillsSunlight, 
-    //       sunlight,
-    //       leafWidth, 
-    //       leafHeight,
-    //       rowHeight,
-    //       midpoint,
-    //       bulgePoint
-    //     });
+        /** Create Tree */
+        tree = new VermontTree({
+          p5Instance: p,
+          treeHeight, 
+          treeWidth, 
+          numTrunkLines, 
+          numPointsPerRow,
+          numLeavesPerPoint, 
+          startPoint, 
+          trunkHeight, 
+          trunkWidth, 
+          leavesStartY,
+          pointBoundaryRadius, 
+          fills,
+          fillsSunlight, 
+          sunlight,
+          leafWidth, 
+          leafHeight,
+          rowHeight,
+          midpoint,
+          bulgePoint
+        });
 
-    //     treesInBack.push(tree);
-    //   }
-    // }
+        treesInBack.push(tree);
+      }
+    }
 
-    /** Moon */
-    // let moonX = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
-    // let moonY = p.random(0, p.height-bottom);
-    // let moonR = p.map(moonY, 0, p.height-bottom, 50, 350);
-    // let moonHue = p.map(moonY, 0, p.height-bottom-moonR, 52, 33)
-    // let moonFill = p.color(moonHue, 78, 92);
-    // moonConfig = {x: moonX, y: moonY, r: moonR, fill: moonFill}
+    /** Create Buffer for Sky, Moon, Stars, and Trees */
+    m = p.createGraphics(p.width, p.height - (p.height-bottom));
+    m.colorMode(p.HSL);
+    
+    /** Draw Moon & Stars to Buffer */
+    if (timeOfDay === "night") {
+      /** Moon */
+      let moonX = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
+      let moonY = p.random(0, p.height-bottom);
+      let moonR = p.map(moonY, 0, p.height-bottom, 50, 350);
+      let moonHue = p.map(moonY, 0, p.height-bottom-moonR, 52, 33)
+      let moonFill = p.color(moonHue, 78, 92);
+      moonConfig = {x: moonX, y: moonY, r: moonR, fill: moonFill}
 
-    /** Stars */
-    // let numStars = p.random(250, 2500);
-    // let starFill = p.color(255, 100, 100);
-    // let minR = 0.25;
-    // let maxR = 2;
-    // let minX = 0;
-    // let maxX = cw;
-    // let minY = 0;
-    // let maxY = p.height;
-    // starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
+      /** Stars */
+      let numStars = p.random(250, 2500);
+      let starFill = p.color(255, 100, 100);
+      let minR = 0.25;
+      let maxR = 2;
+      let minX = 0;
+      let maxX = cw;
+      let minY = 0;
+      let maxY = p.height;
+      starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
 
+      drawMoon(m, moonConfig); // Draw Moon
+      drawStars(m, starsConfig); // Draw Stars
+    }
+    
+    // Shadow
+    let shadowHeight = 40
+    drawShadow(m, shadowHeight, p.height-bottom-shadowHeight+2, timeOfDay)
 
+    /** Draw All Trees to Buffer, Background first, Foreground second */
+    let allTrees = [...treesInBack, ...treesInFront]
+    allTrees.forEach(tree => {
+      m.push();
+      m.strokeWeight(1);
+      m.noFill()
+      m.stroke(timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 25));
+      tree.drawTrunk(m, tree.trunkLines, true)
+      m.pop();
+
+      tree.leaves.forEach(leaf => tree.drawLeaf(m, leaf));
+    })
+
+    /** Draw Reflection of Main Buffer to a separate buffer */
+    b = drawReflection(p, m, 0, p.height - bottom, p.width, p.height)
+
+    // Draw a rect for the lake, and erase circles from that buffer image
+    let lakeFill = timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2)
+    let d = drawCirclesToBuffer(p, b, p.height - bottom, lakeFill)
+    p.image(d, 0, 0);
+
+    // Ground Line
+    drawGroundLine(p, 25, ch-bottom, cw-25, timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 20))
+
+    /** Rain */
+    v = p.createGraphics(p.width, p.height, p.WEBGL);
+    v.pixelDensity(1);
+    r = p.createGraphics(p.width, p.height);
+    r.pixelDensity(1);
+    cols = r.width * r.pixelDensity();
+    rows = r.height * r.pixelDensity();
+    current = new Array(cols).fill(0).map( _ => new Array(rows).fill(0));
+    previous = new Array(cols).fill(0).map( _ => new Array(rows).fill(0));
   }
   
   p.draw = () => {
     // p.noLoop();
-    p.background("azure");
-    r.background("blue");
-    v.background("darkblue");
 
+    // Sky to canvas
+    let skyColor = timeOfDay === "night" ? p.color(223,43,18) : p.color("#68ADF6")
+    p.noStroke();
+    p.fill(skyColor);
+    p.rect(0, 0, p.width, p.height)
+    
+    // Sky Reflection
+    p.noStroke()
+    p.fill(skyColor)
+    p.rect(0, p.height-bottom, p.width, p.height)
+    
+    // Draw tree buffer image
+    p.image(m, 0, 0)
     /** Rain */
     let raindropUpdates = triggerRaindropEffect(p.millis(), interval, pixelValue, timer, cols, rows, previous);
     timer = raindropUpdates.timer;
@@ -225,103 +273,48 @@ const mySketch = (p: p5) => {
     current = rainUpdates.current;
     previous = rainUpdates.previous;
 
-    // p.image(r, 0, bottom);
+    /** Draw Rain Buffer as Texture onto a 3D Plane, rotate for perspective */
     v.push();
+    v.background("white");
     v.noStroke();
     v.rotateX(p.radians(65));
     v.translate(0, -400, 180);
     v.texture(r);
     v.plane(v.width * 3, v.height * 3);
     v.pop();
+    
+    /** Draw Reflection Buffer */
+    p.image(b, 0, 0);
+
+    /** Draw Rain as Blend Mode over the Reflection */
+    p.push();
+    p.blendMode(p.MULTIPLY);
+    // v.filter(p.BRIGHTNESS, 0.5);
     p.image(v, 0, bottom);
-    // Create a buffer for main image to be drawn to.
-    // let m = p.createGraphics(p.width, p.height - (p.height-bottom))
-
-    // Sky to canvas
-    // let skyColor = timeOfDay === "night" ? p.color(223,43,18) : p.color("#68ADF6")
-    // // p.noStroke();
-    // // p.fill(skyColor);
-    // // p.rect(0, 0, p.width, p.height)
-
-    // Draw Moon and Stars to buffer
-    // if (timeOfDay === "night") {
-    //   drawMoon(m, moonConfig); // Draw Moon
-    //   drawStars(m, starsConfig); // Draw Stars
-    // }
+    p.pop();
     
-    // Shadow
-    // m.noStroke()
-    // m.fill(timeOfDay === "night" ? m.color(30, 30, 12) : m.color(30, 30, 30))
-    // m.rect(0, p.height-bottom-30, p.width, 30)
-    
-    // Sky Reflection
-    // p.noStroke()
-    // p.fill(skyColor)
-    // p.rect(0, p.height-bottom, p.width, p.height)
-    
-    // treesInBack.forEach(tree => {
-    //   m.push();
-    //   m.strokeWeight(1);
-    //   m.noFill()
-    //   m.stroke(timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 40));
-    //   tree.drawTrunk(m, tree.trunkLines, true)
-    //   m.pop();
-
-    //   tree.leaves.forEach(leaf => tree.drawLeaf(m, leaf));
-    // })
-    // treesInFront.forEach(tree => {
-    //   m.push();
-    //   m.strokeWeight(1);
-    //   m.noFill()
-    //   m.stroke(timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 40));
-    //   tree.drawTrunk(m, tree.trunkLines, true)
-    //   m.pop();
-
-    //   tree.leaves.forEach(leaf => tree.drawLeaf(m, leaf));
-    // })
-    
-    // Draw tree buffer image
-    // p.image(m, 0, 0)
-
-    // Ground Line
-    // drawGroundLine(p, 25, ch-bottom, cw-25, timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 20))
-    
-    // Draw Reflection
-    // let b = drawReflection(p, m, 0, p.height - bottom, p.width, p.height)
-    // p.image(b, 0, 0)
-
-    // Draw a rect for the lake, and erase circles from that buffer image
-    // let lakeFill = timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2)
-    // let c = drawLake(p, p.height - bottom, lakeFill);
-    // let d = eraseCirclesFromBuffer(p, c, p.height - bottom)
-    // let d = drawCirclesToBuffer(p, b, p.height - bottom, lakeFill)
-    // p.image(d, 0, 0);
-
-    /** Draw Rain */
-    // if ( p.millis() >= interval + timer ) {
-    //   // background(random(255),random(255),random(255));
-    //   let randomX = Math.floor( Math.random() * cw )
-    //   let randomY = Math.floor( Math.random() * ch )
-    //   let idx = (randomX + randomY * cw) * 4;
-    //   previous[idx] = pressValue;
-    //   timer = p.millis();
-    // }
-
     //Draw Texture
     // p.blendMode(p.MULTIPLY);
     // p.image(textureImg, 0, 0, cw, ch);
     // p.blendMode(p.BLEND);
   }
-  
-  // p.mousePressed = () => {
-  //   if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-  //     treesInBack = [];
-  //     treesInFront = [];
-  //     p.clear();
-  //     p.setup();
-  //     p.draw();
-  //   }
-  // };
+
+  function drawShadow(m: p5.Graphics, start: number, rectHeight: number, timeOfDay: TimeOfDay) {
+    // Fade into Reflection
+
+    for (let y = start; y < start + rectHeight; y++) {
+      let alpha = m.map(y, start, start + rectHeight, 0, 1); // Map y to alpha from 255 to 0
+      let fill_color = timeOfDay === "night" 
+        ? m.color(30, 30, 12, alpha) 
+        : m.color(30, 30, 30, alpha)
+      // let lakeFill = timeOfDay === "night" ? m.color(223, 68, 8, alpha) : m.color(215, 40.7, 64.2, alpha);
+      m.push();
+      m.strokeWeight(1);
+      m.stroke(fill_color);
+      m.line(0, y, m.width, y);
+      m.pop();
+    }
+  }
 
   function triggerRaindropEffect(
     currentTime: number, 
@@ -374,25 +367,15 @@ const mySketch = (p: p5) => {
     return {current, previous};
   }
 
-  // p.mousePressed = () => {
-  //   if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-  //     previous[p.floor(p.mouseX)][p.floor(p.mouseY)] = 2500;
-  //   }
-  // }
-
-  // function rainEffect(toggle) {
-  //   if (toggle) {
-  //       let interval = Math.floor( Math.random() * rainInterval )
-  //       if ( p.millis() >= interval + timer ) {
-  //           // background(random(255),random(255),random(255));
-  //           let randomX = Math.floor( Math.random() * cols )
-  //           let randomY = Math.floor( Math.random() * rows )
-  //           let idx = (randomX + randomY * cols) * 4;
-  //           previous[idx] = pressValue;
-  //           timer = p.millis();
-  //       }
-  //   }
-  // }
+  p.mousePressed = () => {
+    if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
+      treesInBack = [];
+      treesInFront = [];
+      p.clear();
+      p.setup();
+      p.draw();
+    }
+  };
 
 };
 
