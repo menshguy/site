@@ -2,7 +2,7 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 
-const couchSketch = (p: p5) => {
+const mySketch = (p: p5) => {
 
   let cw: number = 600; 
   let ch: number = 600;
@@ -186,7 +186,7 @@ const couchSketch = (p: p5) => {
 //   }
 // }
 
-const Couch: React.FC = () => {
+const Couch_old: React.FC = () => {
   return (
     <div>
       <h1>3D</h1>
@@ -196,11 +196,12 @@ const Couch: React.FC = () => {
           <P5Wrapper sketch={bgSketch} />
         </div> */}
         <div style={{position: "absolute", top: 0, left: 0}}>
-          <P5Wrapper sketch={couchSketch} />
+          <P5Wrapper sketch={mySketch} />
         </div>
       </div>
     </div>
   );
 };
 
-export default Couch;
+export {mySketch};
+export default Couch_old;

@@ -1,9 +1,9 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
-import {Season} from './types.ts';
-import {VermontTree, drawGroundLine} from './treeHelpers.tsx';
+import {Season} from '../../types/treesTypes.ts';
+import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import {shuffleArray} from '../../helpers/arrays.ts';
-import {drawMoon, drawStars, drawReflection, drawCirclesToBuffer, Moon, Stars, TimeOfDay} from './skyHelpers.tsx';
+import {drawMoon, drawStars, drawReflection, drawCirclesToBuffer, Moon, Stars, TimeOfDay} from '../../helpers/skyHelpers.tsx';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -303,4 +303,5 @@ const VermontIII: React.FC = () => {
   );
 };
 
+export {mySketch}
 export default VermontIII;

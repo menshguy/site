@@ -133,4 +133,5 @@ const BezierDemo: React.FC = () => {
   );
 };
 
+export {mySketch};
 export default BezierDemo;

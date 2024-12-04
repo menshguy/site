@@ -1,6 +1,6 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
-import {Season, Leaf, TrunkLine} from './types.ts';
+import {Season, Leaf, TrunkLine} from '../../types/treesTypes.ts';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -475,4 +475,5 @@ const FallBreeze: React.FC = () => {
   );
 };
 
+export {mySketch}
 export default FallBreeze;

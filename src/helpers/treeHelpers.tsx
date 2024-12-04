@@ -1,5 +1,5 @@
 import p5 from 'p5';
-import {Leaf, TrunkLine} from './types.ts';
+import {Leaf, TrunkLine} from '../types/treesTypes.ts';
 
 class VermontTree {
   private p: p5;
@@ -215,8 +215,8 @@ class VermontTree {
         
         // Leaf size and fill settings
         if (isSunLeaf) {
-          leaf_w = leafWidth + 1;
-          leaf_h = leafHeight + 1;
+          leaf_w = leafWidth;
+          leaf_h = leafHeight;
           fill_c = r > b.radius - (b.radius*fillPercentage) ? fillsSunlight() : fills(); //this calculates fillPercentage by only filling in leafs far enough from center
         } else {
           //Width and Height of leaves
@@ -233,7 +233,7 @@ class VermontTree {
         angle = isFallenLeaf ? p.HALF_PI : angle; //Angle fallen leaves horizonally
         
         //Set movement factor - will affect the speed of movement in animation (0.1 is slow, 1 is fast)
-        let movementFactor: number = p.random(0.5, 0.9);
+        let movementFactor: number = p.random(0.7, 0.9);
         let movementDirection: number = p.random(0, p.TWO_PI);
         
         //Create Leaf

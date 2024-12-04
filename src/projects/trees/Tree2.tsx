@@ -193,4 +193,5 @@ const Tree2: React.FC = () => {
   );
 };
 
+export {mySketch}
 export default Tree2;

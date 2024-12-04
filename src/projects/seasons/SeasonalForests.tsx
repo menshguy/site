@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { Season, Leaf, TrunkLine } from './types';
+import { Season, Leaf, TrunkLine } from '../../types/treesTypes';
 
 const mySketch = (p: p5) => {
   let cw: number, ch: number;
@@ -538,4 +538,5 @@ const SeasonalForests: React.FC = () => {
   );
 };
 
+export {mySketch}
 export default SeasonalForests;

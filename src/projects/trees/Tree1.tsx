@@ -114,4 +114,5 @@ const Tree1: React.FC = () => {
   );
 };
 
+export {mySketch}
 export default Tree1;

@@ -178,4 +178,5 @@ const ThreeDTest: React.FC = () => {
   );
 };
 
+export {mySketch};
 export default ThreeDTest;

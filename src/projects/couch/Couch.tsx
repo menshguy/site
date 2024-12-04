@@ -2,7 +2,7 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 
-const couchSketch = (
+const mySketch = (
   _setters: React.Dispatch<React.SetStateAction<number>>[], 
   getters: () => number[]
 ) => (p: p5) => {
@@ -208,7 +208,7 @@ const Couch: React.FC = () => {
     setter(Number(event.target.value));
   };
 
-  let sketchWrapper = couchSketch([setXPos, setYPos, setZPos, setXRot, setYRot, setZRot, setScale, setXLight, setYLight, setZLight, setLightColorR, setLightColorG, setLightColorB], () => [xPos, yPos, zPos, xRot, yRot, zRot, scale, xLight, yLight, zLight, lightColorR, lightColorG, lightColorB]);
+  let sketchWrapper = mySketch([setXPos, setYPos, setZPos, setXRot, setYRot, setZRot, setScale, setXLight, setYLight, setZLight, setLightColorR, setLightColorG, setLightColorB], () => [xPos, yPos, zPos, xRot, yRot, zRot, scale, xLight, yLight, zLight, lightColorR, lightColorG, lightColorB]);
 
   return (
     <div style={{position: "absolute", top: 0}}>
@@ -286,4 +286,5 @@ const Couch: React.FC = () => {
   );
 };
 
+export {mySketch};
 export default Couch;

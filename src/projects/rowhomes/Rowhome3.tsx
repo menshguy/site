@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { TreeConfig, RowhomeConstructor, FloorSectionConstructor } from './types.ts';
+import { TreeConfig, RowhomeConstructor, FloorSectionConstructor } from '../../types/rowHomeTypes.ts';
 
 const mySketch = (p: p5) => {
   let buffers: p5.Graphics[] = [];
@@ -592,4 +592,5 @@ const Rowhome3: React.FC = () => {
   );
 };
 
+export {mySketch};
 export default Rowhome3;
