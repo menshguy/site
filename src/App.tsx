@@ -1,47 +1,47 @@
 import { useState, CSSProperties } from 'react'
+import P5Wrapper from './components/P5Wrapper.tsx';
 import DESK_SVG from './assets/desk.svg';
 import CHARACTER_GIF_PERSONAL from './assets/character.gif';
 import CHARACTER_GIF_PROFESSIONAL from './assets/character_work.gif';
-import P5Wrapper from './components/P5Wrapper.tsx';
 import {mySketch as vermontSeasonsSketch} from './projects/vermont/VermontSeasons.tsx';
 import './App.css'
 
-interface Doodle {
-  series: string;
-  title: string;
-  href: string;
-  previewGifSrc?: string;
-  previewImgSrc?: string;
-}
+// interface Doodle {
+//   series: string;
+//   title: string;
+//   href: string;
+//   previewGifSrc?: string;
+//   previewImgSrc?: string;
+// }
 
-const doodleConfigs: Doodle[] = [
-  {series: "vermont", title:"vermont ii", href: "/vermont/vermontii"}, 
-  {series: "vermont", title:"vermont iii", href: "/vermont/vermontiii"}, 
-  {series: "vermont", title:"vermont iii Animated", href: "/vermont/vermontiiia"}, 
-  {series: "vermont", title:"vermont random", href: "/vermont/vermontiiiwildcard"}, 
-  {series: "vermont", title:"vermont iiii", href: "/vermont/vermontiiii"}, 
-  {series: "vermont", title:"vermont seasons", href: "/vermont/vermontseasons"}, 
+// const doodleConfigs: Doodle[] = [
+//   {series: "vermont", title:"vermont ii", href: "/vermont/vermontii"}, 
+//   {series: "vermont", title:"vermont iii", href: "/vermont/vermontiii"}, 
+//   {series: "vermont", title:"vermont iii Animated", href: "/vermont/vermontiiia"}, 
+//   {series: "vermont", title:"vermont random", href: "/vermont/vermontiiiwildcard"}, 
+//   {series: "vermont", title:"vermont iiii", href: "/vermont/vermontiiii"}, 
+//   {series: "vermont", title:"vermont seasons", href: "/vermont/vermontseasons"}, 
   
-  {series: "seasons", title:"fall in vermont", href: "/seasons/vermont"}, 
-  {series: "seasons", title:"fall Sunlight", href: "/seasons/fallsunlight"}, 
-  {series: "seasons", title:"fall Breeze", href:"/seasons/fallbreeze"}, 
-  {series: "seasons", title:"seasonal Forests", href: "/seasons/seasonalforests"}, 
+//   {series: "seasons", title:"fall in vermont", href: "/seasons/vermont"}, 
+//   {series: "seasons", title:"fall Sunlight", href: "/seasons/fallsunlight"}, 
+//   {series: "seasons", title:"fall Breeze", href:"/seasons/fallbreeze"}, 
+//   {series: "seasons", title:"seasonal Forests", href: "/seasons/seasonalforests"}, 
   
-  {series: "couch", title:"Couch", href: "/couch/couch"}, 
+//   {series: "couch", title:"Couch", href: "/couch/couch"}, 
   
-  {series: "trees", title:"oneTree", href: "/trees/onetree"}, 
-  {series: "trees", title:"tree 1", href: '/trees/tree1'}, 
-  {series: "trees", title:"tree 2", href: '/trees/tree2'}, 
-  {series: "trees", title:"tree 3", href: '/trees/tree3'}, 
-  {series: "trees", title:"tree 4", href: '/trees/tree4'}, 
-  {series: "trees", title:"tree 5", href: '/trees/tree5'}, 
+//   {series: "trees", title:"oneTree", href: "/trees/onetree"}, 
+//   {series: "trees", title:"tree 1", href: '/trees/tree1'}, 
+//   {series: "trees", title:"tree 2", href: '/trees/tree2'}, 
+//   {series: "trees", title:"tree 3", href: '/trees/tree3'}, 
+//   {series: "trees", title:"tree 4", href: '/trees/tree4'}, 
+//   {series: "trees", title:"tree 5", href: '/trees/tree5'}, 
   
-  // {series: "rowhomes", title:, href: 'rowhome1'}, 
-  {series: "rowhomes", title:"Rowhomes", href: '/rowhomes/rowhome2'},
-  {series: "rowhomes", title:"Rowhomes and Trees", href: '/rowhomes/rowhome3'}, 
+//   // {series: "rowhomes", title:, href: 'rowhome1'}, 
+//   {series: "rowhomes", title:"Rowhomes", href: '/rowhomes/rowhome2'},
+//   {series: "rowhomes", title:"Rowhomes and Trees", href: '/rowhomes/rowhome3'}, 
   
-  {series: "demos", title:"Bezier demo", href: '/rowhomes/bezierdemo'}
-]
+//   {series: "demos", title:"Bezier demo", href: '/rowhomes/bezierdemo'}
+// ]
 
 function SVGObject (
   { svgData, styles, label }: 
@@ -58,8 +58,103 @@ function SVGObject (
   )
 }
 
+function SeriesOnlyList() {
+  const series = ['vermont', 'seasons', 'couch', 'rowhomes', 'trees', 'demos']; // Hidden: crowds, pictureframes
+  
+  const styles: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '10px',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    maxWidth: '1200px',
+    marginLeft: '10px',
+  }
+  
+  return (
+    <div style={styles}>
+      {series.map((series, i) => (
+        <a key={i} href={`/${series}`}>{series}</a>
+      ))}
+    </div>
+  )
+}
+
+// function _FullList({doodles}: {doodles: Doodle[]}) {
+
+//   const seriesContainerStyles: CSSProperties = {
+//     display: 'grid',
+//     gridTemplateColumns: 'repeat(5, 1fr)',
+//     gap: '10px',
+//   }
+
+//   return (
+//   <div style={seriesContainerStyles as CSSProperties}>
+      
+//       {/* Vermont Series */}
+//       <div>
+//       <h3>Vermont Series</h3>
+//         {doodles.map((doodle, i) => doodle.series === "vermont" && (
+//           <a key={i} href={doodle.href}>
+//             <p>{doodle.title}</p>
+//           </a>
+//         ))}
+//       </div>
+    
+//       {/* Seasons Series */}
+//       <div>
+//       <h3>Seasons Series</h3>
+//       {doodles.map((doodle, i) => doodle.series === "seasons" && (
+//         <a key={i}  href={doodle.href}>
+//           <p>{doodle.title}</p>
+//         </a>
+//         ))}
+//       </div>
+    
+//       {/* Couch Series */}
+//       <div>
+//       <h3>Couch Series</h3>
+//       {doodles.map((doodle, i) => doodle.series === "couch" && (
+//         <a key={i} href={doodle.href}>
+//           <p>{doodle.title}</p>
+//         </a>
+//         ))}
+//       </div>
+    
+//       {/* Rowhomes Series */}
+//       <div>
+//       <h3>Rowhomes Series</h3>
+//       {doodles.map((doodle, i) => doodle.series === "rowhomes" && (
+//         <a key={i} href={doodle.href}>
+//           <p>{doodle.title}</p>
+//         </a>
+//         ))}
+//       </div>
+    
+//       {/* Trees Series */}
+//       <div>
+//       <h3>Trees Series</h3>
+//       {doodles.map((doodle, i) => doodle.series === "trees" && (
+//         <a key={i} href={doodle.href}>
+//           <p>{doodle.title}</p>
+//         </a>
+//         ))}
+//       </div>
+      
+//       {/* Demos / Tuts */}
+//       <div>
+//       <h3>Demos & Tutorials</h3>
+//       {doodles.map((doodle, i) => doodle.series === "demos" && (
+//         <a key={i} href={doodle.href}>
+//           <p>{doodle.title}</p>
+//         </a>
+//         ))}
+//       </div>
+//     </div>
+//   )
+// }
+
 function App() {
-  const [doodles, _setDoodles] = useState<Doodle[]>(doodleConfigs);
   const [isProfessionalSite, _setIsProfessionalSite] = useState<boolean>(true);
   const CHARACTER_GIF = isProfessionalSite ? CHARACTER_GIF_PROFESSIONAL: CHARACTER_GIF_PERSONAL;
 
@@ -70,6 +165,10 @@ function App() {
     flexDirection: 'row',
     alignItems: 'center',
     overflow: 'hidden',
+    padding: '24px',
+    background: '#eaf4ff',
+    borderRadius: '2%',
+    boxSizing: 'border-box',
   }
   const animationContainerStyles: CSSProperties = {
     width: '300px',
@@ -105,6 +204,7 @@ function App() {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
+    textAlign: 'left',
   }
 
   const canvasContainerStyles: CSSProperties = {
@@ -118,7 +218,6 @@ function App() {
   const p5sketchContainerStyles: CSSProperties = {
     height: '500px',
     maxWidth: '1200px',
-    width: '1200px',
     flexDirection: 'column',
     position: 'relative',
     display: 'flex',
@@ -147,15 +246,9 @@ function App() {
     fontWeight: 'lighter',
   };
 
-  const seriesContainerStyles: CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(5, 1fr)',
-    gap: '10px',
-  }
-
   return (
+    <>
     <div>
-
     {/* Main Header */}
     <div style={mainHeaderContainerStyles}>
       {/* Character at desk */}
@@ -168,10 +261,15 @@ function App() {
       <div style={bioContainerStyles}>
         <p style={pBioStyles}> Shalom! I am a <strong>generative artist</strong>, <strong>software engineer</strong>, and <strong>illustator</strong>.</p>
         <p style={pBioStyles}> I like to doodle with code. I often post the results here & on <a href="https://x.com/menshguy">twitter/x</a>. </p>
-        <p style={pBioStyles}> 
-          While you're here, enjoy the <a href="/seasons/vermont">seasons</a>, eat a <a href="/bagel/bagel">bagel</a>,
-           or <a href="/vermont/vermontII">touch some grass</a>. I'll be chilling here on the <a href="/couch/couch">couch with my dog</a> at <a href="/rowhomes/rowhomes3">home</a>.
-        </p>
+        <div style={{marginTop: '10px', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', width: '100%'}}>
+          <p style={pBioStyles}> 
+            While you're here, enjoy the <a href="/seasons/vermont">seasons</a>, eat a <a href="/bagel/bagel">bagel</a>,
+            or <a href="/vermont/vermontII">touch some grass</a>. I'll be chilling here on the <a href="/couch/couch">couch with my dog</a> at <a href="/rowhomes/rowhomes3">home</a>.
+          </p>
+        </div>
+        <div style={{marginTop: '10px', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', width: '100%'}}>
+          You can also check out my other series: <SeriesOnlyList />
+        </div>
       </div>
     </div>
     
@@ -182,70 +280,8 @@ function App() {
         <P5Wrapper sketch={vermontSeasonsSketch} />
       </div>
     </div>
-    
-    <div style={seriesContainerStyles as CSSProperties}>
-      
-      {/* Vermont Series */}
-      <div>
-      <h3>Vermont Series</h3>
-        {doodles.map((doodle, i) => doodle.series === "vermont" && (
-          <a key={i} href={doodle.href}>
-            <p>{doodle.title}</p>
-          </a>
-        ))}
-      </div>
-    
-      {/* Seasons Series */}
-      <div>
-      <h3>Seasons Series</h3>
-      {doodles.map((doodle, i) => doodle.series === "seasons" && (
-        <a key={i}  href={doodle.href}>
-          <p>{doodle.title}</p>
-        </a>
-        ))}
-      </div>
-    
-      {/* Couch Series */}
-      <div>
-      <h3>Couch Series</h3>
-      {doodles.map((doodle, i) => doodle.series === "couch" && (
-        <a key={i} href={doodle.href}>
-          <p>{doodle.title}</p>
-        </a>
-        ))}
-      </div>
-    
-      {/* Rowhomes Series */}
-      <div>
-      <h3>Rowhomes Series</h3>
-      {doodles.map((doodle, i) => doodle.series === "rowhomes" && (
-        <a key={i} href={doodle.href}>
-          <p>{doodle.title}</p>
-        </a>
-        ))}
-      </div>
-    
-      {/* Trees Series */}
-      <div>
-      <h3>Trees Series</h3>
-      {doodles.map((doodle, i) => doodle.series === "trees" && (
-        <a key={i} href={doodle.href}>
-          <p>{doodle.title}</p>
-        </a>
-        ))}
-      </div>
-      
-      {/* Demos / Tuts */}
-      <div>
-      <h3>Demos & Tutorials</h3>
-      {doodles.map((doodle, i) => doodle.series === "demos" && (
-        <a key={i} href={doodle.href}>
-          <p>{doodle.title}</p>
-        </a>
-        ))}
-      </div>
     </div>
-    </div>
+    </>
   )
 }
 

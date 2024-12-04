@@ -20,7 +20,7 @@ const mySketch = (innerWidth: number, innerHeight: number, frameTopWidth: number
   }
   
   p.draw = () => {
-    p.background("antiquewhite");
+    // p.background("antiquewhite");
 
     // Top
     p.push(); 
@@ -106,11 +106,11 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
 
   return (
     <div style={containerStyles}>
-      <div style={outerWrapperStyles}>
-        <P5Wrapper sketch={mySketch(innerWidth, innerHeight, frameTopWidth, frameSideWidth)} />
-      </div>
       <div style={innerWrapperStyles}>
         <P5Wrapper sketch={innerSketch} />
+      </div>
+      <div style={outerWrapperStyles}>
+        <P5Wrapper sketch={mySketch(innerWidth, innerHeight, frameTopWidth, frameSideWidth)} />
       </div>
     </div>
   );

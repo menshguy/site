@@ -11,7 +11,7 @@ const sketches = {
 const SeriesPage: React.FC = () => {
   return (
     <div>
-      <h1>Demos & Tutorials</h1>
+      <h1>Couch</h1>
       <Page 
         sketches={sketches} 
         route={"couch"}

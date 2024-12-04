@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom'
+import MainNav from './components/MainNav.tsx';
 import App from './App.tsx'
 
 import SeriesPageVermont from './projects/vermont/SeriesPage.tsx';
@@ -13,9 +14,13 @@ import RoyalFrame from './projects/pictureFrames/RoyalFrame.tsx';
 import {mySketch as Tree3Sketch } from './projects/trees/Tree3.tsx';
 import './index.css'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <Router>
+function AppWithNav() {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+
+  return (
+    <>
+      {!isHomePage && <MainNav />}
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/vermont/*" element={<SeriesPageVermont />} />
@@ -37,6 +42,14 @@ createRoot(document.getElementById('root')!).render(
           } 
         />
       </Routes>
+    </>
+  );
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <Router>
+      <AppWithNav />
     </Router>
   </StrictMode>
 )
