@@ -341,38 +341,38 @@ const mySketch = (p: p5) => {
     return webGLBuffer;
   }
   
-  function rainWarpedReflection(buffer: p5, cols: number, rows: number, current: number[][], previous: number[][]) {
-    cols = buffer.width * buffer.pixelDensity();
-    rows = buffer.height * buffer.pixelDensity();
+  // function rainWarpedReflection(buffer: p5, cols: number, rows: number, current: number[][], previous: number[][]) {
+  //   cols = buffer.width * buffer.pixelDensity();
+  //   rows = buffer.height * buffer.pixelDensity();
 
-    buffer.loadPixels();
+  //   buffer.loadPixels();
 
-    for (let i = 1; i < cols - 1; i++) {
-      for (let j = 1; j < rows - 1; j++) {
-        current[i][j] =
-          (previous[i - 1][j] +
-            previous[i + 1][j] +
-            previous[i][j - 1] +
-            previous[i][j + 1]) /
-            2 - current[i][j];
-        current[i][j] = current[i][j];
+  //   for (let i = 1; i < cols - 1; i++) {
+  //     for (let j = 1; j < rows - 1; j++) {
+  //       current[i][j] =
+  //         (previous[i - 1][j] +
+  //           previous[i + 1][j] +
+  //           previous[i][j - 1] +
+  //           previous[i][j + 1]) /
+  //           2 - current[i][j];
+  //       current[i][j] = current[i][j];
  
-        let index = (i + j * cols) * 4;
+  //       let index = (i + j * cols) * 4;
 
-        // grab the current pixel values
-        let newVal_0 = current[i][j];
-        let newVal_1 = current[i][j] + 1;
-        let newVal_2 = current[i][j] + 2;
-        let newVal_3 = current[i][j] + 3;
+  //       // grab the current pixel values
+  //       let newVal_0 = current[i][j];
+  //       let newVal_1 = current[i][j] + 1;
+  //       let newVal_2 = current[i][j] + 2;
+  //       let newVal_3 = current[i][j] + 3;
 
-        buffer.pixels[index + 0] = newVal_0;
-        buffer.pixels[index + 1] = newVal_1;
-        buffer.pixels[index + 2] = newVal_2;
-        buffer.pixels[index + 3] = newVal_3;
-      }
-    }
-    buffer.updatePixels();
-  }
+  //       buffer.pixels[index + 0] = newVal_0;
+  //       buffer.pixels[index + 1] = newVal_1;
+  //       buffer.pixels[index + 2] = newVal_2;
+  //       buffer.pixels[index + 3] = newVal_3;
+  //     }
+  //   }
+  //   buffer.updatePixels();
+  // }
   
   function drawRain(buffer: p5, cols: number, rows: number, current: number[][], previous: number[][]) {
     // /** ripples */

@@ -5,15 +5,14 @@ import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import {shuffleArray} from '../../helpers/arrays.ts';
 import {
   drawMoon, 
-  drawStars, 
-  drawReflection, drawCirclesToBuffer, Moon, Stars, TimeOfDay} from '../../helpers/skyHelpers.tsx';
+  // drawStars, 
+  drawReflection, 
+  drawCirclesToBuffer, 
+  Moon, 
+  // Stars, 
+  TimeOfDay
+} from '../../helpers/skyHelpers.tsx';
 import p5 from 'p5';
-
-/** 
- * BEFORE: 
-  setup fin 2.149
-  draw  fin 13.882 
-*/
 
 const mySketch = (p: p5) => {
 
@@ -35,7 +34,7 @@ const mySketch = (p: p5) => {
   let leavesForAnimation: Leaf[] = [];
   let timeOfDay: TimeOfDay;
   let moonConfig: Moon;
-  let starsConfig: Stars;
+  // let starsConfig: Stars;
   
   p.preload = () => {
     textureImg = p.loadImage('../textures/coldpressed_1.PNG');
@@ -188,15 +187,15 @@ const mySketch = (p: p5) => {
     moonConfig = {x: moonX, y: moonY, r: moonR, fill: moonFill}
 
     /** Stars */
-    let numStars = 650;
-    let starFill = p.color(255, 100, 100);
-    let minR = 0.25;
-    let maxR = 2;
-    let minX = 0;
-    let maxX = cw;
-    let minY = 0;
-    let maxY = p.height;
-    starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
+    // let numStars = 650;
+    // let starFill = p.color(255, 100, 100);
+    // let minR = 0.25;
+    // let maxR = 2;
+    // let minX = 0;
+    // let maxX = cw;
+    // let minY = 0;
+    // let maxY = p.height;
+    // starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
 
     // Draw //
     // Create a buffer for main image to be drawn to.
