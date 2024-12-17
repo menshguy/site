@@ -7,8 +7,8 @@ interface RoyalFrameProps {
   innerSketch: (p: p5) => void;
   innerWidth: number;
   innerHeight: number;
-  frameTopWidth: number;
-  frameSideWidth: number;
+  frameTopWidth?: number;
+  frameSideWidth?: number;
 }
 
 interface Subdivision {
@@ -35,10 +35,11 @@ const mySketch = (
   frameSideWidth: number
 ) => (p: p5) => {
 
+  /** CANVAS SETTINGS */
   let cw = innerWidth + (frameSideWidth * 2);
   let ch = innerHeight + (frameTopWidth * 2);
 
-  /** GENERAL FRAME SETTINGS */
+  /** GENERAL SETTINGS */
   let textureImg: p5.Image;
   let allowTrim = p.random(0, 1) > 0.75 ? true : false;
   let trimWidth = p.random(2, 3);
@@ -335,6 +336,11 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
   innerSketch
 }) => {
 
+  let min = 25;
+  let max = 200;
+  let _frameTopWidth = frameTopWidth ? frameTopWidth : Math.floor(Math.random() * (max - min) + min);
+  let _frameSideWidth = frameSideWidth ? frameSideWidth : _frameTopWidth;
+
   const containerStyles: CSSProperties = {
     position: 'relative',
     display: 'flex',
@@ -352,8 +358,8 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
     width: `${innerWidth}px`,
     height: `${innerHeight}px`,
     position: 'absolute',
-    top: `${0 + frameTopWidth}px`,
-    left: `${0 + frameSideWidth}px`,
+    top: `${0 + _frameTopWidth}px`,
+    left: `${0 + _frameSideWidth}px`,
   }
 
   return (
@@ -362,7 +368,7 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
         <P5Wrapper sketch={innerSketch} />
       </div>
       <div style={outerWrapperStyles}>
-        <P5Wrapper sketch={mySketch(innerWidth, innerHeight, frameTopWidth, frameSideWidth)} />
+        <P5Wrapper sketch={mySketch(innerWidth, innerHeight, _frameTopWidth, _frameSideWidth)} />
       </div>
     </div>
   );
