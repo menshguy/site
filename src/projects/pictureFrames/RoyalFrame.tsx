@@ -1,32 +1,7 @@
 import React, { CSSProperties } from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { line_broken } from '../../helpers/pens';
-
-interface RoyalFrameProps {
-  innerSketch: (p: p5) => void;
-  innerWidth: number;
-  innerHeight: number;
-  frameTopWidth?: number;
-  frameSideWidth?: number;
-}
-
-interface Subdivision {
-  length: number, 
-  depth: number, 
-  direction: string, 
-  hasTrim: boolean
-}
-
-type PatternFunction = (
-  p: p5, 
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  reverse: boolean,
-  strokeColor: p5.Color
-) => void;
+import { RoyalFrameProps, Subdivision, PatternFunction } from './types';
 
 const mySketch = (
   innerWidth: number, 
@@ -40,7 +15,7 @@ const mySketch = (
   let ch = innerHeight + (frameTopWidth * 2);
 
   /** GENERAL SETTINGS */
-  let textureImg: p5.Image;
+  // let textureImg: p5.Image;
   let allowTrim = p.random(0, 1) > 0.75 ? true : false;
   let trimWidth = p.random(2, 3);
   let trimColor = p.random([
@@ -49,7 +24,7 @@ const mySketch = (
   ])
   
   p.preload = () => {
-    textureImg = p.loadImage('../textures/gold5.png');
+    // textureImg = p.loadImage('../textures/gold5.png');
   }
 
   p.setup = () => {
@@ -71,7 +46,7 @@ const mySketch = (
     p.pop();
     
     /** CREATE SUBDIVISIONS */
-    let subdivisions = generateSubdivisions(p.random(2, 5)); // Generate random subdivisions
+    let subdivisions = generateSubdivisions(p.random(2, 15)); // Generate random subdivisions
     let sideSubdivisions = normalizeSubdivisions(subdivisions, frameSideWidth); // Normalize subdivisions for side  
     let topAndBottomSubdivisions = normalizeSubdivisions(subdivisions, frameTopWidth); // Normalize subdivisions for top and bottom
     
@@ -100,8 +75,8 @@ const mySketch = (
 
     // Generate random length and depth values for each subdivision.
     for (let i = 0; i < numSubdivisions; i++) {
-      let length = p.random(2, 15);
-      let depth = length / p.random(1, 5);
+      let length = p.random(2, 50);
+      let depth = length / p.random(2, 5);
       let direction = p.random(0, 1) > 0.5 ? "inward" : "outward";
       let hasTrim = p.random(0, 1) > 0.5 ? true : false;
       subdivisions.push({length, depth, direction, hasTrim});
@@ -144,7 +119,7 @@ const mySketch = (
     y: number, 
     angle: number, 
     subdivisions: Subdivision[], 
-    mask: Path2D,
+    mask: () => void,
     _side: string, // top, bottom, left, right - in future, this can be used to draw different patterns for each side
     strokeColor: p5.Color
   ) {
@@ -211,50 +186,50 @@ const mySketch = (
     p.pop();
   }
 
-  function drawFloralPattern(
-    p: p5, 
-    x: number,
-    y: number,
-    w: number,
-    h: number
-  ) {
-    const flowerSize = h / 4; // Size of each flower
-    const petalCount = 8; // Increased number of petals for more detail
-    const petalSize = flowerSize / 2; // Size of each petal
-    const innerPetalSize = petalSize / 1.5; // Smaller inner petals for added detail
+  // function drawFloralPattern(
+  //   p: p5, 
+  //   x: number,
+  //   y: number,
+  //   w: number,
+  //   h: number
+  // ) {
+  //   const flowerSize = h / 4; // Size of each flower
+  //   const petalCount = 8; // Increased number of petals for more detail
+  //   const petalSize = flowerSize / 2; // Size of each petal
+  //   const innerPetalSize = petalSize / 1.5; // Smaller inner petals for added detail
 
-    for (let i = x; i < x + w; i += flowerSize * 2) {
-      for (let j = y; j < y + h; j += flowerSize * 2) {
-        p.push();
-        p.fill(70, 70, 70); // Yellow color for the center
-        p.stroke(70, 7, 70);
-        p.translate(i, j - h );
-        p.noStroke();
-        for (let k = 0; k < petalCount; k++) {
-          p.ellipse(0, petalSize, petalSize, petalSize * 2);
-          p.rotate(p.TWO_PI / petalCount);
-        }
+  //   for (let i = x; i < x + w; i += flowerSize * 2) {
+  //     for (let j = y; j < y + h; j += flowerSize * 2) {
+  //       p.push();
+  //       p.fill(70, 70, 70); // Yellow color for the center
+  //       p.stroke(70, 7, 70);
+  //       p.translate(i, j - h );
+  //       p.noStroke();
+  //       for (let k = 0; k < petalCount; k++) {
+  //         p.ellipse(0, petalSize, petalSize, petalSize * 2);
+  //         p.rotate(p.TWO_PI / petalCount);
+  //       }
         
-        // Add inner petals for more detail
-        for (let k = 0; k < petalCount; k++) {
-          p.ellipse(0, innerPetalSize, innerPetalSize, innerPetalSize * 2);
-          p.rotate(p.TWO_PI / petalCount);
-        }
+  //       // Add inner petals for more detail
+  //       for (let k = 0; k < petalCount; k++) {
+  //         p.ellipse(0, innerPetalSize, innerPetalSize, innerPetalSize * 2);
+  //         p.rotate(p.TWO_PI / petalCount);
+  //       }
 
-        // Add a central circle for the flower center
-        p.ellipse(0, 0, petalSize, petalSize);
+  //       // Add a central circle for the flower center
+  //       p.ellipse(0, 0, petalSize, petalSize);
 
-        // Add decorative lines radiating from the center
-        p.strokeWeight(1);
-        for (let k = 0; k < petalCount; k++) {
-          p.line(0, 0, petalSize, 0);
-          p.rotate(p.TWO_PI / petalCount);
-        }
+  //       // Add decorative lines radiating from the center
+  //       p.strokeWeight(1);
+  //       for (let k = 0; k < petalCount; k++) {
+  //         p.line(0, 0, petalSize, 0);
+  //         p.rotate(p.TWO_PI / petalCount);
+  //       }
 
-        p.pop();
-      }
-    }
-  }
+  //       p.pop();
+  //     }
+  //   }
+  // }
 
   function calculateDistance(x1: number, y1: number, x2: number, y2: number): number {
     const dx = x2 - x1;
@@ -262,21 +237,22 @@ const mySketch = (
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  function drawTexture(p: p5,textureImg: p5.Image, mask: p5.Path2D) {
-    p.push();
-    p.clip(mask);
-    p.blendMode(p.ADD); // p.SCREEN
-    const tileWidth = cw; // Set the desired width for each tile
-    const tileHeight = ch; // Set the desired height for each tile
+  // function drawTexture(p: p5, textureImg: p5.Image, mask: () => void) {
+  //   p.push();
+  //   p.clip(mask);
+  //   p.blendMode(p.ADD); // p.SCREEN
+  //   const tileWidth = cw; // Set the desired width for each tile
+  //   const tileHeight = ch; // Set the desired height for each tile
 
-    for (let x = 0; x < cw; x += tileWidth) {
-      for (let y = 0; y < ch; y += tileHeight) {
-        p.image(textureImg, x, y, tileWidth, tileHeight);
-      }
-    }
-    p.pop()
-  }
+  //   for (let x = 0; x < cw; x += tileWidth) {
+  //     for (let y = 0; y < ch; y += tileHeight) {
+  //       p.image(textureImg, x, y, tileWidth, tileHeight);
+  //     }
+  //   }
+  //   p.pop()
+  // }
   
+  /** FRAME SHAPES */
   function topFrame() {
     p.beginShape();
     p.vertex(0, 0);
@@ -285,7 +261,6 @@ const mySketch = (
     p.vertex(frameSideWidth, frameTopWidth);
     p.endShape(p.CLOSE);
   }
-
   function leftFrame() {
     p.beginShape();
     p.vertex(0, 0);
@@ -294,7 +269,6 @@ const mySketch = (
     p.vertex(frameSideWidth, frameTopWidth);
     p.endShape(p.CLOSE);
   }
-  
   function rightFrame() {
     p.beginShape();
     p.vertex(cw, 0); // top right
@@ -303,7 +277,6 @@ const mySketch = (
     p.vertex(cw - frameSideWidth, frameTopWidth); // top left
     p.endShape(p.CLOSE);
   }
-  
   function bottomFrame() {
     p.beginShape();
     p.vertex(0, ch);
@@ -312,14 +285,12 @@ const mySketch = (
     p.vertex(frameSideWidth, ch-frameTopWidth);
     p.endShape(p.CLOSE);
   }
-
-  // Create Mask for all sides for now
-  function fullframeMask () {
-    leftFrame()
-    rightFrame()
-    bottomFrame()
-    topFrame()
-  }
+  // function fullframeMask () {
+  //   leftFrame()
+  //   rightFrame()
+  //   bottomFrame()
+  //   topFrame()
+  // }
   
   p.mousePressed = () => {
     // Check if mouse is inside canvas
@@ -337,7 +308,7 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
 }) => {
 
   let min = 25;
-  let max = 200;
+  let max = 150;
   let _frameTopWidth = frameTopWidth ? frameTopWidth : Math.floor(Math.random() * (max - min) + min);
   let _frameSideWidth = frameSideWidth ? frameSideWidth : _frameTopWidth;
 
@@ -347,6 +318,7 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
     flexDirection: 'row',
     justifyContent: 'space-between',
   }
+
   const outerWrapperStyles: CSSProperties = {
     width: `${innerWidth}px`,
     height: `${innerHeight}px`,
@@ -354,6 +326,7 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
     top: `0px`,
     left: `0px`,
   }
+
   const innerWrapperStyles: CSSProperties = {
     width: `${innerWidth}px`,
     height: `${innerHeight}px`,

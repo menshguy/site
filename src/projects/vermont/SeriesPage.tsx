@@ -8,12 +8,12 @@ import { mySketch as vermontIIIISketch } from './VermontIIII';
 import Page from '../../components/Page';
 
 const sketches = {
-  vermontseasons: vermontSeasonsSketch,
-  vermontII: vermontIISketch,
-  vermontIII: vermontIIISketch,
-  vermontIIIAnimatedSketch: vermontIIIAnimatedSketch,
-  vermontIIIWildCardSketch: vermontIIIWildCardSketch,
-  vermontIIIISketch: vermontIIIISketch,
+  "Rainy Day": vermontSeasonsSketch,
+  "Vermont II": vermontIISketch,
+  "Vermont III": vermontIIISketch,
+  "Vermont Breeze (WIP)": vermontIIIAnimatedSketch,
+  "Vermont Random": vermontIIIWildCardSketch,
+  "Solo Tree": vermontIIIISketch,
 };
 
 const SeriesPage: React.FC = () => {
@@ -23,7 +23,7 @@ const SeriesPage: React.FC = () => {
       <Page 
         sketches={sketches} 
         route={"vermont"}
-        />
+      />
     </div>
   );
 };

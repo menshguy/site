@@ -11,7 +11,7 @@ import SeriesPageRowhomes from './projects/rowhomes/SeriesPage.tsx';
 import SeriesPageDemos from './projects/demos/SeriesPage.tsx';
 import SeriesPageCouch from './projects/couch/SeriesPage.tsx';
 import RoyalFrame from './projects/pictureFrames/RoyalFrame.tsx';
-import {mySketch as Tree3Sketch } from './projects/trees/Tree3.tsx';
+import {mySketch as seasonalForestsSketch } from './projects/seasons/SeasonalForests.tsx';
 import './index.css'
 
 function AppWithNav() {
@@ -32,13 +32,15 @@ function AppWithNav() {
         <Route 
           path="/pictureframes/royalframe" 
           element={
-            <RoyalFrame 
-              innerWidth={600} 
-              innerHeight={600} 
-              frameTopWidth={50}
-              frameSideWidth={50}
-              innerSketch={Tree3Sketch} 
-            />
+            <div style={{ position: 'absolute', top: '64px' }}>
+              <RoyalFrame 
+                innerWidth={800} 
+                innerHeight={800} 
+                // frameTopWidth={100}
+                // frameSideWidth={100}
+                innerSketch={seasonalForestsSketch} 
+              />
+            </div>
           } 
         />
       </Routes>

@@ -8,14 +8,17 @@ import {drawMoon, drawStars, drawReflection,
   Moon, Stars, TimeOfDay} from '../../helpers/skyHelpers.tsx';
 import p5 from 'p5';
 
+// @TODO: load a placeholder image on initial load
+// const initialSketchSrc = './vermontSeasonsPlaceholder.png';
+
 const mySketch = (p: p5) => {
 
-  let cw: number = 1000; 
-  let ch: number = 400;
+  let cw: number = 800; 
+  let ch: number = 500;
   let m: p5.Graphics;
   let b: p5.Graphics;
-  let r: p5.Graphics;
-  let v: p5.Graphics;
+  // let r: p5.Graphics;
+  // let v: p5.Graphics;
   let bottom = ch/2;
   let tree: VermontTree;
   let sunAngle: number;
@@ -30,14 +33,14 @@ const mySketch = (p: p5) => {
   let starsConfig: Stars;
 
   /** Rain */
-  let cols: number;
-  let rows: number;
-  let current: number[][]; // = new float[cols][rows];
-  let previous: number[][]; // = new float[cols][rows];
-  let dampening = 0.92;
-  let pixelValue = 2500;
-  let interval = 10;
-  let timer = 0;
+  // let cols: number;
+  // let rows: number;
+  // let current: number[][]; // = new float[cols][rows];
+  // let previous: number[][]; // = new float[cols][rows];
+  // let dampening = 0.92;
+  // let pixelValue = 2500;
+  // let interval = 10;
+  // let timer = 0;
 
   p.preload = () => {
     textureImg = p.loadImage('../textures/coldpressed_1.PNG');
@@ -69,20 +72,20 @@ const mySketch = (p: p5) => {
     let treeSize = p.random(["small", "large"]);
     let trunkHeight = treeSize === "large" ? p.random(p.height-bottom - 100, p.height-bottom-50) : p.random(50, 100);
     let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
-    let trunkWidth = trunkHeight/ p.random(1, 4);
+    let trunkWidth = trunkHeight / p.random(1, 4);
     let treeWidth = p.random(trunkWidth, trunkWidth+5); // total width including leaves
-    let numTrunkLines = p.random(3,5); //trunks are made up of X bezier curves
+    let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
 
     // Points & Leaves
     let numPointsPerRow = treeSize === "large" ? p.random(10, 12) : p.random(5, 8); // X points are draw within a boundary radius
-    let avg = treeSize === "large" ? p.random(200, 250) : p.random(30, 50);
+    let avg = treeSize === "large" ? p.random(600, 800) : p.random(400, 600);
     let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
-    let pointBoundaryRadius = treeSize === "large" ? {min: 25, max: 30} : {min: 15, max: 20};
-    let leavesStartY = p.height - bottom - pointBoundaryRadius.max; //where on y axis do leaves start
+    let pointBoundaryRadius = treeSize === "large" ? {min: 150, max: 250} : {min: 100, max: 150};
+    let leavesStartY = p.height - bottom; //where on y axis do leaves start
     let leaveSize = p.random(["small","large"]);
-    let leafHeight = leaveSize === "small" ? p.random(1, 4) : p.random(5, 12);
-    let leafWidth = leaveSize === "small" ? p.random(1, 4) : p.random(5, 12);
-    let rowHeight = treeHeight/p.random(3, 8); //x points will drawn p.randominly in each row. rows increment up by this amount
+    let leafHeight = leaveSize === "small" ? p.random(1, 2) : p.random(4, 6);
+    let leafWidth = leaveSize === "small" ? p.random(3, 4) : p.random(6, 8);
+    let rowHeight = treeHeight / p.random(3, 8); //x points will drawn p.randominly in each row. rows increment up by this amount
 
     /** COLORS */
     let fillSaturation = timeOfDay === "night" ? p.random(0.15, 0.2) : p.random(0.7, 1);
@@ -90,7 +93,7 @@ const mySketch = (p: p5) => {
     let sunlightSaturation = timeOfDay === "night" ? p.random(0.1, 0.15) : p.random(0.8, 95);
     let sunlightLightness = timeOfDay === "night" ? p.random(0.9, 1) : p.random(0.7, 0.95);
 
-    // /** CREATE TREES */
+    /** CREATE TREES */
     let numTreesInFront = treeSize === "large" ? p.random(5, 8) : p.random(25, 30);
     for (let i = 0; i < numTreesInFront; i++) {
       // Start / Mid / Bulge
@@ -232,15 +235,15 @@ const mySketch = (p: p5) => {
     drawGroundLine(p, 25, ch-bottom, cw-25, timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 20))
 
     /** Rain */
-    v = p.createGraphics(p.width, p.height, p.WEBGL);
-    v.pixelDensity(1);
+    // v = p.createGraphics(p.width, p.height, p.WEBGL);
+    // v.pixelDensity(1);
  
-    r = p.createGraphics(1000, 1000);
-    r.pixelDensity(1);
-    cols = r.width * r.pixelDensity();
-    rows = r.height * r.pixelDensity();
-    current = new Array(cols).fill(0).map( _ => new Array(rows).fill(0));
-    previous = new Array(cols).fill(0).map( _ => new Array(rows).fill(0));
+    // r = p.createGraphics(1000, 1000);
+    // r.pixelDensity(1);
+    // cols = r.width * r.pixelDensity();
+    // rows = r.height * r.pixelDensity();
+    // current = new Array(cols).fill(0).map( _ => new Array(rows).fill(0));
+    // previous = new Array(cols).fill(0).map( _ => new Array(rows).fill(0));
   }
   
   p.draw = () => {
@@ -261,26 +264,26 @@ const mySketch = (p: p5) => {
     p.image(m, 0, 0)
 
     /** Rain */
-    let raindropUpdates = triggerRaindropEffect(p.millis(), interval, pixelValue, timer, cols, rows, previous);
-    timer = raindropUpdates.timer;
-    previous = raindropUpdates.previous;
+    // let raindropUpdates = triggerRaindropEffect(p.millis(), interval, pixelValue, timer, cols, rows, previous);
+    // timer = raindropUpdates.timer;
+    // previous = raindropUpdates.previous;
 
-    let rainUpdates = drawRain(r, cols, rows, current, previous);
-    // rainWarpedReflection(b, cols, rows, current, previous);
-    current = rainUpdates.current;
-    previous = rainUpdates.previous;
+    // let rainUpdates = drawRain(r, cols, rows, current, previous);
+    // // rainWarpedReflection(b, cols, rows, current, previous);
+    // current = rainUpdates.current;
+    // previous = rainUpdates.previous;
 
     /** Draw Reflection Buffer */
     p.image(b, 0, 0);
   
     /** Draw Rain Animation to a 3D plane and Rotate into perspective */
-    let rainTextureBuffer = getWebGLRainTexture(p, v, r);
+    // let rainTextureBuffer = getWebGLRainTexture(p, v, r);
 
     /** Draw Rain Texture as Blend Mode over the Reflection */
-    p.push();
-    p.blendMode(p.MULTIPLY);
-    p.image(rainTextureBuffer, 0, 0);
-    p.pop();
+    // p.push();
+    // p.blendMode(p.MULTIPLY);
+    // p.image(rainTextureBuffer, 0, 0);
+    // p.pop();
 
     //Draw Texture
     p.push()
@@ -305,48 +308,45 @@ const mySketch = (p: p5) => {
     }
   }
 
-  function triggerRaindropEffect(
-    currentTime: number, 
-    interval: number,
-    pixelValue: number,
-    timer: number,
-    cols: number, 
-    rows: number, 
-    previous: number[][]
-  ) {
-    if ( currentTime >= interval + timer ) {
-      let x = Math.floor( Math.random() * cols )
-      let y = Math.floor( Math.random() * rows )
-      previous[x][y] = pixelValue;
-      timer = currentTime;
-    }
-    return {previous, timer};
-  }
+  // function triggerRaindropEffect(
+  //   currentTime: number, 
+  //   interval: number,
+  //   pixelValue: number,
+  //   timer: number,
+  //   cols: number, 
+  //   rows: number, 
+  //   previous: number[][]
+  // ) {
+  //   if ( currentTime >= interval + timer ) {
+  //     let x = Math.floor( Math.random() * cols )
+  //     let y = Math.floor( Math.random() * rows )
+  //     previous[x][y] = pixelValue;
+  //     timer = currentTime;
+  //   }
+  //   return {previous, timer};
+  // }
 
-  function getWebGLRainTexture(p: p5, webGLBuffer: p5.Graphics, textureBuffer: p5.Graphics) {
-    /** Draw Rain Buffer as Texture onto a 3D Plane, rotate for perspective */
-    let fovy = p.PI/2;
-    let aspect = webGLBuffer.width/webGLBuffer.height;
-    webGLBuffer.push();
-    webGLBuffer.perspective(fovy, aspect, 0.01 , 1000)
-    webGLBuffer.background("white");
-    webGLBuffer.noStroke();
-    webGLBuffer.rotateX(p.radians(60));
-    webGLBuffer.translate(0, 0, -100);
-    webGLBuffer.texture(textureBuffer);
-    // webGLBuffer.fill("pink")
-    webGLBuffer.plane(textureBuffer.width * 3.5 , textureBuffer.height * 1.5 );
-    webGLBuffer.pop();
+  // function getWebGLRainTexture(p: p5, webGLBuffer: p5.Graphics, textureBuffer: p5.Graphics) {
+  //   /** Draw Rain Buffer as Texture onto a 3D Plane, rotate for perspective */
+  //   let fovy = p.PI/2;
+  //   let aspect = webGLBuffer.width/webGLBuffer.height;
+  //   webGLBuffer.push();
+  //   webGLBuffer.perspective(fovy, aspect, 0.01 , 1000)
+  //   webGLBuffer.background("white");
+  //   webGLBuffer.noStroke();
+  //   webGLBuffer.rotateX(p.radians(60));
+  //   webGLBuffer.translate(0, 0, -100);
+  //   webGLBuffer.texture(textureBuffer);
+  //   // webGLBuffer.fill("pink")
+  //   webGLBuffer.plane(textureBuffer.width * 3.5 , textureBuffer.height * 1.5 );
+  //   webGLBuffer.pop();
 
-    return webGLBuffer;
-  }
+  //   return webGLBuffer;
+  // }
   
-  // function rainWarpedReflection(buffer: p5, cols: number, rows: number, current: number[][], previous: number[][]) {
-  //   cols = buffer.width * buffer.pixelDensity();
-  //   rows = buffer.height * buffer.pixelDensity();
-
+  // function drawRain(buffer: p5, cols: number, rows: number, current: number[][], previous: number[][]) {
+  //   // /** ripples */
   //   buffer.loadPixels();
-
   //   for (let i = 1; i < cols - 1; i++) {
   //     for (let j = 1; j < rows - 1; j++) {
   //       current[i][j] =
@@ -355,56 +355,26 @@ const mySketch = (p: p5) => {
   //           previous[i][j - 1] +
   //           previous[i][j + 1]) /
   //           2 - current[i][j];
-  //       current[i][j] = current[i][j];
+  //       current[i][j] = current[i][j] * dampening;
  
   //       let index = (i + j * cols) * 4;
-
-  //       // grab the current pixel values
-  //       let newVal_0 = current[i][j];
-  //       let newVal_1 = current[i][j] + 1;
-  //       let newVal_2 = current[i][j] + 2;
-  //       let newVal_3 = current[i][j] + 3;
-
-  //       buffer.pixels[index + 0] = newVal_0;
-  //       buffer.pixels[index + 1] = newVal_1;
-  //       buffer.pixels[index + 2] = newVal_2;
-  //       buffer.pixels[index + 3] = newVal_3;
+  //       let newVal = current[i][j];
+        
+  //       buffer.pixels[index + 0] = newVal;
+  //       buffer.pixels[index + 1] = newVal;
+  //       buffer.pixels[index + 2] = newVal;
+  //       buffer.pixels[index + 3] = newVal;
   //     }
   //   }
   //   buffer.updatePixels();
-  // }
   
-  function drawRain(buffer: p5, cols: number, rows: number, current: number[][], previous: number[][]) {
-    // /** ripples */
-    buffer.loadPixels();
-    for (let i = 1; i < cols - 1; i++) {
-      for (let j = 1; j < rows - 1; j++) {
-        current[i][j] =
-          (previous[i - 1][j] +
-            previous[i + 1][j] +
-            previous[i][j - 1] +
-            previous[i][j + 1]) /
-            2 - current[i][j];
-        current[i][j] = current[i][j] * dampening;
- 
-        let index = (i + j * cols) * 4;
-        let newVal = current[i][j];
-        
-        buffer.pixels[index + 0] = newVal;
-        buffer.pixels[index + 1] = newVal;
-        buffer.pixels[index + 2] = newVal;
-        buffer.pixels[index + 3] = newVal;
-      }
-    }
-    buffer.updatePixels();
-  
-    /** Swaps the buffers */
-    let temp = previous;
-    previous = current;
-    current = temp;
+  //   /** Swaps the buffers */
+  //   let temp = previous;
+  //   previous = current;
+  //   current = temp;
 
-    return {current, previous};
-  }
+  //   return {current, previous};
+  // }
 
   p.mousePressed = () => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
@@ -421,7 +391,7 @@ const mySketch = (p: p5) => {
 const VermontSeasons: React.FC = () => {
   return (
     <div>
-      <h1>Vermont Rain</h1>
+      <h1>Vermont Seasons</h1>
       <p>Click to redraw.</p>
       <P5Wrapper sketch={mySketch} includeSaveButton />
     </div>

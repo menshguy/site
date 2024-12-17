@@ -2,32 +2,54 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 
-const mySketch = (
-  _setters: React.Dispatch<React.SetStateAction<number>>[], 
-  getters: () => number[]
-) => (p: p5) => {
+const mySketch = (p: p5) => {
 
-  let [
-    xPos, yPos, zPos, 
-    xRot, yRot, zRot, 
-    scale, 
-    xLight, yLight, zLight, 
-    lightColorR, lightColorG, lightColorB
-  ] = getters();
+  let xPosSlider: p5.Element, yPosSlider: p5.Element, zPosSlider: p5.Element;
+  let xRotSlider: p5.Element, yRotSlider: p5.Element, zRotSlider: p5.Element;
+  let xLightSlider: p5.Element, yLightSlider: p5.Element, zLightSlider: p5.Element;
+
+  let xPos = 300
+  let yPos = -100
+  let zPos = 200
+  
+  let xRot = 0
+  let yRot = 30
+  let zRot = 180
+  
+  let scale = 8
+  
+  let xLight = 0
+  let yLight = -300
+  let zLight = 800
+  
+  let lightColorR = 200
+  let lightColorG = 200
+  let lightColorB = 200
 
   let cw: number = 600; 
   let ch: number = 600;
+
   let model: p5.Geometry;
-  // let textureImg: p5.Image;
+  let textureImg: p5.Image;
   // let drawing: p5.Image;
   let y: number = -140;
   
   p.preload = () => {
     // textureImg = p.loadImage('../textures/coldpressed_1.PNG');
+    textureImg = p.loadImage('/couch3d//winter_couch_textures/color.jpg');
     // drawing = p.loadImage('/couch3d/couch.png');
 
+    // Empty Couch
+    // p.loadModel(
+    //   '/couch3d/11_20_2024.obj',
+    //   true,
+    //   handleModel,
+    //   handleError
+    // );
+
+    // Dog couch
     p.loadModel(
-      '/couch3d/11_20_2024.obj',
+      '/couch3d/winter_couch.obj',
       true,
       handleModel,
       handleError
@@ -47,11 +69,41 @@ const mySketch = (
   p.setup = () => {
     p.colorMode(p.HSL);
     p.createCanvas(cw, ch, p.WEBGL);
+
+    // Create sliders for position
+    xPosSlider = p.createSlider(-500, 500, xPos) as p5.Element;
+    yPosSlider = p.createSlider(-500, 500, yPos) as p5.Element;
+    zPosSlider = p.createSlider(-500, 500, zPos) as p5.Element;
+
+    // Create sliders for rotation
+    xRotSlider = p.createSlider(0, 360, xRot) as p5.Element;
+    yRotSlider = p.createSlider(0, 360, yRot) as p5.Element;
+    zRotSlider = p.createSlider(0, 360, zRot) as p5.Element;
+
+    // Create sliders for light position
+    xLightSlider = p.createSlider(-1000, 1000, xLight) as p5.Element;
+    yLightSlider = p.createSlider(-1000, 1000, yLight) as p5.Element;
+    zLightSlider = p.createSlider(-1000, 1000, zLight) as p5.Element;
   }
   
   p.draw = () => {
     // p.noLoop();
     p.background("antiquewhite");
+
+    p.orbitControl();
+
+    // Update positions and rotations based on slider values
+    xPos = Number(xPosSlider.value());
+    yPos = Number(yPosSlider.value());
+    zPos = Number(zPosSlider.value());
+
+    xRot = Number(xRotSlider.value());
+    yRot = Number(yRotSlider.value());
+    zRot = Number(zRotSlider.value());
+
+    xLight = Number(xLightSlider.value());
+    yLight = Number(yLightSlider.value());
+    zLight = Number(zLightSlider.value());
 
     /**
      * When you wrap lighting functions like ambientLight and directionalLight with push() 
@@ -64,11 +116,13 @@ const mySketch = (
 
     p.push();
     p.noStroke();
+    p.translate(0, 0, 0);
     p.translate(xPos, yPos, zPos);
     p.rotateX(p.radians(xRot));
     p.rotateY(p.radians(yRot));
     p.rotateZ(p.radians(zRot));
     p.scale(scale);
+    p.texture(textureImg);
     p.model(model); // Render the 3D model
     p.translate(0, -40, 0);
     p.sphere(12); // Render the 3D model
@@ -152,9 +206,10 @@ const mySketch = (
   }
 
   p.mousePressed = () => {
+    console.log("Model Position:", { xPos, yPos, zPos });
+    console.log("Model Rotation:", { xRot, yRot, zRot });
+    console.log("Light Position:", { xLight, yLight, zLight });
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      console.log("click runs", y)
-      y += 1;
     }
   };
 };
@@ -185,92 +240,10 @@ const mySketch = (
 // }
 
 const Couch: React.FC = () => {
-
-  const [xPos, setXPos] = React.useState(0);
-  const [yPos, setYPos] = React.useState(-150); //-250
-  const [zPos, setZPos] = React.useState(0);
-  
-  const [xRot, setXRot] = React.useState(0);
-  const [yRot, setYRot] = React.useState(0);
-  const [zRot, setZRot] = React.useState(180); //180
-  
-  const [scale, setScale] = React.useState(8);
-  
-  const [xLight, setXLight] = React.useState(-400);
-  const [yLight, setYLight] = React.useState(-50);
-  const [zLight, setZLight] = React.useState(100);
-  
-  const [lightColorR, setLightColorR] = React.useState(200);
-  const [lightColorG, setLightColorG] = React.useState(200);
-  const [lightColorB, setLightColorB] = React.useState(200);
-
-  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<number>>) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setter(Number(event.target.value));
-  };
-
-  let sketchWrapper = mySketch([setXPos, setYPos, setZPos, setXRot, setYRot, setZRot, setScale, setXLight, setYLight, setZLight, setLightColorR, setLightColorG, setLightColorB], () => [xPos, yPos, zPos, xRot, yRot, zRot, scale, xLight, yLight, zLight, lightColorR, lightColorG, lightColorB]);
-
   return (
     <div style={{position: "absolute", top: 0}}>
       {/* <h1>3D</h1>
       <p>Click to redraw.</p> */}
-      <label>
-        Model X Position:
-        <input type="number" value={xPos} onChange={handleInputChange(setXPos)} />
-      </label>
-      <label>
-        Model Y Position:
-        <input type="number" value={yPos} onChange={handleInputChange(setYPos)} />
-      </label>
-      <label>
-        Model Z Position:
-        <input type="number" value={zPos} onChange={handleInputChange(setZPos)} />
-      </label>
-
-      <label>
-        Model X Rotation:
-        <input type="number" value={xRot} onChange={handleInputChange(setXRot)} />
-      </label>
-      <label>
-        Model Y Rotation:
-        <input type="number" value={yRot} onChange={handleInputChange(setYRot)} />
-      </label>
-      <label>
-        Model Z Rotation:
-        <input type="number" value={zRot} onChange={handleInputChange(setZRot)} />
-      </label>
-
-      <label>
-        Model Scale:
-        <input type="number" value={scale} onChange={handleInputChange(setScale)} />
-      </label>
-
-      <label>
-        Light X Position:
-        <input type="number" value={xLight} onChange={handleInputChange(setXLight)} />
-      </label>
-      <label>
-        Light Y Position:
-        <input type="number" value={yLight} onChange={handleInputChange(setYLight)} />
-      </label>
-      <label>
-        Light Z Position:
-        <input type="number" value={zLight} onChange={handleInputChange(setZLight)} />
-      </label>
-      
-      <label>
-        Light R Value:
-        <input type="number" value={lightColorR} onChange={handleInputChange(setLightColorR)} />
-      </label>
-      <label>
-        Light G Value:
-        <input type="number" value={lightColorG} onChange={handleInputChange(setLightColorG)} />
-      </label>
-      <label>
-        Light B Value:
-        <input type="number" value={lightColorB} onChange={handleInputChange(setLightColorB)} />
-      </label>
-
       <div style={{position: "relative", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", margin: "0 auto"}}>
         
         {/* <div style={{position: "absolute", top: 0, left: 0}}>
@@ -278,7 +251,7 @@ const Couch: React.FC = () => {
         </div> */}
         
         <div style={{position: "absolute", top: 40, left: 0}}>
-          <P5Wrapper sketch={sketchWrapper} />
+          <P5Wrapper sketch={mySketch} />
         </div>
         
       </div>

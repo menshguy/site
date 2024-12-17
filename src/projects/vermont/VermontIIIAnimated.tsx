@@ -300,19 +300,33 @@ const mySketch = (p: p5) => {
     p.blendMode(p.BLEND);
   }
 
+  // function animateLeaf(leaf: Leaf) {
+  //   let frame = p.frameCount; // representds distance dots move - lower is further
+  //   let time = frame * Math.cos(frame); // representds distance dots move - lower is further
+  //   let randomFactorX = p.random(-0.8, 0.8); // Random factor for x direction
+  //   let randomFactorY = p.random(-0.8, 0.8); // Random factor for y direction
+
+  //   // Calculate directional movement
+  //   let directionX = Math.cos(leaf.movementDirection || 0);
+  //   let directionY = Math.sin(leaf.movementDirection || 0);
+
+  //   // Update leaf position with direction
+  //   leaf.y = leaf.y + (Math.cos(time) / (leaf.movementFactor || 1 * 2)) * directionY + randomFactorY;
+  //   leaf.x = leaf.x + (Math.sin(time) * (leaf.movementFactor || 1)) * directionX + randomFactorX;
+
+  //   return leaf;
+  // }
+  
   function animateLeaf(leaf: Leaf) {
-    let frame = p.frameCount; // representds distance dots move - lower is further
-    let time = frame * Math.cos(frame); // representds distance dots move - lower is further
-    let randomFactorX = p.random(-0.8, 0.8); // Random factor for x direction
-    let randomFactorY = p.random(-0.8, 0.8); // Random factor for y direction
+    // Add randomness to simulate breeze
+    const windStrength = 0.1; // Adjust this value to change the strength of the wind
+    const swayFrequency = 50; // Increase this value to slow down the sway
+    const sway = Math.sin(p.frameCount / swayFrequency) * windStrength; // Sway effect
+    const drift = p.random(-0.1, 0.1); // Reduce the range for slower drift
 
-    // Calculate directional movement
-    let directionX = Math.cos(leaf.movementDirection || 0);
-    let directionY = Math.sin(leaf.movementDirection || 0);
-
-    // Update leaf position with direction
-    leaf.y = leaf.y + (Math.cos(time) / (leaf.movementFactor || 1 * 2)) * directionY + randomFactorY;
-    leaf.x = leaf.x + (Math.sin(time) * (leaf.movementFactor || 1)) * directionX + randomFactorX;
+    // Update leaf position
+    leaf.x += sway + drift;
+    leaf.y += p.random(-0.05, 0.05); // Reduce the range for slower vertical movement
 
     return leaf;
   }

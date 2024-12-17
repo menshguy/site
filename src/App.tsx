@@ -1,10 +1,11 @@
 import { useState, CSSProperties } from 'react'
-import P5Wrapper from './components/P5Wrapper.tsx';
 import DESK_SVG from './assets/desk.svg';
 import CHARACTER_GIF_PERSONAL from './assets/character.gif';
 import CHARACTER_GIF_PROFESSIONAL from './assets/character_work.gif';
-import {mySketch as vermontSeasonsSketch} from './projects/vermont/VermontSeasons.tsx';
+// import {mySketch as vermontSeasonsSketch} from './projects/vermont/VermontSeasons.tsx';
+import {mySketch as seasonalForestsSketch} from './projects/seasons/SeasonalForests.tsx';
 import './App.css'
+import RoyalFrame from './projects/pictureFrames/RoyalFrame.tsx';
 
 // interface Doodle {
 //   series: string;
@@ -159,7 +160,7 @@ function App() {
   const CHARACTER_GIF = isProfessionalSite ? CHARACTER_GIF_PROFESSIONAL: CHARACTER_GIF_PERSONAL;
 
   const mainHeaderContainerStyles: CSSProperties = {
-    maxWidth: '1200px',
+    maxWidth: '1100px',
     margin: '20px auto',
     display: 'flex',
     flexDirection: 'row',
@@ -207,27 +208,27 @@ function App() {
     textAlign: 'left',
   }
 
-  const canvasContainerStyles: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '10px',
-  }
+  // const canvasContainerStyles: CSSProperties = {
+  //   display: 'flex',
+  //   flexDirection: 'column',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   padding: '10px',
+  // }
   
-  const p5sketchContainerStyles: CSSProperties = {
-    height: '500px',
-    maxWidth: '1200px',
-    flexDirection: 'column',
-    position: 'relative',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'antiquewhite',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-    padding: '0px 50px',
-    boxSizing: 'border-box',
-  }
+  // const p5sketchContainerStyles: CSSProperties = {
+  //   height: '500px',
+  //   width: '1200px',
+  //   flexDirection: 'column',
+  //   position: 'relative',
+  //   display: 'flex',
+  //   justifyContent: 'flex-start',
+  //   alignItems: 'flex-start',
+  //   backgroundColor: 'antiquewhite',
+  //   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+  //   padding: '0px 50px',
+  //   boxSizing: 'border-box',
+  // }
 
   // Sketch text styles
   const pStyles: CSSProperties = {
@@ -260,7 +261,7 @@ function App() {
       </div>
       <div style={bioContainerStyles}>
         <p style={pBioStyles}> Shalom! I am a <strong>generative artist</strong>, <strong>software engineer</strong>, and <strong>illustator</strong>.</p>
-        <p style={pBioStyles}> I like to doodle with code. I often post the results here & on <a href="https://x.com/menshguy">twitter/x</a>. </p>
+        <p style={pBioStyles}> I like to doodle with code. I often post the results here & on <a target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">twitter/x</a>. </p>
         <div style={{marginTop: '10px', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', width: '100%'}}>
           <p style={pBioStyles}> 
             While you're here, enjoy the <a href="/seasons/vermont">seasons</a>, eat a <a href="/bagel/bagel">bagel</a>,
@@ -274,12 +275,20 @@ function App() {
     </div>
     
     {/* Main Drawing */}
-    <div style={canvasContainerStyles}>
-      <div style={p5sketchContainerStyles}>
+    {/* <div style={canvasContainerStyles}> */}
+      {/* <div style={p5sketchContainerStyles}> */}
         <p style={pStyles}>Click to redraw <span style={spanStyles}>(some drawings take a few seconds...)</span> </p>
-        <P5Wrapper sketch={vermontSeasonsSketch} />
-      </div>
-    </div>
+
+        <RoyalFrame 
+          innerWidth={800} 
+          innerHeight={800} 
+          frameTopWidth={70}
+          frameSideWidth={70}
+          innerSketch={seasonalForestsSketch} 
+        />
+        {/* <P5Wrapper sketch={vermontSeasonsSketch} /> */}
+      {/* </div> */}
+    {/* </div> */}
     </div>
     </>
   )

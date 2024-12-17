@@ -5,12 +5,17 @@ interface P5WrapperProps {
   sketch: (p: p5) => void;
   includeSaveButton?: boolean;
   debug?: boolean;
+  initialImageSrc?: string;
 }
 
-const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton, debug = false }) => {
+const P5Wrapper: React.FC<P5WrapperProps> = ({ 
+  sketch, 
+  includeSaveButton, 
+  debug = false, 
+  // initialImageSrc
+}) => {
   const [isDebugMode, _setIsDebugMode] = useState(debug);
   const canvasRef = useRef<HTMLDivElement | null>(null);
-  // const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     let p5Instance: p5 | null = null;
@@ -36,16 +41,12 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({ sketch, includeSaveButton, debug 
             let duration = (endTime.getTime() - startTime.getTime())/1000;
             console.log("draw fin", duration)
           }
-          
-          // setIsLoading(false);
         }
       };
       
-      // Once the sketch is ready, set loading to false
       const originalSetup = p5Instance.setup;
       p5Instance.setup = () => {
         let startTime;
-        // setIsLoading(true);
         
         if (isDebugMode) {
           startTime = new Date()
