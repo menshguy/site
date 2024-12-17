@@ -24,7 +24,7 @@ const mySketch = (
   ])
   
   p.preload = () => {
-    // textureImg = p.loadImage('../textures/gold5.png');
+    // textureImg = p.loadImage('../textures/gold7.png');
   }
 
   p.setup = () => {
@@ -67,7 +67,8 @@ const mySketch = (
     // p.pop();
 
     /** APPLY TEXTURE */
-    // drawTexture(p, textureImg, fullframeMask)
+    // applyTexture(p, textureImg, fullframeMask)
+    applyNoiseTexture(p, fullframeMask)
   }
 
   function generateSubdivisions(numSubdivisions: number) {
@@ -237,12 +238,13 @@ const mySketch = (
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  // function drawTexture(p: p5, textureImg: p5.Image, mask: () => void) {
+  /** APPLY TEXTURE */
+  // function applyTexture(p: p5, textureImg: p5.Image, mask: () => void) {
   //   p.push();
   //   p.clip(mask);
-  //   p.blendMode(p.ADD); // p.SCREEN
-  //   const tileWidth = cw; // Set the desired width for each tile
-  //   const tileHeight = ch; // Set the desired height for each tile
+  //   p.blendMode(p.SCREEN); // p.SCREEN
+  //   const tileWidth = 200; // Set the desired width for each tile
+  //   const tileHeight = 200; // Set the desired height for each tile
 
   //   for (let x = 0; x < cw; x += tileWidth) {
   //     for (let y = 0; y < ch; y += tileHeight) {
@@ -251,6 +253,35 @@ const mySketch = (
   //   }
   //   p.pop()
   // }
+
+  function applyNoiseTexture(p: p5, mask: () => void) {
+    p.push();
+    p.clip(mask);
+  
+    // Create a graphics buffer
+    const noiseBuffer = p.createGraphics(cw, ch);
+  
+    // Set noise detail
+    noiseBuffer.noiseDetail(8, 0.65);
+  
+    // Draw noise texture to the buffer
+    noiseBuffer.loadPixels();
+    for (let x = 0; x < cw; x++) {
+      for (let y = 0; y < ch; y++) {
+        let scale = p.random(0.95, 1);
+        let noiseValue = noiseBuffer.noise(x * scale, y * scale); // Adjust the scale for noise
+        let alpha = p.map(noiseValue, 0, 1, 0, 0.3); // Map noise value to alpha
+        noiseBuffer.set(x, y, p.color(255, alpha)); // White color with varying alpha
+      }
+    }
+    noiseBuffer.updatePixels();
+  
+    // Draw the noise buffer onto the main canvas
+    p.blendMode(p.SCREEN); // p.SCREEN, p.ADD, p.MULTIPLY
+    p.image(noiseBuffer, 0, 0);
+  
+    p.pop();
+  }
   
   /** FRAME SHAPES */
   function topFrame() {
@@ -285,12 +316,12 @@ const mySketch = (
     p.vertex(frameSideWidth, ch-frameTopWidth);
     p.endShape(p.CLOSE);
   }
-  // function fullframeMask () {
-  //   leftFrame()
-  //   rightFrame()
-  //   bottomFrame()
-  //   topFrame()
-  // }
+  function fullframeMask () {
+    leftFrame()
+    rightFrame()
+    bottomFrame()
+    topFrame()
+  }
   
   p.mousePressed = () => {
     // Check if mouse is inside canvas
