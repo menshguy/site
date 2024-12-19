@@ -32,6 +32,11 @@ const mySketch = (p: p5) => {
     p.colorMode(p.HSL);
     p.createCanvas(cw, ch);
 
+    // Clear Trees (ensure they are empty for redraw/setup)
+    treesInBack = [];
+    treesInMiddle = [];
+    treesInFront = [];
+
     /** Colors */
     colors = {
       green: (s: number = 1, l: number = 1) => () => p.color(p.random(74,107), 40*s, 40.3*l),
@@ -358,9 +363,6 @@ const mySketch = (p: p5) => {
   // p.mousePressed = redraw(p, cw, ch);
   p.mousePressed = () => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      treesInBack = [];
-      treesInMiddle = [];
-      treesInFront = [];
       p.clear();
       p.setup();
       p.draw();

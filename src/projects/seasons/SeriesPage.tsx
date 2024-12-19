@@ -7,9 +7,9 @@ import { mySketch as vermontSketch } from './Vermont';
 
 const sketches = {
   // treefallBreeze: fallBreezeSketch(),
+  vermont: vermontSketch(),
   fallSunlight: fallSunlightSketch(),
   seasonalForests: seasonalForestsSketch(),
-  vermont: vermontSketch(),
 };
 
 const SeriesPage: React.FC = () => {

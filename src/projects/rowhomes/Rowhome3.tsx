@@ -2,6 +2,7 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 import { TreeConfig, RowhomeConstructor, FloorSectionConstructor } from './types.ts';
+import {VermontTree} from '../../helpers/treeHelpers';
 
 const mySketch = (p: p5) => {
   let buffers: p5.Graphics[] = [];
@@ -10,7 +11,7 @@ const mySketch = (p: p5) => {
   let cw: number;
   let ch: number;
   let drawControls = false;
-  let trees: Tree[] = [];
+  let trees: VermontTree[] = [];
   let textureImg: p5.Image;
 
   p.preload = () => {
@@ -25,15 +26,18 @@ const mySketch = (p: p5) => {
     // General Settings
     p.colorMode(p.HSL);
     bottom = 25;
+
+    // Clear objects (for redraws)
     rowhomes = [];
     buffers = [];
+    trees = [];
 
     // Draw Main Rowhome
     const h = p.random(ch / 3, ch);
     const w = p.random(ch / 6, cw);
     const x = (p.width - w) / 2;
     const y = p.height - bottom;
-    const fill_c = p.color(23, 100, 54);
+    const fill_c = p.color(23, 100, 30);
     const rowhome = new Rowhome({ x, y, w, h, fill_c });
     rowhomes.push(rowhome);
 
@@ -42,7 +46,7 @@ const mySketch = (p: p5) => {
     const lw = p.random(ch / 6, cw);
     const lx = x - lw - 2; // start at the main rowhome x and move over to the left by this rowhome's w
     const ly = p.height - bottom;
-    const fill_lc = p.color(23, 100, 94);
+    const fill_lc = p.color(23, 100, 30);
     const rowhome_left = new Rowhome({ x: lx, y: ly, w: lw, h: lh, fill_c: fill_lc });
     rowhomes.push(rowhome_left);
 
@@ -51,7 +55,7 @@ const mySketch = (p: p5) => {
     const rw = p.random(ch / 6, cw);
     const rx = x + w + 2; // start at the main rowhome x and move over to the right by main rowhome w
     const ry = p.height - bottom;
-    const fill_rc = p.color(23, 100, 94);
+    const fill_rc = p.color(23, 100, 30);
     const rowhome_right = new Rowhome({ x: rx, y: ry, w: rw, h: rh, fill_c: fill_rc });
     rowhomes.push(rowhome_right);
 
@@ -61,7 +65,7 @@ const mySketch = (p: p5) => {
       const w = p.random(ch / 6, cw);
       const x = lx - w - 2;
       const y = p.height - bottom;
-      const fill_c = p.color(23, 100, 94);
+      const fill_c = p.color(23, 100, 30);
       const rowhome_left = new Rowhome({ x, y, w, h, fill_c });
       rowhomes.push(rowhome_left);
     }
@@ -72,20 +76,73 @@ const mySketch = (p: p5) => {
       const w = p.random(ch / 6, cw);
       const x = rx + w + 2;
       const y = p.height - bottom;
-      const fill_c = p.color(23, 100, 94);
+      const fill_c = p.color(23, 100, 30);
       const rowhome_right = new Rowhome({ x, y, w, h, fill_c });
       rowhomes.push(rowhome_right);
     }
 
     // Setup Trees
     const numTrees = p.random(1, 3);
-    const center = { x: cw / 2, y: ch - bottom / 2 };
+    // Sunlight
+    let sunAngle = p.radians(p.random(200, 340));
+    let sunFillPercentage = p.random(0.45, 0.75);
+    let sunlight = {angle: sunAngle, fillPercentage: sunFillPercentage}
+
     for (let i = 0; i < numTrees; i++) {
-      const numLines = p.floor(p.random(5, 21));
-      const startPoint = { x: p.random(center.x - cw / 2 - 200, center.x + cw / 2 + 200), y: center.y };
-      const treeHeight = p.random(100, 200);
-      const treeWidth = p.random(100, 200);
-      const tree = new Tree({ numLines, startPoint, treeHeight, treeWidth });
+      /** Colors */
+      let colors = {
+        winter: (s: number = 1, l: number = 1) => () => p.color(p.random(70,130), 20*s, 70*l),
+        fall: (s: number = 1, l: number = 1) => () => p.color(p.random(5,45), 85*s, 100*l),
+        spring: (s: number = 1, l: number = 1) => () => p.color(p.random(5,45), 75*s, 100*l),
+        summer: (s: number = 1, l: number = 1) => () => p.color(p.random(70,125), 80*s, 55*l)
+      }
+      
+      // Trunk & Tree
+      let trunkHeight = p.random(300, ch);
+      let trunkWidth = p.random(150, 250);
+      let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
+      let treeWidth = p.random(trunkWidth, trunkWidth+20); // total width including leaves
+      let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
+
+      // Points & Leaves
+      let numPointsPerRow = p.random(20, 25); // X points are draw within a boundary radius
+      let pointBoundaryRadius = {min: 35, max: 50};
+      let avg = 300
+      let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
+      let leavesStartY = p.height - bottom - pointBoundaryRadius.min; //where on y axis do leaves start
+      let leafHeight = p.random(3, 3);
+      let leafWidth = p.random(4, 4);
+      let rowHeight = treeHeight/15; //x points will drawn p.randominly in each row. rows increment up by this amount
+
+      // Start / Mid / Bulge
+      const center = { x: cw / 2, y: ch - bottom / 2 };
+      let startPoint = { x: p.random(center.x - cw / 2 - 200, center.x + cw / 2 + 200), y: center.y };
+      let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + bottom};
+      let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
+    
+      /** Create Tree */
+      let tree = new VermontTree({
+        p5Instance: p,
+        treeHeight, 
+        treeWidth, 
+        numTrunkLines, 
+        numPointsPerRow,
+        numLeavesPerPoint, 
+        startPoint, 
+        trunkHeight, 
+        trunkWidth, 
+        leavesStartY,
+        pointBoundaryRadius, 
+        fills: colors['fall'](1, 0.35), 
+        fillsSunlight: colors['fall'](1, 0.7),
+        sunlight, 
+        leafWidth, 
+        leafHeight,
+        rowHeight,
+        midpoint,
+        bulgePoint
+      });
+
       trees.push(tree);
     }
   };
@@ -106,8 +163,9 @@ const mySketch = (p: p5) => {
 
     // Draw the Tree(s)
     trees.forEach(tree => {
-      tree.drawTree();
-      tree.drawLeaves();
+      tree.drawTrunk(p, tree.trunkLines, false)
+      tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+      tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     });
 
     // Draw Texture
@@ -115,147 +173,6 @@ const mySketch = (p: p5) => {
     p.image(textureImg, 0, 0, cw, ch);
     p.blendMode(p.BLEND);
   };
-
-  class Tree {
-    numLines: number;
-    startPoint: { x: number; y: number };
-    treeHeight: number;
-    treeWidth: number;
-    lines: any[];
-    leaves: any[];
-
-    constructor({ 
-      numLines, 
-      startPoint, 
-      treeHeight, 
-      treeWidth 
-    }: TreeConfig) {
-      this.numLines = numLines;
-      this.startPoint = startPoint;
-      this.treeHeight = treeHeight;
-      this.treeWidth = treeWidth;
-      this.lines = this.generateTree();
-      this.leaves = this.generateLeaves();
-    }
-
-    generateTree() {
-      const { startPoint, numLines, treeHeight, treeWidth } = this;
-      const lines = [];
-
-      for (let i = 0; i < numLines; i++) {
-        const endPoint = {
-          x: startPoint.x + p.random(-treeWidth / 2, treeWidth / 2),
-          y: p.random(startPoint.y - bottom - treeHeight + treeHeight / 2, startPoint.y - bottom - treeHeight),
-        };
-        const startControlPoint = {
-          x: startPoint.x,
-          y: p.random(startPoint.y, endPoint.y),
-        };
-        const endControlPoint = {
-          x: endPoint.x < startPoint.x ? p.random(endPoint.x, startPoint.x) : p.random(startPoint.x, endPoint.x),
-          y: p.random(startControlPoint.y, endPoint.y),
-        };
-        const controlPoints = [startControlPoint, endControlPoint];
-        lines.push({ startPoint, endPoint, controlPoints });
-      }
-      return lines;
-    }
-
-    generateLeaves() {
-      const leaves = [];
-      const radius = p.random(125, 150); // Create the large enclosing circle, but don't draw it
-      // Draw small half-circles on the right half only
-      const numCircles = 900; // Number of small half-circles
-      for (let i = 0; i < numCircles; i++) {
-        // Random angle between 0 and PI for the right half
-        const angle = p.random(-p.PI, p.PI);
-        // Random radius within the main circle's radius
-        const r = p.sqrt(p.random(0, 0.5)) * radius;
-        const x = p.cos(angle) * r;
-        const y = p.sin(angle) * r;
-        // Calculate the angle of the half-circle to face the center
-        const angleToCenter = p.atan2(y, x);
-
-        // Draw the half-circle
-        const w = p.random(10, 20);
-        const h = p.random(10, 20);
-        leaves.push({ x, y, w, h, start: angleToCenter - p.HALF_PI, stop: angleToCenter + p.HALF_PI });
-      }
-      return leaves;
-    }
-
-    drawLeaves() {
-      const { startPoint, treeHeight } = this;
-
-      p.stroke('black');
-      p.strokeWeight(1);
-
-      // Draw everything within a push-pop block to apply rotation to this block only
-      p.push();
-      p.translate(startPoint.x, startPoint.y - bottom / 2 - treeHeight);
-      p.rotate(p.radians(-90));
-
-      this.leaves.forEach(({ x, y, w, h, start, stop }) => {
-        p.fill(
-          p.random([
-            p.color(44, 59, 77),
-            p.color(35, 45, 47),
-            p.color(19, 66, 66),
-            p.color(86, 38, 55),
-          ])
-        );
-        p.arc(x, y, w, h, start, stop);
-      });
-
-      p.pop();
-    }
-
-    drawTree() {
-      // Draw Tree Branches
-      this.lines.forEach(l => {
-        const { startPoint, controlPoints, endPoint } = l;
-
-        // Style the line
-        p.beginShape();
-        p.vertex(startPoint.x, startPoint.y);
-        p.bezierVertex(
-          controlPoints[0].x,
-          controlPoints[0].y,
-          controlPoints[1].x,
-          controlPoints[1].y,
-          endPoint.x,
-          endPoint.y
-        );
-        p.endShape();
-
-        if (drawControls) {
-          // Draw Anchor Points
-          p.stroke('black');
-          p.strokeWeight(5);
-          p.point(startPoint.x, startPoint.y);
-          p.point(endPoint.x, endPoint.y);
-
-          // Draw Control Points for Reference
-          p.stroke('red');
-          p.strokeWeight(5);
-          controlPoints.forEach((point: {x: number, y: number}) => {
-            p.point(point.x, point.y);
-          });
-
-          // Connect Control Points to Anchor Points
-          p.stroke('red');
-          p.strokeWeight(1);
-          p.line(startPoint.x, startPoint.y, controlPoints[0].x, controlPoints[0].y);
-          p.line(endPoint.x, endPoint.y, controlPoints[1].x, controlPoints[1].y);
-        }
-      });
-    }
-
-    clear() {
-      this.lines = [];
-      this.leaves = [];
-    }
-  }
 
   class Rowhome {
     x: number;
@@ -569,16 +486,6 @@ const mySketch = (p: p5) => {
     }
     buffer.endShape();
   }
-
-  // -- Events -- //
-  p.mousePressed = () => {
-    if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      trees.forEach(tree => tree.clear());
-      p.clear();
-      p.setup();
-      p.draw();
-    }
-  };
 };
 
 const Rowhome3: React.FC = () => {

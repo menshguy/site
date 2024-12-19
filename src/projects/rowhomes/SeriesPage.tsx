@@ -5,8 +5,8 @@ import { mySketch as rowHome2Sketch } from './Rowhome2';
 import { mySketch as rowHome3Sketch } from './Rowhome3';
 
 const sketches = {
-  rowHome2: rowHome2Sketch,
-  rowHome3: rowHome3Sketch,
+  "Rowhome": rowHome3Sketch,
+  "Rowhome(Draft)": rowHome2Sketch,
 };
 
 const SeriesPage: React.FC = () => {

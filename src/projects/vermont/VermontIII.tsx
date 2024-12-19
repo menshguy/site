@@ -5,6 +5,7 @@ import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import {shuffleArray} from '../../helpers/arrays.ts';
 import {drawMoon, drawStars, drawReflection, drawCirclesToBuffer, Moon, Stars, TimeOfDay} from '../../helpers/skyHelpers.tsx';
 import p5 from 'p5';
+import { drawGradientRect } from '../../helpers/shapes.ts';
 
 const mySketch = (p: p5) => {
 
@@ -32,6 +33,10 @@ const mySketch = (p: p5) => {
     p.colorMode(p.HSL);
     p.createCanvas(cw, ch);
 
+    // Clear Trees (ensure they are empty for redraw/setup)
+    treesInBack = [];
+    treesInFront = [];
+
     /** Colors */
     colors = {
       green: (s: number = 1, l: number = 1) => () => p.color(p.random(74,107), 70*s, 40.3*l),
@@ -47,29 +52,29 @@ const mySketch = (p: p5) => {
     
     // Sunlight
     sunAngle = p.radians(p.random(200, 340));
-    sunFillPercentage = p.random(0.1, timeOfDay === 'night' ? 0.5 : 1);
+    sunFillPercentage = p.random(0.25, timeOfDay === 'night' ? 0.5 : 1);
     let sunlight = {angle: sunAngle, fillPercentage: sunFillPercentage}
-
-    // Trunk & Tree
-    let trunkHeight = p.random(50, 100);
-    let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
-    let trunkWidth = p.random(40, 60);
-    let treeWidth = p.random(trunkWidth, trunkWidth+5); // total width including leaves
-    let numTrunkLines = p.random(3,5); //trunks are made up of X bezier curves
 
     // Points & Leaves
     let numPointsPerRow = 5; // X points are draw within a boundary radius
-    let avg = 150;
+    let avg = 120;
     let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
-    let pointBoundaryRadius = {min: 25, max: 30};
+    let pointBoundaryRadius = {min: 20, max: 25};
     let leavesStartY = p.height - bottom - pointBoundaryRadius.max; //where on y axis do leaves start
-    let leafWidth = p.random(2, 2);
-    let leafHeight = p.random(3, 3);
-    let rowHeight = treeHeight/3; //x points will drawn p.randominly in each row. rows increment up by this amount
+    let leafHeight = 3;
+    let leafWidth = 4;
 
     /** FRONT TREES */
     let numTreesInFront = 20;
     for (let i = 0; i < numTreesInFront; i++) {
+      // Trunk & Tree
+      let trunkHeight = p.random(80, 120);
+      let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
+      let trunkWidth = p.random(40, 100);
+      let treeWidth = p.random(trunkWidth, trunkWidth+5); // total width including leaves
+      let numTrunkLines = p.random(3,5); //trunks are made up of X bezier curves
+      let rowHeight = treeHeight/5; //x points will drawn p.randominly in each row. rows increment up by this amount
+
       // Start / Mid / Bulge
       let startX = i * (cw/numTreesInFront) + p.random(-10, 10);
       let startJitter = p.random(0, 10);
@@ -117,6 +122,14 @@ const mySketch = (p: p5) => {
     /** BACKGROUND TREES */
     let numBGTreeColumns = 20;
     for (let i = 0; i < numBGTreeColumns; i++) {
+
+      // Trunk & Tree
+      let trunkHeight = p.random(80, 120);
+      let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
+      let trunkWidth = p.random(40, 100);
+      let treeWidth = p.random(trunkWidth, trunkWidth+5); // total width including leaves
+      let numTrunkLines = p.random(3,5); //trunks are made up of X bezier curves
+      let rowHeight = treeHeight/5; //x points will drawn p.randominly in each row. rows increment up by this amount
 
       // Start / Mid / Bulge
       let offset = treeHeight / 2;
@@ -191,6 +204,7 @@ const mySketch = (p: p5) => {
 
     // Create a buffer for main image to be drawn to.
     let m = p.createGraphics(p.width, p.height - (p.height-bottom))
+    m.colorMode(m.HSL)
 
     // Sky to canvas
     let skyColor = timeOfDay === "night" ? p.color(223,43,18) : p.color("#68ADF6")
@@ -205,10 +219,15 @@ const mySketch = (p: p5) => {
     }
     
     // Shadow
+    // m.noStroke()
+    m.push()
+    let shadowColor = timeOfDay === "night" ? p.color(30, 30, 5) : p.color(30, 30, 12)
     m.noStroke()
-    m.fill(timeOfDay === "night" ? m.color(30, 30, 12) : m.color(30, 30, 30))
+    m.fill(shadowColor)
     m.rect(0, p.height-bottom-30, p.width, 30)
-    
+    drawGradientRect(m, 0, p.height-bottom-60, p.width, 30, true, shadowColor)
+    m.pop()
+
     // Sky Reflection
     p.noStroke()
     p.fill(skyColor)
@@ -218,7 +237,7 @@ const mySketch = (p: p5) => {
       m.push();
       m.strokeWeight(1);
       m.noFill()
-      m.stroke(timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 40));
+      m.stroke(timeOfDay === "night" ? m.color(12, 20, 8) : m.color(12, 20, 25));
       tree.drawTrunk(m, tree.trunkLines, true)
       m.pop();
 
@@ -228,7 +247,7 @@ const mySketch = (p: p5) => {
       m.push();
       m.strokeWeight(1);
       m.noFill()
-      m.stroke(timeOfDay === "night" ? m.color(12, 20, 10) : m.color(12, 20, 40));
+      m.stroke(timeOfDay === "night" ? m.color(12, 20, 8) : m.color(12, 20, 25));
       tree.drawTrunk(m, tree.trunkLines, true)
       m.pop();
 
@@ -281,16 +300,6 @@ const mySketch = (p: p5) => {
     }
   }
   
-  // p.mousePressed = redraw(p, cw, ch);
-  p.mousePressed = () => {
-    if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      treesInBack = [];
-      treesInFront = [];
-      p.clear();
-      p.setup();
-      p.draw();
-    }
-  };
 };
 
 const VermontIII: React.FC = () => {

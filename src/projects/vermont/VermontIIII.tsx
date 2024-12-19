@@ -31,6 +31,10 @@ const mySketch = (p: p5) => {
     p.colorMode(p.HSL);
     p.createCanvas(cw, ch);
 
+    // Clear Trees (ensure they are empty for redraw/setup)
+    allTrees = [];
+    loneTree = [];
+
     /** Colors */
     colors = {
       green: (s: number = 1, l: number = 1) => () => p.color(p.random(74,107), 40*s, 40.3*l),
@@ -67,8 +71,8 @@ const mySketch = (p: p5) => {
       let numLeavesPerPoint = p.random(avg, avg+(avg/2)); // X leaves are draw around each point.
       let pointBoundaryRadius = {min: 20, max: 30};
       let leavesStartY = p.height - bottom - 15; //where on y axis do leaves start
-      let leafWidth = p.random(1, 1);
-      let leafHeight = p.random(2, 2);
+      let leafWidth = p.random(2, 3);
+      let leafHeight = p.random(4, 5);
       let rowHeight = treeHeight/5; //x points will drawn p.randominly in each row. rows increment up by this amount
 
       // Start / Mid / Bulge
@@ -407,17 +411,6 @@ const mySketch = (p: p5) => {
       })
     }
   }
-
-  p.mousePressed = () => {
-    if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      allTrees = [];
-      loneTree = [];
-      p.clear();
-      p.setup();
-      p.draw();
-    }
-  };
-  
 };
 
 const VermontIIII: React.FC = () => {

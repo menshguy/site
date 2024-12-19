@@ -23,7 +23,14 @@ import { useDevice } from './context/DeviceContext.tsx';
 // }
 
 function SeriesOnlyList() {
-  const series = ['vermont', 'seasons', 'couch', 'rowhomes', 'trees', 'demos']; // Hidden: crowds, pictureframes
+  const series = [
+    'vermont', 
+    'seasons', 
+    // 'couch', // Nothing here yet
+    'rowhomes', 
+    // 'trees', // Nothing Intresting here - keep onTree for debuggin
+    'demos'
+  ]; // Hidden: crowds, pictureframes
   
   const styles: CSSProperties = {
     display: 'flex',

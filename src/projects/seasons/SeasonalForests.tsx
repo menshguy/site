@@ -516,13 +516,6 @@ const mySketch = (_cw: number = 800, _ch: number = 800) => (p: p5) => {
       p.endShape();
     }
   }
-  
-  p.mousePressed = () => {
-    if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      p.setup();
-      p.redraw();
-    }
-  }
 };
 
 const SeasonalForests: React.FC = () => {
