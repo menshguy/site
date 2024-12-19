@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { RowhomeConstructor, FloorSectionConstructor, FloorSectionGenerator } from '../../types/rowHomeTypes.ts';
+import { RowhomeConstructor, FloorSectionConstructor, FloorSectionGenerator } from './types.ts';
 
 const mySketch = (p: p5) => {
   let buffers: p5.Graphics[] = [];

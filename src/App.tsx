@@ -1,63 +1,26 @@
-import { useState, CSSProperties } from 'react'
-import DESK_SVG from './assets/desk.svg';
-import CHARACTER_GIF_PERSONAL from './assets/character.gif';
-import CHARACTER_GIF_PROFESSIONAL from './assets/character_work.gif';
+import { CSSProperties } from 'react'
+// import DESK_SVG from './assets/desk.svg';
+// import CHARACTER_GIF_PERSONAL from './assets/character.gif';
+// import CHARACTER_GIF_PROFESSIONAL from './assets/character_work.gif';
 // import {mySketch as vermontSeasonsSketch} from './projects/vermont/VermontSeasons.tsx';
 import {mySketch as seasonalForestsSketch} from './projects/seasons/SeasonalForests.tsx';
 import './App.css'
 import RoyalFrame from './projects/pictureFrames/RoyalFrame.tsx';
 
-// interface Doodle {
-//   series: string;
-//   title: string;
-//   href: string;
-//   previewGifSrc?: string;
-//   previewImgSrc?: string;
+// function SVGObject (
+//   { svgData, styles, label }: 
+//   { svgData: string, styles?: CSSProperties, label: string }
+// ) {
+//   return (
+//     <img
+//       style={styles}
+//       id={label}
+//       src={svgData}
+//       aria-label={label}
+//       aria-required="true"
+//     />
+//   )
 // }
-
-// const doodleConfigs: Doodle[] = [
-//   {series: "vermont", title:"vermont ii", href: "/vermont/vermontii"}, 
-//   {series: "vermont", title:"vermont iii", href: "/vermont/vermontiii"}, 
-//   {series: "vermont", title:"vermont iii Animated", href: "/vermont/vermontiiia"}, 
-//   {series: "vermont", title:"vermont random", href: "/vermont/vermontiiiwildcard"}, 
-//   {series: "vermont", title:"vermont iiii", href: "/vermont/vermontiiii"}, 
-//   {series: "vermont", title:"vermont seasons", href: "/vermont/vermontseasons"}, 
-  
-//   {series: "seasons", title:"fall in vermont", href: "/seasons/vermont"}, 
-//   {series: "seasons", title:"fall Sunlight", href: "/seasons/fallsunlight"}, 
-//   {series: "seasons", title:"fall Breeze", href:"/seasons/fallbreeze"}, 
-//   {series: "seasons", title:"seasonal Forests", href: "/seasons/seasonalforests"}, 
-  
-//   {series: "couch", title:"Couch", href: "/couch/couch"}, 
-  
-//   {series: "trees", title:"oneTree", href: "/trees/onetree"}, 
-//   {series: "trees", title:"tree 1", href: '/trees/tree1'}, 
-//   {series: "trees", title:"tree 2", href: '/trees/tree2'}, 
-//   {series: "trees", title:"tree 3", href: '/trees/tree3'}, 
-//   {series: "trees", title:"tree 4", href: '/trees/tree4'}, 
-//   {series: "trees", title:"tree 5", href: '/trees/tree5'}, 
-  
-//   // {series: "rowhomes", title:, href: 'rowhome1'}, 
-//   {series: "rowhomes", title:"Rowhomes", href: '/rowhomes/rowhome2'},
-//   {series: "rowhomes", title:"Rowhomes and Trees", href: '/rowhomes/rowhome3'}, 
-  
-//   {series: "demos", title:"Bezier demo", href: '/rowhomes/bezierdemo'}
-// ]
-
-function SVGObject (
-  { svgData, styles, label }: 
-  { svgData: string, styles?: CSSProperties, label: string }
-) {
-  return (
-    <img
-      style={styles}
-      id={label}
-      src={svgData}
-      aria-label={label}
-      aria-required="true"
-    />
-  )
-}
 
 function SeriesOnlyList() {
   const series = ['vermont', 'seasons', 'couch', 'rowhomes', 'trees', 'demos']; // Hidden: crowds, pictureframes
@@ -156,142 +119,151 @@ function SeriesOnlyList() {
 // }
 
 function App() {
-  const [isProfessionalSite, _setIsProfessionalSite] = useState<boolean>(true);
-  const CHARACTER_GIF = isProfessionalSite ? CHARACTER_GIF_PROFESSIONAL: CHARACTER_GIF_PERSONAL;
-
-  const mainHeaderContainerStyles: CSSProperties = {
-    maxWidth: '1100px',
-    margin: '20px auto',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    overflow: 'hidden',
-    padding: '24px',
-    background: '#eaf4ff',
-    borderRadius: '2%',
-    boxSizing: 'border-box',
-  }
-  const animationContainerStyles: CSSProperties = {
-    width: '300px',
-    position: 'relative',
-    borderRadius: '200px',
-    overflow: 'hidden',
-  }
-  const animationSubContainerStyles: CSSProperties = {
-    width: '100%',
-    height: '200px',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  }
-  const deskStyles: CSSProperties = {
-    width: '100%',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-  }
-  const characterStyles: CSSProperties = {
-    width: '100%',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-  } 
-  const bioContainerStyles: CSSProperties = {
-    height: '200px',
-    width: '100%',
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    textAlign: 'left',
-  }
-
-  // const canvasContainerStyles: CSSProperties = {
-  //   display: 'flex',
-  //   flexDirection: 'column',
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   padding: '10px',
-  // }
+  // const [isProfessionalSite, _setIsProfessionalSite] = useState<boolean>(true);
+  // const CHARACTER_GIF = isProfessionalSite ? CHARACTER_GIF_PROFESSIONAL: CHARACTER_GIF_PERSONAL;
   
-  // const p5sketchContainerStyles: CSSProperties = {
-  //   height: '500px',
-  //   width: '1200px',
-  //   flexDirection: 'column',
-  //   position: 'relative',
-  //   display: 'flex',
-  //   justifyContent: 'flex-start',
-  //   alignItems: 'flex-start',
-  //   backgroundColor: 'antiquewhite',
-  //   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-  //   padding: '0px 50px',
-  //   boxSizing: 'border-box',
-  // }
-
-  // Sketch text styles
-  const pStyles: CSSProperties = {
-    color: 'black',
-    fontWeight: 'bold',
-    margin: '0px 0px 10px 0px',
-  };
-  
-  const pBioStyles: CSSProperties = {
-    color: 'black',
-    margin: '0px 0px 0px 0px',
-  };
-
-  const spanStyles: CSSProperties = {
-    color: '#929292',
-    fontWeight: 'lighter',
-  };
-
   return (
-    <>
-    <div>
-    {/* Main Header */}
-    <div style={mainHeaderContainerStyles}>
-      {/* Character at desk */}
-      <div style={animationContainerStyles}>
-        <div style={animationSubContainerStyles}>
-          <SVGObject styles={deskStyles} svgData={DESK_SVG} label="Desk"/>
-          <SVGObject styles={characterStyles} svgData={CHARACTER_GIF} label="Character"/>
-        </div>
-      </div>
-      <div style={bioContainerStyles}>
-        <p style={pBioStyles}> Shalom! I am a <strong>generative artist</strong>, <strong>software engineer</strong>, and <strong>illustator</strong>.</p>
-        <p style={pBioStyles}> I like to doodle with code. I often post the results here & on <a target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">twitter/x</a>. </p>
-        <div style={{marginTop: '10px', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', width: '100%'}}>
-          <p style={pBioStyles}> 
-            While you're here, enjoy the <a href="/seasons/vermont">seasons</a>, eat a <a href="/bagel/bagel">bagel</a>,
-            or <a href="/vermont/vermontII">touch some grass</a>. I'll be chilling here on the <a href="/couch/couch">couch with my dog</a> at <a href="/rowhomes/rowhomes3">home</a>.
-          </p>
-        </div>
-        <div style={{marginTop: '10px', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', width: '100%'}}>
-          You can also check out my other series: <SeriesOnlyList />
-        </div>
-      </div>
+    <div style={{
+      position: 'absolute', 
+      top: '0px', 
+      left: '0px', 
+      width: '100%', 
+      height: '100%',
+    }}>
+      <SeriesOnlyList />
+      <RoyalFrame 
+        innerWidth={800} 
+        innerHeight={800} 
+        frameTopWidth={70}
+        frameSideWidth={70}
+        innerSketch={seasonalForestsSketch} 
+      />
     </div>
+    // {/* Main Header */}
+    // {/* <div style={mainHeaderContainerStyles}>
+    //   <div style={animationContainerStyles}>
+    //     <div style={animationSubContainerStyles}>
+    //       <SVGObject styles={deskStyles} svgData={DESK_SVG} label="Desk"/>
+    //       <SVGObject styles={characterStyles} svgData={CHARACTER_GIF} label="Character"/>
+    //     </div>
+    //   </div>
+    //   <div style={bioContainerStyles}>
+    //     <p style={pBioStyles}> Shalom! I am a <strong>generative artist</strong>, <strong>software engineer</strong>, and <strong>illustator</strong>.</p>
+    //     <p style={pBioStyles}> I like to doodle with code. I often post the results here & on <a target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">twitter/x</a>. </p>
+    //     <div style={{marginTop: '10px', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', width: '100%'}}>
+    //       <p style={pBioStyles}> 
+    //         While you're here, enjoy the <a href="/seasons/vermont">seasons</a>, eat a <a href="/bagel/bagel">bagel</a>,
+    //         or <a href="/vermont/vermontII">touch some grass</a>. I'll be chilling here on the <a href="/couch/couch">couch with my dog</a> at <a href="/rowhomes/rowhomes3">home</a>.
+    //       </p>
+    //     </div>
+    //     <div style={{marginTop: '10px', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', width: '100%'}}>
+    //       You can also check out my other series: <SeriesOnlyList />
+    //     </div>
+    //   </div>
+    // </div> */}
     
-    {/* Main Drawing */}
-    {/* <div style={canvasContainerStyles}> */}
-      {/* <div style={p5sketchContainerStyles}> */}
-        <p style={pStyles}>Click to redraw <span style={spanStyles}>(some drawings take a few seconds...)</span> </p>
+    // {/* Main Drawing */}
+    // {/* <div style={canvasContainerStyles}> */}
+    //   {/* <div style={p5sketchContainerStyles}> */}
+    //     {/* <p style={pStyles}>Click to redraw <span style={spanStyles}>(some drawings take a few seconds...)</span> </p> */}
 
-        <RoyalFrame 
-          innerWidth={800} 
-          innerHeight={800} 
-          frameTopWidth={70}
-          frameSideWidth={70}
-          innerSketch={seasonalForestsSketch} 
-        />
-        {/* <P5Wrapper sketch={vermontSeasonsSketch} /> */}
-      {/* </div> */}
-    {/* </div> */}
-    </div>
-    </>
+    //     {/* <RoyalFrame 
+    //       innerWidth={800} 
+    //       innerHeight={800} 
+    //       frameTopWidth={70}
+    //       frameSideWidth={70}
+    //       innerSketch={innersketch} 
+    //     /> */}
+    //     {/* <P5Wrapper sketch={seasonalForestsSketch} /> */}
+    //   {/* </div> */}
+    // {/* </div> */}
   )
 }
+
+// const mainHeaderContainerStyles: CSSProperties = {
+//   maxWidth: '1100px',
+//   margin: '20px auto',
+//   display: 'flex',
+//   flexDirection: 'row',
+//   alignItems: 'center',
+//   overflow: 'hidden',
+//   padding: '24px',
+//   background: '#eaf4ff',
+//   borderRadius: '2%',
+//   boxSizing: 'border-box',
+// }
+// const animationContainerStyles: CSSProperties = {
+//   width: '300px',
+//   position: 'relative',
+//   borderRadius: '200px',
+//   overflow: 'hidden',
+// }
+// const animationSubContainerStyles: CSSProperties = {
+//   width: '100%',
+//   height: '200px',
+//   display: 'flex',
+//   justifyContent: 'center',
+//   alignItems: 'center',
+//   position: 'relative',
+// }
+// const deskStyles: CSSProperties = {
+//   width: '100%',
+//   position: 'absolute',
+//   top: 0,
+//   left: 0,
+// }
+// const characterStyles: CSSProperties = {
+//   width: '100%',
+//   position: 'absolute',
+//   top: 0,
+//   left: 0,
+// } 
+// const bioContainerStyles: CSSProperties = {
+//   height: '200px',
+//   width: '100%',
+//   position: 'relative',
+//   display: 'flex',
+//   flexDirection: 'column',
+//   justifyContent: 'center',
+//   alignItems: 'flex-start',
+//   textAlign: 'left',
+// }
+
+// // const canvasContainerStyles: CSSProperties = {
+// //   display: 'flex',
+// //   flexDirection: 'column',
+// //   justifyContent: 'center',
+// //   alignItems: 'center',
+// //   padding: '10px',
+// // }
+
+// // const p5sketchContainerStyles: CSSProperties = {
+// //   height: '500px',
+// //   width: '1200px',
+// //   flexDirection: 'column',
+// //   position: 'relative',
+// //   display: 'flex',
+// //   justifyContent: 'flex-start',
+// //   alignItems: 'flex-start',
+// //   backgroundColor: 'antiquewhite',
+// //   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+// //   padding: '0px 50px',
+// //   boxSizing: 'border-box',
+// // }
+
+// // Sketch text styles
+// const pStyles: CSSProperties = {
+//   color: 'black',
+//   fontWeight: 'bold',
+//   margin: '0px 0px 10px 0px',
+// }
+// const pBioStyles: CSSProperties = {
+//   color: 'black',
+//   margin: '0px 0px 0px 0px',
+// }
+// const spanStyles: CSSProperties = {
+//   color: '#929292',
+//   fontWeight: 'lighter',
+// }
 
 export default App;

@@ -1,6 +1,6 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
-import {Season} from '../../types/treesTypes.ts';
+import {Season} from '../trees/types.ts';
 import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import p5 from 'p5';
 
@@ -205,7 +205,7 @@ const mySketch = (p: p5) => {
   
   p.draw = () => {
     p.noLoop();
-    p.background(bgColor)
+    p.background(bgColor);
     
     treesInBack.forEach(tree => {
       tree.drawTrunk(p, tree.trunkLines, false)

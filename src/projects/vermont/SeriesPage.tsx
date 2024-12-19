@@ -8,12 +8,12 @@ import { mySketch as vermontIIIISketch } from './VermontIIII';
 import Page from '../../components/Page';
 
 const sketches = {
-  "Rainy Day": vermontSeasonsSketch,
-  "Vermont II": vermontIISketch,
-  "Vermont III": vermontIIISketch,
-  "Vermont Breeze (WIP)": vermontIIIAnimatedSketch,
-  "Vermont Random": vermontIIIWildCardSketch,
-  "Solo Tree": vermontIIIISketch,
+  "RainyDay": vermontSeasonsSketch,
+  "VermontII": vermontIISketch,
+  "VermontIII": vermontIIISketch,
+  "VermontBreeze(WIP)": vermontIIIAnimatedSketch,
+  "VermontRandom": vermontIIIWildCardSketch,
+  "SoloTree": vermontIIIISketch,
 };
 
 const SeriesPage: React.FC = () => {

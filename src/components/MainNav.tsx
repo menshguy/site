@@ -1,18 +1,13 @@
 // vite-project/src/components/MainNav.tsx
 
 import React, { CSSProperties } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const MainNav: React.FC = () => {
-    const navigate = useNavigate();
-
-    const handleButtonClick = () => {
-        navigate('/');
-    };
 
     return (
         <nav style={styles.nav}>
-          <button style={styles.button} onClick={handleButtonClick}>
+          <Link to={`/`} style={styles.button} >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -22,7 +17,7 @@ const MainNav: React.FC = () => {
             >
                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
             </svg>
-          </button>
+          </Link>
         </nav>
     );
 };

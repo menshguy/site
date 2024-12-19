@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import {Leaf, TrunkLine} from '../../types/treesTypes.ts';
+import {Leaf, TrunkLine} from './types.ts';
 
 
 const mySketch = (p: p5) => {

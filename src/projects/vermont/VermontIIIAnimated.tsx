@@ -1,6 +1,6 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
-import {Season, Leaf} from '../../types/treesTypes.ts';
+import {Season, Leaf} from '../trees/types.ts';
 import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import {shuffleArray} from '../../helpers/arrays.ts';
 import {

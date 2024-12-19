@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { Season, Leaf, Point, BoundaryPoint, Trunk, TrunkLine} from '../../types/treesTypes';
+import { Season, Leaf, Point, BoundaryPoint, Trunk, TrunkLine} from '../trees/types';
 
 const mySketch = (p: p5) => {
   let cw: number, ch: number;

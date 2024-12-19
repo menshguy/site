@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, useRef } from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 import { RoyalFrameProps, Subdivision, PatternFunction } from './types';
@@ -338,18 +338,26 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
   innerSketch
 }) => {
 
-  let min = 25;
-  let max = 150;
-  let _frameTopWidth = frameTopWidth ? frameTopWidth : Math.floor(Math.random() * (max - min) + min);
-  let _frameSideWidth = frameSideWidth ? frameSideWidth : _frameTopWidth;
+  console.log('(RoyalFrame.tsx) innerSketch', innerSketch);
 
+  const min = useRef(25);
+  const max = useRef(150);
+  const _frameTopWidth = useRef(frameTopWidth ? frameTopWidth : Math.floor(Math.random() * (max.current - min.current) + min.current));
+  const _frameSideWidth = useRef(frameSideWidth ? frameSideWidth : _frameTopWidth.current);
+
+  const _outerSketch = mySketch(innerWidth, innerHeight, _frameTopWidth.current, _frameSideWidth.current);
+  const _innerSketch = innerSketch;
+  
+  // const InnerSketchMemo = useMemo(() => <P5Wrapper includeSaveButton={false} sketch={_innerSketch} />, [_innerSketch]);
+  // const OuterSketchMemo = useMemo(() => <P5Wrapper includeSaveButton={false} sketch={_outerSketch} />, [_outerSketch]);
+
+  /** STYLES */
   const containerStyles: CSSProperties = {
     position: 'relative',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
   }
-
   const outerWrapperStyles: CSSProperties = {
     width: `${innerWidth}px`,
     height: `${innerHeight}px`,
@@ -357,22 +365,22 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
     top: `0px`,
     left: `0px`,
   }
-
   const innerWrapperStyles: CSSProperties = {
     width: `${innerWidth}px`,
     height: `${innerHeight}px`,
     position: 'absolute',
-    top: `${0 + _frameTopWidth}px`,
-    left: `${0 + _frameSideWidth}px`,
+    top: `${_frameTopWidth.current}px`,
+    left: `${_frameSideWidth.current}px`,
   }
 
   return (
     <div style={containerStyles}>
       <div style={innerWrapperStyles}>
-        <P5Wrapper sketch={innerSketch} />
+        {/* TODO: Figure out why this renders two canvases when STRICT MODE is enabled */}
+        <P5Wrapper includeSaveButton={false} sketch={_innerSketch} />
       </div>
       <div style={outerWrapperStyles}>
-        <P5Wrapper sketch={mySketch(innerWidth, innerHeight, _frameTopWidth, _frameSideWidth)} />
+        <P5Wrapper includeSaveButton={false} sketch={_outerSketch} />
       </div>
     </div>
   );

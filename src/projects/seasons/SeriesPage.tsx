@@ -19,7 +19,7 @@ const SeriesPage: React.FC = () => {
       <Page 
         sketches={sketches} 
         route={"seasons"}
-        />
+      />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { Season, Leaf, TrunkLine } from '../../types/treesTypes';
+import { Season, Leaf, TrunkLine } from '../trees/types';
 
 const mySketch = (p: p5) => {
   let cw: number, ch: number;
@@ -158,28 +158,28 @@ const mySketch = (p: p5) => {
   }
   
   p.draw = () => {
-    p.noLoop();
+    p.noLoop()
     p.background(bgColors[season])
-    
+
     //Draw Ground Fill
     let groundFill = season === "winter" ? "white" : forest.fills[4]
     if (season === "winter") {
       p.fill(groundFill)
       p.noStroke()
-      p.rect(0, p.height-bottom, p.width, p.height-bottom);
+      p.rect(0, p.height-bottom, p.width, p.height-bottom)
     }
     
     //Draw Ground Squiggly (on top of Ground Fill & trees)
     drawGroundLine(25, ch-bottom, cw-25, groundFill)
     
     //Draw Trees in order
-    forest.trunks.forEach(trunk => drawTrunk(trunk));
-    forest.leaves.forEach(leaf => drawLeaf(leaf, 0.2));
+    forest.trunks.forEach(trunk => drawTrunk(trunk))
+    forest.leaves.forEach(leaf => drawLeaf(leaf, 0.2))
     
     //Draw Texture
-    p.blendMode(p.MULTIPLY);
-    p.image(textureImg, 0, 0, cw, ch);
-    p.blendMode(p.BLEND); 
+    p.blendMode(p.MULTIPLY)
+    p.image(textureImg, 0, 0, cw, ch)
+    p.blendMode(p.BLEND)
   }
   
   class Forest {
@@ -520,7 +520,6 @@ const mySketch = (p: p5) => {
   
   p.mousePressed = () => {
     if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      p.clear();
       p.setup();
       p.redraw();
     }
