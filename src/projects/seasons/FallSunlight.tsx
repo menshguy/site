@@ -565,15 +565,6 @@ const mySketch = (_cw: number = 600, _ch: number = 600) => (p: p5) => {
       p.endShape();
     }
   }
-
-  p.mousePressed = () => {
-    if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      p.setup();
-      p.clear();
-      p.redraw();
-    }
-  }
-  
 };
 
 const FallSunlight: React.FC = () => {

@@ -27,6 +27,11 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
     p.colorMode(p.HSL);
     p.createCanvas(cw, ch);
 
+    // Clear Trees (this will ensure redrawing works)
+    treesInBack = [];
+    treesInMiddle = [];
+    treesInFront = [];
+
     /** Colors */
     colors = {
       winter: (s: number = 1, l: number = 1) => () => p.color(p.random(70,130), 20*s, 70*l),
@@ -263,19 +268,6 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
       })
     }
   }
-  
-  // p.mousePressed = redraw(p, cw, ch);
-  p.mousePressed = () => {
-    if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-      treesInBack = [];
-      treesInMiddle = [];
-      treesInFront = [];
-      p.clear();
-      p.setup();
-      p.draw();
-    }
-  };
-  
 };
 
 const Vermont: React.FC = () => {

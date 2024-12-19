@@ -375,10 +375,16 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
   return (
     <div style={containerStyles}>
       <div style={innerWrapperStyles}>
-        <P5Wrapper includeSaveButton={false} sketch={_innerSketch} />
+        <P5Wrapper 
+          includeSaveButton={false} 
+          sketch={_innerSketch}
+        />
       </div>
       <div style={outerWrapperStyles}>
-        <P5Wrapper includeSaveButton={false} sketch={_outerSketch} />
+        <P5Wrapper 
+          includeSaveButton={false} 
+          sketch={_outerSketch} 
+        />
       </div>
     </div>
   );
