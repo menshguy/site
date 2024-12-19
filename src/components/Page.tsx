@@ -10,12 +10,17 @@ interface PageProps {
 const Page: React.FC<PageProps> = ({ sketches, route }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedSketch, setSelectedSketch] = useState<keyof typeof sketches>(Object.keys(sketches)[0] as keyof typeof sketches);
+  const [selectedSketch, setSelectedSketch] = useState<keyof typeof sketches>('');
 
   useEffect(() => {
     const path = location.pathname.split('/').pop();
-    if (path && Object.keys(sketches).includes(path)) {
-      setSelectedSketch(path as keyof typeof sketches);
+    const initialSketch = Object.keys(sketches)[0] as keyof typeof sketches;
+    if (path === route) {
+      navigate(`/${route}/${initialSketch}`); // If no path, navigate to initial sketch
+    } else if (path && Object.keys(sketches).includes(path)) {
+      setSelectedSketch(path as keyof typeof sketches); // If path, set selected sketch
+    } else {
+      navigate(`/${route}/${initialSketch}`); // If no path, set selected sketch to initial sketch
     }
   }, [location.pathname]);
 
@@ -34,7 +39,8 @@ const Page: React.FC<PageProps> = ({ sketches, route }) => {
           </option>
         ))}
       </select>
-      <P5Wrapper sketch={sketches[selectedSketch]} />
+
+      <P5Wrapper includeSaveButton={true} sketch={sketches[selectedSketch]} />
     </div>
   );
 };
