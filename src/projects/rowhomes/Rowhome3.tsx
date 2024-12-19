@@ -1,7 +1,7 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { TreeConfig, RowhomeConstructor, FloorSectionConstructor } from './types.ts';
+import { RowhomeConstructor, FloorSectionConstructor } from './types.ts';
 import {VermontTree} from '../../helpers/treeHelpers';
 
 const mySketch = (p: p5) => {
@@ -10,7 +10,7 @@ const mySketch = (p: p5) => {
   let bottom: number;
   let cw: number;
   let ch: number;
-  let drawControls = false;
+  // let drawControls = false;
   let trees: VermontTree[] = [];
   let textureImg: p5.Image;
 
