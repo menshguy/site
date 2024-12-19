@@ -4,15 +4,16 @@ import p5 from 'p5';
 interface P5WrapperProps {
   sketch: (p: p5) => void;
   includeSaveButton?: boolean;
-  debug?: boolean;
+  // debug?: boolean;
   initialImageSrc?: string;
 }
 
 /** STYLES */
-const buttonStyles: CSSProperties = {
-
+const buttonStyles: CSSProperties = {}
+const containerStyles: CSSProperties = {
+  width: '100%',
+  height: '100%',
 }
-const containerStyles: CSSProperties = {}
 const menuStyles: CSSProperties = {
   display: 'flex', 
   flexDirection: 'row', 
@@ -23,45 +24,43 @@ const menuStyles: CSSProperties = {
 const P5Wrapper: React.FC<P5WrapperProps> = ({ 
   sketch, 
   includeSaveButton, 
-  debug = true, 
+  // debug = true, 
   // initialImageSrc
 }) => {
   // const [isDebugMode, _setIsDebugMode] = useState(debug);
   const [isLoading, setIsLoading] = useState(true);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
-  const sketchRef = useRef<(p: p5) => void | null>(sketch);
 
   useEffect(() => {
-    setIsLoading(true);
-    
-    if (p5InstanceRef.current) clearSketch()
-    setupSketch()
-
-    return () => {
+    if (sketch !== undefined) {
+      console.log('(P5Wrapper.tsx) Setting up sketch')
       clearSketch()
+      setupSketch(sketch)
     }
 
-  }, [sketch])
-
-  const setupSketch = () => {
-    sketchRef.current = sketch;
+    return () => clearSketch()
+  }, [sketch]);
+  
+  /** FUNCTIONS */
+  const setupSketch = (sketch: (p: p5) => void) => {
+    setIsLoading(true);
     
+    // SetTimeout will ensure that the component can render isLoading updates without being blocked by the p5 setup/draw methods
     setTimeout(() => {
-      const p5Instance = new p5(sketchRef.current, canvasRef.current || undefined);
-      p5InstanceRef.current = p5Instance;
+      p5InstanceRef.current = new p5(sketch, canvasRef.current || undefined);
       setIsLoading(false);
     }, 0)
   }
 
   const clearSketch = () => {
     if (p5InstanceRef.current) {
-      p5InstanceRef.current.remove();
-      p5InstanceRef.current = null;
+      console.log('Clearing sketch');
+      p5InstanceRef.current.remove(); // Remove the p5 instance
+      p5InstanceRef.current = null; // Clear the reference
     }
   }
-
-  /** FUNCTIONS */
+  
   const saveCanvas = () => {
     if (p5InstanceRef.current) {
       p5InstanceRef.current.saveCanvas('myCanvas', 'png');
@@ -69,14 +68,14 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({
   }
 
   return (
-    <>
+    <div style={containerStyles}>
       <div style={menuStyles}>
-        {isLoading && <div>Loading...</div>}
+        {isLoading && <div>Drawing...</div>}
         {includeSaveButton && <button style={buttonStyles} onClick={saveCanvas}> Save </button>}
       </div>
 
       <div ref={canvasRef} />
-    </>
+    </div>
   );
 };
 
