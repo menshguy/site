@@ -31,14 +31,11 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (sketch !== undefined) {
-      console.log('(P5Wrapper.tsx) Setting up sketch')
-      clearSketch()
-      setupSketch(sketch)
-    }
-
+    console.log('(P5Wrapper.tsx) useEffect sketch', sketch);
+    if (sketch !== undefined) setupSketch(sketch)
     return () => clearSketch()
   }, [sketch]);
   
@@ -46,18 +43,25 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({
   const setupSketch = (sketch: (p: p5) => void) => {
     setIsLoading(true);
     
-    // SetTimeout will ensure that the component can render isLoading updates without being blocked by the p5 setup/draw methods
-    setTimeout(() => {
+    // Use requestAnimationFrame to ensure the component can render isLoading updates
+    animationFrameIdRef.current = requestAnimationFrame(() => {
       p5InstanceRef.current = new p5(sketch, canvasRef.current || undefined);
-      setIsLoading(false);
-    }, 0)
+    });
+
+    // requestAnimationFrame will ensure that the component can render isLoading updates without being blocked by the p5 setup/draw methods
+    setIsLoading(false);
   }
 
   const clearSketch = () => {
+    console.log('(P5Wrapper.tsx) clearSketch', p5InstanceRef.current);
     if (p5InstanceRef.current) {
-      console.log('Clearing sketch');
       p5InstanceRef.current.remove(); // Remove the p5 instance
       p5InstanceRef.current = null; // Clear the reference
+    }
+    
+    // Cancel the animation frame so we do not get duplicate p5 instances
+    if (animationFrameIdRef.current !== null) {
+      cancelAnimationFrame(animationFrameIdRef.current);
     }
   }
   
