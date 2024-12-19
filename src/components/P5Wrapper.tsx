@@ -46,10 +46,8 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({
     // Use requestAnimationFrame to ensure the component can render isLoading updates
     animationFrameIdRef.current = requestAnimationFrame(() => {
       p5InstanceRef.current = new p5(sketch, canvasRef.current || undefined);
+      setIsLoading(false);
     });
-
-    // requestAnimationFrame will ensure that the component can render isLoading updates without being blocked by the p5 setup/draw methods
-    setIsLoading(false);
   }
 
   const clearSketch = () => {
@@ -59,9 +57,9 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({
       p5InstanceRef.current = null; // Clear the reference
     }
     
-    // Cancel the animation frame so we do not get duplicate p5 instances
     if (animationFrameIdRef.current !== null) {
-      cancelAnimationFrame(animationFrameIdRef.current);
+      cancelAnimationFrame(animationFrameIdRef.current); // Cancel the animation frame so we do not get duplicate p5 instances
+      animationFrameIdRef.current = null;
     }
   }
   

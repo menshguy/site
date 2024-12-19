@@ -3,8 +3,9 @@ import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 import { Season, Leaf, Point, BoundaryPoint, Trunk, TrunkLine} from '../trees/types';
 
-const mySketch = (p: p5) => {
-  let cw: number, ch: number;
+const mySketch = (_cw: number = 600, _ch: number = 600) => (p: p5) => {
+  let cw: number = _cw; 
+  let ch: number = _ch;
   let bottom = 20;
   let textureImg: p5.Image;
   let debug = false;
@@ -16,7 +17,7 @@ const mySketch = (p: p5) => {
 
   p.preload = () => {
     textureImg = p.loadImage(
-      './textures/watercolor_1.jpg',
+      '../textures/watercolor_1.jpg',
       () => {
         console.log('Image loaded successfully');
       },
@@ -28,8 +29,6 @@ const mySketch = (p: p5) => {
 
   p.setup = () => {
     p.colorMode(p.HSL);
-    cw = 600;
-    ch = 600;
     p.createCanvas(cw, ch);
     
     colors = {
@@ -583,7 +582,7 @@ const FallSunlight: React.FC = () => {
       <h1>Fall Sunlight</h1>
       {/* <p>11/7/24</p> */}
       <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch} />
+      <P5Wrapper sketch={mySketch()} />
     </div>
   );
 };

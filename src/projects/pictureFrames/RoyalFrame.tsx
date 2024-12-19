@@ -1,4 +1,4 @@
-import React, { CSSProperties, useRef } from 'react';
+import React, { CSSProperties } from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 import { RoyalFrameProps, Subdivision, PatternFunction } from './types';
@@ -28,30 +28,30 @@ const mySketch = (
   }
 
   p.setup = () => {
-    p.createCanvas(cw, ch);
-    p.colorMode(p.HSL);
+    p.createCanvas(cw, ch)
+    p.colorMode(p.HSL)
   }
   
   p.draw = () => {
-    p.noLoop();
+    p.noLoop()
     
     /** DRAW FRAME SHAPES */
-    p.push();
+    p.push()
     p.fill(34, 62.1, 74.1)
     p.noStroke()
-    topFrame();
-    leftFrame();
-    rightFrame();
-    bottomFrame();
-    p.pop();
+    topFrame()
+    leftFrame()
+    rightFrame()
+    bottomFrame()
+    p.pop()
     
     /** CREATE SUBDIVISIONS */
-    let subdivisions = generateSubdivisions(p.random(2, 15)); // Generate random subdivisions
-    let sideSubdivisions = normalizeSubdivisions(subdivisions, frameSideWidth); // Normalize subdivisions for side  
-    let topAndBottomSubdivisions = normalizeSubdivisions(subdivisions, frameTopWidth); // Normalize subdivisions for top and bottom
+    let subdivisions = generateSubdivisions(p.random(2, 15)) // Generate random subdivisions
+    let sideSubdivisions = normalizeSubdivisions(subdivisions, frameSideWidth) // Normalize subdivisions for side  
+    let topAndBottomSubdivisions = normalizeSubdivisions(subdivisions, frameTopWidth) // Normalize subdivisions for top and bottom
     
     /** DRAW GRADIENTS IN EACH FRAME SHAPE */
-    let patternColor = p.color(30, 60, 30);
+    let patternColor = p.color(30, 60, 30)
     drawPattern(drawGradientRect, 0, 0, 0, topAndBottomSubdivisions, topFrame, "top", patternColor) // Top
     drawPattern(drawGradientRect, cw, ch, 180, topAndBottomSubdivisions, bottomFrame, "bottom", patternColor) // Bottom
     drawPattern(drawGradientRect, 0, ch, -90, sideSubdivisions, leftFrame, "left", patternColor) // Left
@@ -121,7 +121,7 @@ const mySketch = (
     angle: number, 
     subdivisions: Subdivision[], 
     mask: () => void,
-    _side: string, // top, bottom, left, right - in future, this can be used to draw different patterns for each side
+    side: string, // top, bottom, left, right - in future, this can be used to draw different patterns for each side
     strokeColor: p5.Color
   ) {
     p.push()
@@ -129,12 +129,13 @@ const mySketch = (
     p.translate(x, y);
     p.rotate(p.radians(angle));
     let _y = 0;
-    let w = calculateDistance(0, y, cw, y);
+    let x2 = side === "left" || side === "right" ? ch : cw; // if we are drawing a side frame, we have rotated 90deg and ned the width to be the height of the canvas
+    let w = calculateDistance(0, y, x2, y);
     subdivisions.forEach(({length, depth, direction, hasTrim}) => {
       
       // Draw the Frame gradient pattern for each subdivision
       let x = 0 // if inward, start at beginning of subdivision, otherwise start at end
-      let y = direction === "inward" ? _y + length - depth: _y;
+      let y = direction === "inward" ? _y + length - depth: _y; // if inward, start at the end of the subdivision, otherwise start at the beginning
       let h = depth;
       let reverse = direction === "inward" ? true : false; // if "inward", you want to start the gradient at the end of the subdivision, otherwise start at the beginning - the depth value. This will create a downward slope that ends at the end of the subdivision.
       patternFunction(p, x, y, w, h, reverse, strokeColor);
@@ -338,14 +339,12 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
   innerSketch
 }) => {
 
-  console.log('(RoyalFrame.tsx) innerSketch', innerSketch);
+  const min = 25
+  const max = 150
+  const _frameTopWidth = frameTopWidth ? frameTopWidth : Math.floor(Math.random() * (max - min) + min)
+  const _frameSideWidth = frameSideWidth ? frameSideWidth : _frameTopWidth
 
-  const min = useRef(25);
-  const max = useRef(150);
-  const _frameTopWidth = useRef(frameTopWidth ? frameTopWidth : Math.floor(Math.random() * (max.current - min.current) + min.current));
-  const _frameSideWidth = useRef(frameSideWidth ? frameSideWidth : _frameTopWidth.current);
-
-  const _outerSketch = mySketch(innerWidth, innerHeight, _frameTopWidth.current, _frameSideWidth.current);
+  const _outerSketch = mySketch(innerWidth, innerHeight, _frameTopWidth, _frameSideWidth);
   const _innerSketch = innerSketch;
   
   // const InnerSketchMemo = useMemo(() => <P5Wrapper includeSaveButton={false} sketch={_innerSketch} />, [_innerSketch]);
@@ -369,14 +368,13 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
     width: `${innerWidth}px`,
     height: `${innerHeight}px`,
     position: 'absolute',
-    top: `${_frameTopWidth.current}px`,
-    left: `${_frameSideWidth.current}px`,
+    top: `${_frameTopWidth}px`,
+    left: `${_frameSideWidth}px`,
   }
 
   return (
     <div style={containerStyles}>
       <div style={innerWrapperStyles}>
-        {/* TODO: Figure out why this renders two canvases when STRICT MODE is enabled */}
         <P5Wrapper includeSaveButton={false} sketch={_innerSketch} />
       </div>
       <div style={outerWrapperStyles}>

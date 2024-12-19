@@ -6,10 +6,10 @@ import { mySketch as seasonalForestsSketch } from './SeasonalForests';
 import { mySketch as vermontSketch } from './Vermont';
 
 const sketches = {
-  treefallBreezze: fallBreezzeSketch,
-  fallSunlight: fallSunlightSketch,
-  seasonalForests: seasonalForestsSketch,
-  vermont: vermontSketch,
+  treefallBreezze: fallBreezzeSketch(),
+  fallSunlight: fallSunlightSketch(),
+  seasonalForests: seasonalForestsSketch(),
+  vermont: vermontSketch(),
 };
 
 const SeriesPage: React.FC = () => {

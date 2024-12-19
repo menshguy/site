@@ -3,8 +3,9 @@ import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 import { Season, Leaf, TrunkLine } from '../trees/types';
 
-const mySketch = (p: p5) => {
-  let cw: number, ch: number;
+const mySketch = (_cw: number = 800, _ch: number = 800) => (p: p5) => {
+  let cw: number = _cw; 
+  let ch: number = _ch;
   let bottom = 20;
   let debug = false;
   let forest: Forest;
@@ -19,8 +20,6 @@ const mySketch = (p: p5) => {
   
   p.setup = () => {
     p.colorMode(p.HSL);
-    cw = 800;
-    ch = 800;
     p.createCanvas(cw, ch);
     
     colors = {
@@ -532,7 +531,7 @@ const SeasonalForests: React.FC = () => {
       <h1>Seasonal Forests</h1>
       <p>11/7/24</p>
       <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch} />
+      <P5Wrapper sketch={mySketch()} />
     </div>
   );
 };

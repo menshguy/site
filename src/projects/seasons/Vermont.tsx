@@ -4,10 +4,9 @@ import {Season} from '../trees/types.ts';
 import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import p5 from 'p5';
 
-const mySketch = (p: p5) => {
-
-  let cw: number = 1000; 
-  let ch: number = 600;
+const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
+  let cw: number = _cw; 
+  let ch: number = _ch;
   let bottom = 20;
   let debug = false;
   let tree: VermontTree;
@@ -52,7 +51,7 @@ const mySketch = (p: p5) => {
     for (let i = 0; i < numTreesInFront; i++) {
 
       // Trunk & Tree
-      let trunkHeight = p.random(50, 250);
+      let trunkHeight = p.random(50, ch-bottom-100);
       let trunkWidth = p.random(200, 200);
       let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
       let treeWidth = p.random(trunkWidth+20, 300); // total width including leaves
@@ -285,7 +284,7 @@ const Vermont: React.FC = () => {
       <h1>Vermont</h1>
       {/* <p>11/14/24</p> */}
       <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch} />
+      <P5Wrapper sketch={mySketch()} />
     </div>
   );
 };

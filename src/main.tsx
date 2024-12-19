@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom'
+import { DeviceProvider } from './context/DeviceContext.tsx';
 import MainNav from './components/MainNav.tsx';
 import App from './App.tsx'
 
@@ -38,7 +39,7 @@ function AppWithNav() {
                 innerHeight={800} 
                 // frameTopWidth={100}
                 // frameSideWidth={100}
-                innerSketch={seasonalForestsSketch} 
+                innerSketch={seasonalForestsSketch()} 
               />
             </div>
           } 
@@ -50,8 +51,10 @@ function AppWithNav() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Router>
-      <AppWithNav />
-    </Router>
+    <DeviceProvider>
+      <Router>
+        <AppWithNav />
+      </Router>
+    </DeviceProvider>
   </StrictMode>
 )

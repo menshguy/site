@@ -6,7 +6,7 @@ import { CSSProperties } from 'react'
 import {mySketch as vermontSketch} from './projects/seasons/Vermont.tsx';
 import './App.css'
 import RoyalFrame from './projects/pictureFrames/RoyalFrame.tsx';
-
+import { useDevice } from './context/DeviceContext.tsx';
 // function SVGObject (
 //   { svgData, styles, label }: 
 //   { svgData: string, styles?: CSSProperties, label: string }
@@ -28,11 +28,11 @@ function SeriesOnlyList() {
   const styles: CSSProperties = {
     display: 'flex',
     flexDirection: 'row',
-    gap: '10px',
+    gap: '8px',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     maxWidth: '1200px',
-    marginLeft: '10px',
+    marginLeft: '4px',
   }
   
   return (
@@ -119,24 +119,31 @@ function SeriesOnlyList() {
 // }
 
 function App() {
+  const { deviceWidth, deviceHeight, isMobile } = useDevice();
+  const sidePadding = isMobile ? 0 : 0;
   // const [isProfessionalSite, _setIsProfessionalSite] = useState<boolean>(true);
   // const CHARACTER_GIF = isProfessionalSite ? CHARACTER_GIF_PROFESSIONAL: CHARACTER_GIF_PERSONAL;
+
+  const randomFrameSize = Math.floor(Math.random() * (150 - 50)) + 50
+  const frameTopWidth = isMobile ? 20 : randomFrameSize
+  const frameSideWidth = isMobile ? 20 : randomFrameSize
+  const w1 = isMobile ? deviceWidth - sidePadding - (frameSideWidth*2) : deviceWidth < 1000 ? deviceWidth - (frameSideWidth*2) : 1000 - (frameSideWidth*2) 
+  const h1 =isMobile ? deviceHeight - (frameTopWidth*2) : deviceHeight < 1000 ? deviceHeight - (frameTopWidth*2) : 1000 - (frameTopWidth*2)
+  const sketch1 = vermontSketch(w1, h1)
+  const mainSketch = { sketch: sketch1, width: w1, height: h1, frameTopWidth, frameSideWidth }
   
   return (
     <div style={{
-      position: 'absolute', 
-      top: '0px', 
-      left: '0px', 
       width: '100%', 
       height: '100%',
     }}>
       <SeriesOnlyList />
       <RoyalFrame 
-        innerWidth={1000} 
-        innerHeight={600} 
-        frameTopWidth={70}
-        frameSideWidth={70}
-        innerSketch={vermontSketch} 
+        innerWidth={mainSketch.width} 
+        innerHeight={mainSketch.height} 
+        frameTopWidth={mainSketch.frameTopWidth}
+        frameSideWidth={mainSketch.frameSideWidth}
+        innerSketch={mainSketch.sketch} 
       />
     </div>
   )

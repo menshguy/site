@@ -3,9 +3,9 @@ import P5Wrapper from '../../components/P5Wrapper';
 import {Season, Leaf, TrunkLine} from '../trees/types.ts';
 import p5 from 'p5';
 
-const mySketch = (p: p5) => {
-
-  let cw: number, ch: number;
+const mySketch = (_cw: number = 600, _ch: number = 600) => (p: p5) => {
+  let cw: number = _cw; 
+  let ch: number = _ch;
   let bottom = 20;
   let debug = false;
   let tree: Tree;
@@ -22,8 +22,6 @@ const mySketch = (p: p5) => {
   
   p.setup = () => {
     p.colorMode(p.HSL);
-    cw = 600;
-    ch = 600;
     p.createCanvas(cw, ch);
     
     colors = {
@@ -470,7 +468,7 @@ const FallBreeze: React.FC = () => {
       <h1>Fall Breeze</h1>
       <p>11/10/24</p>
       <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch} />
+      <P5Wrapper sketch={mySketch()} />
     </div>
   );
 };
