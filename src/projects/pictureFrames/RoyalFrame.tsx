@@ -18,6 +18,9 @@ const mySketch = (
   let trimWidth: number
   let trimColor: p5.Color
   let mainColor: p5.Color
+  let goldColor: p5.Color
+  let blackColor: p5.Color
+  let deepRedColor: p5.Color
   
   p.preload = () => {
     // textureImg = p.loadImage('../textures/gold7.png');
@@ -29,12 +32,13 @@ const mySketch = (
 
     /** GENERAL SETTINGS */
     // let textureImg: p5.Image;
-    mainColor = p.random() > 0.25 
-      ? p.color(34, 62.1, 74.1) // Gold
-      : p.color(236, 7, 20), // Black
+    goldColor = p.color(34, 62.1, 74.1)
+    blackColor = p.color(236, 7, 20)
+    deepRedColor = p.color(354, 45, 15)
+    mainColor = p.random([goldColor, blackColor, deepRedColor])
     // mainColor = p.color(34, 62.1, 74.1) // Gold
       
-    allowTrim = p.random(0, 1) > 0.40 ? true : false;
+    allowTrim = p.random(0, 1) > 0.70 ? true : false;
     trimWidth = p.random(2, 3);
     trimColor = p.random([
       // p.color("white"), //white in HSL
@@ -42,7 +46,7 @@ const mySketch = (
       p.color(34, 62.1, 74.1),
       p.color(15, 63, 44), //deep red in HSL
       p.color(15, 83, 14), //darker deep red in HSL
-      p.color(229, 63, 17) // dark blue
+      // p.color(229, 63, 17) // dark blue
     ])
   }
   
@@ -74,11 +78,12 @@ const mySketch = (
     
     /** DRAW FLORAL PATTERNS IN EACH FRAME SHAPE */
     // p.push();
-    // p.blendMode(p.SCREEN); // p.SCREEN, or p.ADD
-    // drawPattern(drawFloralPattern, 0, 0, 0, normalizedSubdivisions, topFrame, patternColor) // Top
-    // drawPattern(drawFloralPattern, cw, ch, 180, normalizedSubdivisions, bottomFrame, patternColor) // Bottom
-    // drawPattern(drawFloralPattern, 0, ch, -90, normalizedSubdivisions, leftFrame, patternColor) // Left
-    // drawPattern(drawFloralPattern, cw, 0, 90, normalizedSubdivisions,rightFrame, patternColor) // Right 
+    // // p.blendMode(p.SCREEN); // p.SCREEN, or p.ADD
+    // let floralColor = p.color(p.hue(goldColor), p.saturation(goldColor), 80)
+    // drawPattern(drawFloralPattern, 0, 0, 0, topAndBottomSubdivisions, topFrame, "top", floralColor) // Top
+    // drawPattern(drawFloralPattern, cw, ch, 180, topAndBottomSubdivisions, bottomFrame, "bottom", floralColor) // Bottom
+    // drawPattern(drawFloralPattern, 0, ch, -90, sideSubdivisions, leftFrame, "left", floralColor) // Left
+    // drawPattern(drawFloralPattern, cw, 0, 90, sideSubdivisions,rightFrame, "right", floralColor) // Right 
     // p.pop();
 
     /** APPLY TEXTURE */
@@ -178,7 +183,9 @@ const mySketch = (
   //   x: number,
   //   y: number,
   //   w: number,
-  //   h: number
+  //   h: number,
+  //   _reverse: boolean,
+  //   strokeColor: p5.Color
   // ) {
   //   const flowerSize = h / 4; // Size of each flower
   //   const petalCount = 8; // Increased number of petals for more detail
@@ -188,8 +195,8 @@ const mySketch = (
   //   for (let i = x; i < x + w; i += flowerSize * 2) {
   //     for (let j = y; j < y + h; j += flowerSize * 2) {
   //       p.push();
-  //       p.fill(70, 70, 70); // Yellow color for the center
-  //       p.stroke(70, 7, 70);
+  //       p.fill(strokeColor); // Yellow color for the center
+  //       p.stroke(strokeColor);
   //       p.translate(i, j - h );
   //       p.noStroke();
   //       for (let k = 0; k < petalCount; k++) {
@@ -256,7 +263,7 @@ const mySketch = (
       for (let y = 0; y < ch; y++) {
         let scale = p.random(0.95, 1);
         let noiseValue = noiseBuffer.noise(x * scale, y * scale); // Adjust the scale for noise
-        let alpha = p.map(noiseValue, 0, 1, 0, 0.3); // Map noise value to alpha
+        let alpha = p.map(noiseValue, 0, 1, 0, 0.1); // Map noise value to alpha
         noiseBuffer.set(x, y, p.color(255, alpha)); // White color with varying alpha
       }
     }
@@ -338,21 +345,15 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
   /** STYLES */
   const containerStyles: CSSProperties = {
     position: 'relative',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    // marginTop: '100px'
+    boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.2)',
   }
-  const outerWrapperStyles: CSSProperties = {
-    width: `${innerWidth}px`,
-    height: `${innerHeight}px`,
-    position: 'absolute',
+
+  const childFrame: CSSProperties = {
+    position: 'relative',
     top: `0px`,
     left: `0px`,
   }
-  const innerWrapperStyles: CSSProperties = {
-    width: `${innerWidth}px`,
-    height: `${innerHeight}px`,
+  const childSketch: CSSProperties = {
     position: 'absolute',
     top: `${_frameTopWidth}px`,
     left: `${_frameSideWidth}px`,
@@ -360,13 +361,13 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
 
   return (
     <div style={containerStyles}>
-      <div style={innerWrapperStyles}>
+      <div style={childSketch}>
         <P5Wrapper 
           includeSaveButton={false} 
           sketch={_innerSketch}
         />
       </div>
-      <div style={outerWrapperStyles}>
+      <div style={childFrame}>
         <P5Wrapper 
           includeSaveButton={false} 
           sketch={_outerSketch} 
