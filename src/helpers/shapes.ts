@@ -30,4 +30,23 @@ const drawGradientRect = (
   p.pop();
 }
 
-export {drawGradientRect}
+const drawGradientCircle = (
+  p: p5.Graphics, 
+  x: number, 
+  y: number, 
+  radius: number, 
+  reverse: boolean,
+  strokeColor: p5.Color
+) => {
+  let {hue, sat, lum} = {hue: p.hue(strokeColor), sat: p.saturation(strokeColor), lum: p.lightness(strokeColor)}
+  let alphaStart = reverse ? 0 : 1
+  let alphaEnd = reverse ? 1 : 0
+  for (let r = 0; r < radius; r++) {
+    const alpha = p.map(r, 0, radius, alphaStart, alphaEnd); // Map radius to alpha
+    p.noFill()
+    p.stroke(hue, sat, lum, alpha);
+    p.circle(x, y, r);
+  }
+}
+
+export {drawGradientRect, drawGradientCircle}

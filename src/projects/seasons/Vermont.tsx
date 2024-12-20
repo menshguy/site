@@ -3,19 +3,28 @@ import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from '../trees/types.ts';
 import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import p5 from 'p5';
+import { drawMoon, drawStars, Moon, Stars } from '../../helpers/skyHelpers.tsx';
+import { drawGradientCircle } from '../../helpers/shapes.ts';
 
 const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
   console.log("Vermont", _cw, _ch)
   let cw: number = _cw; 
   let ch: number = _ch;
   let bottom = 20;
-  let debug = false;
+  let s: p5.Graphics;
+  let b: p5.Graphics;
   let tree: VermontTree;
   let season: Season;
   let textureImg: p5.Image;
   let colors: Record<Season, (s:number, l:number) => () => p5.Color>;
   let colorsBG: Record<Season, p5.Color>;
   let bgColor: p5.Color;
+  let timeOfDay: string;
+  let sunAngle: number;
+  let sunFillPercentage: number;
+  let sunCenter: {x: number, y: number};
+  let moonConfig: Moon;
+  let starsConfig: Stars;
   let treesInFront: VermontTree[] = [];
   let treesInMiddle: VermontTree[] = [];
   let treesInBack: VermontTree[] = [];
@@ -33,7 +42,11 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
     treesInMiddle = [];
     treesInFront = [];
 
-    /** Colors */
+    /** SEASON */
+    season = p.random(['spring', 'fall', 'summer']);
+    console.log("season", season)
+    
+    /** COLORS */
     colors = {
       winter: (s: number = 1, l: number = 1) => () => p.color(p.random(70,130), 20*s, 70*l),
       fall: (s: number = 1, l: number = 1) => () => p.color(p.random(5,45), 65*s, 100*l),
@@ -41,16 +54,46 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
       summer: (s: number = 1, l: number = 1) => () => p.color(p.random(70,125), 80*s, 55*l)
     }
     colorsBG = {
-      'summer': p.color(56,85,91), //light yellow
+      'summer': p.color(208,85,91), //light yellow
       'winter': p.color(208,18,98), //deep blue
       'spring': p.color(43, 62, 90), //orange
       'fall': p.color(39, 26, 83) //brown
     }
-  
-    /** General Settings */
-    season = p.random(['spring', 'fall', 'summer']);
-    console.log("season", season)
-    bgColor = colorsBG[season];
+
+    // Sunlight
+    sunAngle = p.radians(p.random(200, 340));
+    sunFillPercentage = p.random(0.05, 0.15);
+    sunCenter = {x: p.random(p.random(-100,0), p.random(cw, cw+100)), y: p.random(0, ch-bottom)}
+    let sunlight = {angle: sunAngle, fillPercentage: sunFillPercentage}
+
+    /** DAY TIME */
+    timeOfDay = p.random(['day', 'night']);
+    let bgLightness = timeOfDay === "day" ? 0.85 : 0.01;
+    let treeLightness = timeOfDay === "day" ? 1 : 0.35;
+    bgColor = p.color(
+      p.hue(colorsBG[season]), 
+      p.saturation(colorsBG[season]), 
+      p.lightness(colorsBG[season])*bgLightness
+    );
+    
+    /** Moon */
+    let moonX = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
+    let moonY = p.random(0, p.height-bottom-(p.height/2)); //moon is drawn toward the middle of the canvas
+    let moonR = p.map(moonY, 0, p.height-bottom, 50, 300);
+    let moonHue = p.map(moonY, 0, p.height-bottom-moonR, 52, 33)
+    let moonFill = p.color(moonHue, 78, 92);
+    moonConfig = {x: moonX, y: moonY, r: moonR, fill: moonFill}
+
+    /** Stars */
+    let numStars = 650;
+    let starFill = p.color(0, 0, 100);
+    let minR = 1;
+    let maxR = 2;
+    let minX = 0;
+    let maxX = cw;
+    let minY = 0;
+    let maxY = p.height - bottom;
+    starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
 
     /** FRONT TREES */
     let numTreesInFront = 26;
@@ -91,8 +134,9 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[season](0.8, 0.55),
-        fillsSunlight: colors[season](0.8, 0.7),  
+        fills: colors[season](0.8, 0.45*treeLightness),
+        fillsSunlight: colors[season](0.45, 0.85*treeLightness),  
+        sunlight,
         leafWidth, 
         leafHeight,
         rowHeight,
@@ -143,8 +187,9 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[season](0.6, 0.4), 
-        fillsSunlight: colors[season](0.65, 0.5), 
+        fills: colors[season](0.6, 0.4*treeLightness), 
+        fillsSunlight: colors[season](0.65, 0.4*treeLightness), 
+        sunlight,
         leafWidth, 
         leafHeight,
         rowHeight,
@@ -195,8 +240,9 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[season](0.4, 0.2), 
-        fillsSunlight: colors[season](0.5, 0.2),
+        fills: colors[season](0.4, 0.2*treeLightness), 
+        fillsSunlight: colors[season](0.5, 0.3*treeLightness),
+        sunlight,
         leafWidth, 
         leafHeight,
         rowHeight,
@@ -211,11 +257,43 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
   p.draw = () => {
     p.noLoop();
     p.background(bgColor);
+
+    /** DRAW SKY */
+    if (s) s.remove()
+    s = p.createGraphics(cw, ch)
+    s.colorMode(s.HSL)
+    if (timeOfDay === "night") {
+      s.push()
+      s.blendMode(p.MULTIPLY);
+      drawMoon(s, moonConfig); // Draw Moon
+      drawStars(s, starsConfig); // Draw Stars
+      // s.filter(s.BLUR, 2);
+      s.pop()
+      // Draw Sky
+      p.image(s, 0, 0, cw, ch)
+    } else {
+      s.push()
+      s.colorMode(s.HSL)
+      s.noStroke()
+      // s.fill(60, 100, 100)
+      drawGradientCircle(s, sunCenter.x, sunCenter.y, s.random(600, 800), false, s.color(60, 100, 100))
+      // s.filter(s.BLUR, 2);
+      s.pop()
+      p.image(s, 0, 0, cw, ch)
+    }
+
+    /** DRAW GROUND */
+    p.push()
+    p.noStroke()
+    p.fill(9, 20, 20)
+    p.rect(0, ch-bottom, cw, ch)
+    p.pop()
     
+    /** DRAW TREES */
     treesInBack.forEach(tree => {
       tree.drawTrunk(p, tree.trunkLines, false)
       tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
-      tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+      // tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     })
     treesInMiddle.forEach(tree => {
       tree.drawTrunk(p, tree.trunkLines, false)
@@ -223,17 +301,22 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
       // tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     })
     treesInFront.forEach(tree => {
+      tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+    })
+    treesInFront.forEach(tree => {
       tree.drawTrunk(p, tree.trunkLines, false)
       tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
-      // tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     })
 
-    drawGroundLine(p, 25, ch-bottom, cw-25, colors[season](1, 0.2)())
+    const groundColor = timeOfDay === "day" ? colors[season](1, 0.2)() : p.color(0, 0, 0)
+    drawGroundLine(p, 25, ch-bottom, cw-25, groundColor)
     
     //Draw Texture
+    p.push()
     p.blendMode(p.MULTIPLY);
     p.image(textureImg, 0, 0, cw, ch);
-    p.blendMode(p.BLEND);
+    // p.blendMode(p.BLEND);
+    p.pop()
 
     // Draw sunleaves on top of texture so that it pops.
     // treesInBack.forEach(tree => {
@@ -242,33 +325,51 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
     // treesInMiddle.forEach(tree => {
     //   tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
     // })
-    treesInFront.forEach(tree => {
-      tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
-      // tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
-    })
-
-    if (debug) {
-      //bulge
-      p.stroke("red")
-      p.strokeWeight(3)
-      p.line(0, tree.bulgePoint.y, cw, tree.bulgePoint.y)
-      p.stroke("yellow")
-      p.point(tree.bulgePoint.x, tree.bulgePoint.y)
-      //width
-      p.stroke("green")
-      p.line(tree.startPoint.x - tree.treeWidth/2, 0, tree.startPoint.x - tree.treeWidth/2, ch)
-      p.line(tree.startPoint.x + tree.treeWidth/2, 0, tree.startPoint.x + tree.treeWidth/2, ch)
-      //height
-      p.stroke("blue")
-      p.line(0, ch - tree.treeHeight - bottom, cw, ch - tree.treeHeight - bottom)
-      //points
-      tree.points.forEach(treePoint => {
-        p.strokeWeight(5);
-        p.stroke("red");
-        p.point(treePoint.x, treePoint.y)
-      })
+    // treesInFront.forEach(tree => {
+    //   tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+    //   if (timeOfDay === "night") {
+    //     tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+    //   }
+    // })
+    
+    /** SUN RAYS */
+    // Generate Sun rays from center of canvas outwards
+    if (timeOfDay === "day") {
+      if (b) b.remove()
+      b = p.createGraphics(cw, ch)
+      let numRays = 10;
+      b.colorMode(p.HSL)
+      b.clip(() => b.circle(sunCenter.x, sunCenter.y, 100), { invert: true })
+      for (let i = 0; i < numRays; i++) {
+        drawSunRay(b, sunCenter)
+      }
+      b.filter(b.BLUR, 5);
+      //Draw Sun rays to canvs
+      p.image(b, 0, 0, cw, ch)
     }
   }
+
+  function drawSunRay (p: p5.Graphics, center: {x: number, y: number}) {
+    const { x, y } = randomBorderPoint(p);
+    const alpha = p.random(0.6, 1);
+    const strokeWeight = p.random(1, 3);
+    p.push()
+    p.stroke(0, 0, 100, alpha)
+    p.strokeWeight(strokeWeight)
+    p.line(center.x, center.y, x, y)
+    p.pop()
+  }
+
+  function randomBorderPoint (p: p5) {
+    const edge = p.floor(p.random(4));
+    switch (edge) {
+      case 0: return { x: p.random(cw), y: 0 }; // Top edge
+      case 1: return { x: cw, y: p.random(ch) }; // Right edge
+      case 2: return { x: p.random(cw), y: ch }; // Bottom edge
+      case 3: return { x: 0, y: p.random(ch) }; // Left edge
+      default: return { x: p.random(cw), y: p.random(ch) };
+    }
+  };
 };
 
 const Vermont: React.FC = () => {
