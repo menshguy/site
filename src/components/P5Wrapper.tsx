@@ -14,16 +14,16 @@ interface P5WrapperProps {
 
 /** STYLES */
 const buttonStyles: CSSProperties = {}
-const containerStyles: CSSProperties = {
-  width: '100%',
-  height: '100%',
-}
-const menuStyles: CSSProperties = {
-  display: 'flex', 
-  flexDirection: 'row', 
-  justifyContent: 'left',
-  alignItems: 'flex-end',
-}
+// const containerStyles: CSSProperties = {
+//   width: '100%',
+//   height: '100%',
+// }
+// const menuStyles: CSSProperties = {
+//   display: 'flex', 
+//   flexDirection: 'row', 
+//   justifyContent: 'left',
+//   alignItems: 'flex-end',
+// }
 
 const P5Wrapper: React.FC<P5WrapperProps> = ({ 
   sketch, 
@@ -101,14 +101,12 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({
   }
 
   return (
-    <div style={containerStyles}>
-      <div style={menuStyles}>
-        {isLoading && <div>Drawing...</div>}
-        {includeSaveButton && <button style={buttonStyles} onClick={saveCanvas}> Save </button>}
-      </div>
+    <>
+      {isLoading && <div>Drawing...</div>}
+      {includeSaveButton && <button style={buttonStyles} onClick={saveCanvas}> Save </button>}
 
       <div ref={canvasRef} />
-    </div>
+    </>
   );
 };
 

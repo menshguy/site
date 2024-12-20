@@ -131,33 +131,107 @@ function App() {
   // const [isProfessionalSite, _setIsProfessionalSite] = useState<boolean>(true);
   // const CHARACTER_GIF = isProfessionalSite ? CHARACTER_GIF_PROFESSIONAL: CHARACTER_GIF_PERSONAL;
 
-  const randomMobileFrameSize = Math.floor(Math.random() * (20 - 80)) + 80
-  const randomFrameSize = Math.floor(Math.random() * (150 - 50)) + 50
-  const frameTopWidth = isMobile ? randomMobileFrameSize : randomFrameSize
-  const frameSideWidth = isMobile ? randomMobileFrameSize : randomFrameSize
-  const w1 = isMobile 
-    ? deviceWidth - sidePadding - (frameSideWidth*2) 
-    : 1000
-  const h1 = isMobile 
-    ? deviceHeight - (frameTopWidth*2) 
-    : 400
-  const sketch1 = vermontSketch(w1, h1)
-  const mainSketch = { sketch: sketch1, width: w1, height: h1, frameTopWidth, frameSideWidth }
+  
+  const mainSketch = getMainSketch()
+  const sketch2 = getSecondarySketch()
+  const sketch3 = getSecondarySketch()
+  const sketch4 = getSecondarySketch()
+  const sketch5 = getSecondarySketch()
+  const sketch6 = getSecondarySketch()
+
+  function getMainSketch() {
+    const randomMobileFrameSize = Math.floor(Math.random() * (20 - 80)) + 80
+    const randomFrameSize = Math.floor(Math.random() * (150 - 50)) + 50
+    const frameTopWidth = isMobile ? randomMobileFrameSize : randomFrameSize
+    const frameSideWidth = isMobile ? randomMobileFrameSize : randomFrameSize
+    const w1 = isMobile 
+      ? deviceWidth - sidePadding - (frameSideWidth*2) 
+      : 1000
+    const h1 = isMobile 
+      ? deviceHeight - (frameTopWidth*2) 
+      : 400
+    const sketch1 = vermontSketch(w1, h1)
+    return { sketch: sketch1, width: w1, height: h1, frameTopWidth, frameSideWidth }
+  }
+  
+  function getSecondarySketch() {
+    const randomMobileFrameSize = Math.floor(Math.random() * (20 - 50)) + 50
+    const randomFrameSize = Math.floor(Math.random() * (100 - 50)) + 50
+    const frameTopWidth = isMobile ? randomMobileFrameSize : randomFrameSize
+    const frameSideWidth = isMobile ? randomMobileFrameSize : randomFrameSize
+    const w1 = isMobile 
+      ? deviceWidth - sidePadding - (frameSideWidth*2) / Math.floor(Math.random() * 2 + 1)
+      : (deviceWidth - sidePadding - (frameSideWidth*2)) / 2
+    const h1 = isMobile 
+      ? deviceHeight - (frameTopWidth*2) / 2 
+      : Math.floor(Math.random() * (600 - 200)) + 200
+    const sketch1 = vermontSketch(w1, h1)
+    return { sketch: sketch1, width: w1, height: h1, frameTopWidth, frameSideWidth }
+  }
+
+  const containerStyles: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column', /* Stack elements vertically */
+    gap: '16px', /* Optional: Adds spacing between elements */
+  }
   
   return (
-    <div style={{
-      width: '100%', 
-      height: '100%',
-    }}>
+    <>
       <SeriesOnlyList />
-      <RoyalFrame 
-        innerWidth={mainSketch.width} 
-        innerHeight={mainSketch.height} 
-        frameTopWidth={mainSketch.frameTopWidth}
-        frameSideWidth={mainSketch.frameSideWidth}
-        innerSketch={mainSketch.sketch} 
-      />
-    </div>
+      <div style={containerStyles}>
+        <RoyalFrame 
+          innerWidth={mainSketch.width} 
+          innerHeight={mainSketch.height} 
+          frameTopWidth={mainSketch.frameTopWidth}
+          frameSideWidth={mainSketch.frameSideWidth}
+          innerSketch={mainSketch.sketch} 
+          />
+
+        <RoyalFrame 
+          innerWidth={sketch2.width} 
+          innerHeight={sketch2.height} 
+          frameTopWidth={sketch2.frameTopWidth}
+          frameSideWidth={sketch2.frameSideWidth}
+          innerSketch={sketch2.sketch} 
+          />
+
+        <RoyalFrame 
+          innerWidth={sketch3.width} 
+          innerHeight={sketch3.height} 
+          frameTopWidth={sketch3.frameTopWidth}
+          frameSideWidth={sketch3.frameSideWidth}
+          innerSketch={sketch3.sketch} 
+          />
+
+        {/* <div style={frameWrapperStyles} >
+        <RoyalFrame 
+          innerWidth={sketch4.width} 
+          innerHeight={sketch4.height} 
+          frameTopWidth={sketch4.frameTopWidth}
+          frameSideWidth={sketch4.frameSideWidth}
+          innerSketch={sketch4.sketch} 
+        />
+        </div>
+        <div style={frameWrapperStyles} >
+        <RoyalFrame
+          innerWidth={sketch5.width} 
+          innerHeight={sketch5.height} 
+          frameTopWidth={sketch5.frameTopWidth}
+          frameSideWidth={sketch5.frameSideWidth}
+          innerSketch={sketch5.sketch} 
+        />
+        </div>
+        <div style={frameWrapperStyles} >
+        <RoyalFrame
+          innerWidth={sketch6.width} 
+          innerHeight={sketch6.height} 
+          frameTopWidth={sketch6.frameTopWidth}
+          frameSideWidth={sketch6.frameSideWidth}
+          innerSketch={sketch6.sketch} 
+        />
+        </div>  */}
+      </div>
+    </>
   )
 }
 
