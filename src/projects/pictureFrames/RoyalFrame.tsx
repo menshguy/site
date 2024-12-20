@@ -341,7 +341,7 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: '100px'
+    // marginTop: '100px'
   }
   const outerWrapperStyles: CSSProperties = {
     width: `${innerWidth}px`,
