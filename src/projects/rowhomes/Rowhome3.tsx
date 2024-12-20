@@ -105,14 +105,14 @@ const mySketch = (p: p5) => {
       let numTrunkLines = p.random(4,18); //trunks are made up of X bezier curves
 
       // Points & Leaves
-      let numPointsPerRow = p.random(20, 25); // X points are draw within a boundary radius
+      let numPointsPerRow = p.random(25, 35); // X points are draw within a boundary radius
       let pointBoundaryRadius = {min: 25, max: 40};
       let avg = 50
       let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
-      let leavesStartY = p.height - bottom - pointBoundaryRadius.min - p.random(0, treeHeight/3); //where on y axis do leaves start
+      let leavesStartY = p.height - bottom - pointBoundaryRadius.min - p.random(0, treeHeight/4); //where on y axis do leaves start
       let leafHeight = p.random(2, 3);
       let leafWidth = p.random(2, 2);
-      let rowHeight = treeHeight/7; //x points will drawn p.randominly in each row. rows increment up by this amount
+      let rowHeight = treeHeight/10; //x points will drawn p.randominly in each row. rows increment up by this amount
 
       // Start / Mid / Bulge
       const center = { x: cw / 2, y: ch - bottom / 2 };
