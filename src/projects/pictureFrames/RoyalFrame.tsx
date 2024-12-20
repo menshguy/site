@@ -14,15 +14,10 @@ const mySketch = (
   /** CANVAS SETTINGS */
   let cw = innerWidth + (frameSideWidth * 2);
   let ch = innerHeight + (frameTopWidth * 2);
-
-  /** GENERAL SETTINGS */
-  // let textureImg: p5.Image;
-  let allowTrim = p.random(0, 1) > 0.75 ? true : false;
-  let trimWidth = p.random(2, 3);
-  let trimColor = p.random([
-    p.color("white"), //white in HSL
-    p.color("black"), //black in HSL
-  ])
+  let allowTrim: boolean
+  let trimWidth: number
+  let trimColor: p5.Color
+  let mainColor: p5.Color
   
   p.preload = () => {
     // textureImg = p.loadImage('../textures/gold7.png');
@@ -31,6 +26,24 @@ const mySketch = (
   p.setup = () => {
     p.createCanvas(cw, ch)
     p.colorMode(p.HSL)
+
+    /** GENERAL SETTINGS */
+    // let textureImg: p5.Image;
+    mainColor = p.random() > 0.25 
+      ? p.color(34, 62.1, 74.1) // Gold
+      : p.color(236, 7, 20), // Black
+    // mainColor = p.color(34, 62.1, 74.1) // Gold
+      
+    allowTrim = p.random(0, 1) > 0.40 ? true : false;
+    trimWidth = p.random(2, 3);
+    trimColor = p.random([
+      // p.color("white"), //white in HSL
+      p.color("black"), //black in HSL
+      p.color(34, 62.1, 74.1),
+      p.color(15, 63, 44), //deep red in HSL
+      p.color(15, 83, 14), //darker deep red in HSL
+      p.color(229, 63, 17) // dark blue
+    ])
   }
   
   p.draw = () => {
@@ -38,7 +51,7 @@ const mySketch = (
     
     /** DRAW FRAME SHAPES */
     p.push()
-    p.fill(34, 62.1, 74.1)
+    p.fill(mainColor)
     p.noStroke()
     topFrame()
     leftFrame()
@@ -47,16 +60,17 @@ const mySketch = (
     p.pop()
     
     /** CREATE SUBDIVISIONS */
-    let subdivisions = generateSubdivisions(p.random(2, 15)) // Generate random subdivisions
+    let subdivisions = generateSubdivisions(p.random(2, 10)) // Generate random subdivisions
     let sideSubdivisions = normalizeSubdivisions(subdivisions, frameSideWidth) // Normalize subdivisions for side  
     let topAndBottomSubdivisions = normalizeSubdivisions(subdivisions, frameTopWidth) // Normalize subdivisions for top and bottom
     
     /** DRAW GRADIENTS IN EACH FRAME SHAPE */
-    let patternColor = p.color(30, 60, 30)
-    drawPattern(drawGradientRect, 0, 0, 0, topAndBottomSubdivisions, topFrame, "top", patternColor) // Top
-    drawPattern(drawGradientRect, cw, ch, 180, topAndBottomSubdivisions, bottomFrame, "bottom", patternColor) // Bottom
-    drawPattern(drawGradientRect, 0, ch, -90, sideSubdivisions, leftFrame, "left", patternColor) // Left
-    drawPattern(drawGradientRect, cw, 0, 90, sideSubdivisions, rightFrame, "right", patternColor) // Right 
+    // let patternColor = p.color(30, 60, 30)
+    let gradientColor = p.color(p.hue(mainColor), p.saturation(mainColor), p.lightness(mainColor)/2.5)
+    drawPattern(drawGradientRect, 0, 0, 0, topAndBottomSubdivisions, topFrame, "top", gradientColor) // Top
+    drawPattern(drawGradientRect, cw, ch, 180, topAndBottomSubdivisions, bottomFrame, "bottom", gradientColor) // Bottom
+    drawPattern(drawGradientRect, 0, ch, -90, sideSubdivisions, leftFrame, "left", gradientColor) // Left
+    drawPattern(drawGradientRect, cw, 0, 90, sideSubdivisions, rightFrame, "right", gradientColor) // Right 
     
     /** DRAW FLORAL PATTERNS IN EACH FRAME SHAPE */
     // p.push();
@@ -327,6 +341,7 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: '100px'
   }
   const outerWrapperStyles: CSSProperties = {
     width: `${innerWidth}px`,

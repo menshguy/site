@@ -37,7 +37,7 @@ const mySketch = (p: p5) => {
     const w = p.random(ch / 6, cw);
     const x = (p.width - w) / 2;
     const y = p.height - bottom;
-    const fill_c = p.color(23, 100, 30);
+    const fill_c = p.color(23, 30, 30);
     const rowhome = new Rowhome({ x, y, w, h, fill_c });
     rowhomes.push(rowhome);
 
@@ -46,7 +46,7 @@ const mySketch = (p: p5) => {
     const lw = p.random(ch / 6, cw);
     const lx = x - lw - 2; // start at the main rowhome x and move over to the left by this rowhome's w
     const ly = p.height - bottom;
-    const fill_lc = p.color(23, 100, 30);
+    const fill_lc = p.color(23, 20, 30);
     const rowhome_left = new Rowhome({ x: lx, y: ly, w: lw, h: lh, fill_c: fill_lc });
     rowhomes.push(rowhome_left);
 
@@ -55,7 +55,7 @@ const mySketch = (p: p5) => {
     const rw = p.random(ch / 6, cw);
     const rx = x + w + 2; // start at the main rowhome x and move over to the right by main rowhome w
     const ry = p.height - bottom;
-    const fill_rc = p.color(23, 100, 30);
+    const fill_rc = p.color(23, 20, 30);
     const rowhome_right = new Rowhome({ x: rx, y: ry, w: rw, h: rh, fill_c: fill_rc });
     rowhomes.push(rowhome_right);
 
@@ -65,7 +65,7 @@ const mySketch = (p: p5) => {
       const w = p.random(ch / 6, cw);
       const x = lx - w - 2;
       const y = p.height - bottom;
-      const fill_c = p.color(23, 100, 30);
+      const fill_c = p.color(23, 20, 30);
       const rowhome_left = new Rowhome({ x, y, w, h, fill_c });
       rowhomes.push(rowhome_left);
     }
@@ -76,7 +76,7 @@ const mySketch = (p: p5) => {
       const w = p.random(ch / 6, cw);
       const x = rx + w + 2;
       const y = p.height - bottom;
-      const fill_c = p.color(23, 100, 30);
+      const fill_c = p.color(23, 20, 30);
       const rowhome_right = new Rowhome({ x, y, w, h, fill_c });
       rowhomes.push(rowhome_right);
     }
@@ -98,21 +98,21 @@ const mySketch = (p: p5) => {
       }
       
       // Trunk & Tree
-      let trunkHeight = p.random(300, ch);
+      let trunkHeight = p.random(200, ch-100);
       let trunkWidth = p.random(150, 250);
       let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
       let treeWidth = p.random(trunkWidth, trunkWidth+20); // total width including leaves
-      let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
+      let numTrunkLines = p.random(4,18); //trunks are made up of X bezier curves
 
       // Points & Leaves
       let numPointsPerRow = p.random(20, 25); // X points are draw within a boundary radius
-      let pointBoundaryRadius = {min: 35, max: 50};
-      let avg = 300
+      let pointBoundaryRadius = {min: 25, max: 40};
+      let avg = 50
       let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
-      let leavesStartY = p.height - bottom - pointBoundaryRadius.min; //where on y axis do leaves start
-      let leafHeight = p.random(3, 3);
-      let leafWidth = p.random(4, 4);
-      let rowHeight = treeHeight/15; //x points will drawn p.randominly in each row. rows increment up by this amount
+      let leavesStartY = p.height - bottom - pointBoundaryRadius.min - p.random(0, treeHeight/3); //where on y axis do leaves start
+      let leafHeight = p.random(2, 3);
+      let leafWidth = p.random(2, 2);
+      let rowHeight = treeHeight/7; //x points will drawn p.randominly in each row. rows increment up by this amount
 
       // Start / Mid / Bulge
       const center = { x: cw / 2, y: ch - bottom / 2 };
@@ -163,9 +163,15 @@ const mySketch = (p: p5) => {
 
     // Draw the Tree(s)
     trees.forEach(tree => {
-      tree.drawTrunk(p, tree.trunkLines, false)
+      p.push()
+      p.strokeWeight(2)
+      p.stroke(5, 42, 16)
+      tree.drawTrunk(p, tree.trunkLines, true)
+      p.pop()
+      p.push()
       tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
       tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+      p.pop()
     });
 
     // Draw Texture

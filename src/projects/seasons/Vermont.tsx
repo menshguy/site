@@ -5,6 +5,7 @@ import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import p5 from 'p5';
 
 const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
+  console.log("Vermont", _cw, _ch)
   let cw: number = _cw; 
   let ch: number = _ch;
   let bottom = 20;

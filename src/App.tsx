@@ -134,8 +134,12 @@ function App() {
   const randomFrameSize = Math.floor(Math.random() * (150 - 50)) + 50
   const frameTopWidth = isMobile ? 20 : randomFrameSize
   const frameSideWidth = isMobile ? 20 : randomFrameSize
-  const w1 = isMobile ? deviceWidth - sidePadding - (frameSideWidth*2) : deviceWidth < 1000 ? deviceWidth - (frameSideWidth*2) : 1000 - (frameSideWidth*2) 
-  const h1 =isMobile ? deviceHeight - (frameTopWidth*2) : deviceHeight < 1000 ? deviceHeight - (frameTopWidth*2) : 1000 - (frameTopWidth*2)
+  const w1 = isMobile 
+    ? deviceWidth - sidePadding - (frameSideWidth*2) 
+    : 1000
+  const h1 = isMobile 
+    ? deviceHeight - (frameTopWidth*2) 
+    : 400
   const sketch1 = vermontSketch(w1, h1)
   const mainSketch = { sketch: sketch1, width: w1, height: h1, frameTopWidth, frameSideWidth }
   
