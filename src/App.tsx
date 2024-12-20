@@ -135,9 +135,9 @@ function App() {
   const mainSketch = getMainSketch()
   const sketch2 = getSecondarySketch()
   const sketch3 = getSecondarySketch()
-  const sketch4 = getSecondarySketch()
-  const sketch5 = getSecondarySketch()
-  const sketch6 = getSecondarySketch()
+  // const sketch4 = getSecondarySketch()
+  // const sketch5 = getSecondarySketch()
+  // const sketch6 = getSecondarySketch()
 
   function getMainSketch() {
     const randomMobileFrameSize = Math.floor(Math.random() * (20 - 80)) + 80
