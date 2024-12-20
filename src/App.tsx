@@ -131,9 +131,10 @@ function App() {
   // const [isProfessionalSite, _setIsProfessionalSite] = useState<boolean>(true);
   // const CHARACTER_GIF = isProfessionalSite ? CHARACTER_GIF_PROFESSIONAL: CHARACTER_GIF_PERSONAL;
 
+  const randomMobileFrameSize = Math.floor(Math.random() * (20 - 80)) + 80
   const randomFrameSize = Math.floor(Math.random() * (150 - 50)) + 50
-  const frameTopWidth = isMobile ? 20 : randomFrameSize
-  const frameSideWidth = isMobile ? 20 : randomFrameSize
+  const frameTopWidth = isMobile ? randomMobileFrameSize : randomFrameSize
+  const frameSideWidth = isMobile ? randomMobileFrameSize : randomFrameSize
   const w1 = isMobile 
     ? deviceWidth - sidePadding - (frameSideWidth*2) 
     : 1000
