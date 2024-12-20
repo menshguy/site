@@ -62,7 +62,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
 
     // Sunlight
     sunAngle = p.radians(p.random(200, 340));
-    sunFillPercentage = p.random(0.05, 0.15);
+    sunFillPercentage = p.random(0.05, 0.1);
     sunCenter = {x: p.random(p.random(-100,0), p.random(cw, cw+100)), y: p.random(0, ch-bottom)}
     let sunlight = {angle: sunAngle, fillPercentage: sunFillPercentage}
 
@@ -134,7 +134,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[season](0.8, 0.45*treeLightness),
+        fills: colors[season](0.8, 0.5*treeLightness),
         fillsSunlight: colors[season](0.45, 0.85*treeLightness),  
         sunlight,
         leafWidth, 
