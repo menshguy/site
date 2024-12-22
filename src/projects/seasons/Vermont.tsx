@@ -69,7 +69,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
     /** DAY TIME */
     timeOfDay = p.random(['day', 'night']);
     let bgLightness = timeOfDay === "day" ? 0.85 : 0.01;
-    let treeLightness = timeOfDay === "day" ? 1 : 0.35;
+    let treeLightness = timeOfDay === "day" ? 1 : 0.65;
     bgColor = p.color(
       p.hue(colorsBG[season]), 
       p.saturation(colorsBG[season]), 
