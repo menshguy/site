@@ -186,7 +186,7 @@ function App() {
           frameTopWidth={mainSketch.frameTopWidth}
           frameSideWidth={mainSketch.frameSideWidth}
           innerSketch={mainSketch.sketch}
-          boxShadow={true}
+          includeBoxShadow={true}
           />
 
         <RoyalFrame 
@@ -195,7 +195,7 @@ function App() {
           frameTopWidth={sketch2.frameTopWidth}
           frameSideWidth={sketch2.frameSideWidth}
           innerSketch={sketch2.sketch} 
-          boxShadow={true}
+          includeBoxShadow={true}
           />
 
         <RoyalFrame 
@@ -204,7 +204,7 @@ function App() {
           frameTopWidth={sketch3.frameTopWidth}
           frameSideWidth={sketch3.frameSideWidth}
           innerSketch={sketch3.sketch} 
-          boxShadow={true}
+          includeBoxShadow={true}
           />
 
         <RoyalFrame 
@@ -213,7 +213,7 @@ function App() {
           frameTopWidth={sketch4.frameTopWidth}
           frameSideWidth={sketch4.frameSideWidth}
           innerSketch={sketch4.sketch} 
-          boxShadow={true}
+          includeBoxShadow={true}
         />
 
         <RoyalFrame
@@ -222,7 +222,7 @@ function App() {
           frameTopWidth={sketch5.frameTopWidth}
           frameSideWidth={sketch5.frameSideWidth}
           innerSketch={sketch5.sketch} 
-          boxShadow={true}
+          includeBoxShadow={true}
         />
 
         <RoyalFrame
@@ -231,7 +231,7 @@ function App() {
           frameTopWidth={sketch6.frameTopWidth}
           frameSideWidth={sketch6.frameSideWidth}
           innerSketch={sketch6.sketch} 
-          boxShadow={true}
+          includeBoxShadow={true}
         />
       </div>
     </>
