@@ -328,7 +328,8 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
   innerHeight,
   frameTopWidth,
   frameSideWidth,
-  innerSketch
+  innerSketch,
+  includeBoxShadow
 }) => {
 
   const min = 25
@@ -345,7 +346,9 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
   /** STYLES */
   const containerStyles: CSSProperties = {
     position: 'relative',
-    boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.2)',
+    boxShadow: includeBoxShadow ? '0px 10px 20px rgba(0, 0, 0, 0.2)' : 'none',
+    height: `${innerHeight + _frameTopWidth + _frameSideWidth}px`,
+    width: `${innerWidth + _frameSideWidth + _frameSideWidth}px`,
   }
 
   const childFrame: CSSProperties = {
