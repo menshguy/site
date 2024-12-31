@@ -135,9 +135,9 @@ function App() {
   const mainSketch = getMainSketch()
   const sketch2 = getSecondarySketch()
   const sketch3 = getSecondarySketch()
-  // const sketch4 = getSecondarySketch()
-  // const sketch5 = getSecondarySketch()
-  // const sketch6 = getSecondarySketch()
+  const sketch4 = getSecondarySketch()
+  const sketch5 = getSecondarySketch()
+  const sketch6 = getSecondarySketch()
 
   function getMainSketch() {
     const randomMobileFrameSize = Math.floor(Math.random() * (20 - 80)) + 80
@@ -161,7 +161,7 @@ function App() {
     const frameSideWidth = isMobile ? randomMobileFrameSize : randomFrameSize
     const w1 = isMobile 
       ? deviceWidth - sidePadding - (frameSideWidth*2) / Math.floor(Math.random() * 2 + 1)
-      : (deviceWidth - sidePadding - (frameSideWidth*2)) / 2
+      : (deviceWidth - sidePadding - (frameSideWidth*2)) / 4
     const h1 = isMobile 
       ? deviceHeight - (frameTopWidth*2) / 2 
       : Math.floor(Math.random() * (600 - 200)) + 200
@@ -171,7 +171,8 @@ function App() {
 
   const containerStyles: CSSProperties = {
     display: 'flex',
-    flexDirection: 'column', /* Stack elements vertically */
+    flexDirection: 'row', /* Stack elements vertically */
+    flexWrap: 'wrap',
     gap: '16px', /* Optional: Adds spacing between elements */
   }
   
@@ -184,7 +185,8 @@ function App() {
           innerHeight={mainSketch.height} 
           frameTopWidth={mainSketch.frameTopWidth}
           frameSideWidth={mainSketch.frameSideWidth}
-          innerSketch={mainSketch.sketch} 
+          innerSketch={mainSketch.sketch}
+          boxShadow={true}
           />
 
         <RoyalFrame 
@@ -193,6 +195,7 @@ function App() {
           frameTopWidth={sketch2.frameTopWidth}
           frameSideWidth={sketch2.frameSideWidth}
           innerSketch={sketch2.sketch} 
+          boxShadow={true}
           />
 
         <RoyalFrame 
@@ -201,35 +204,35 @@ function App() {
           frameTopWidth={sketch3.frameTopWidth}
           frameSideWidth={sketch3.frameSideWidth}
           innerSketch={sketch3.sketch} 
+          boxShadow={true}
           />
 
-        {/* <div style={frameWrapperStyles} >
         <RoyalFrame 
           innerWidth={sketch4.width} 
           innerHeight={sketch4.height} 
           frameTopWidth={sketch4.frameTopWidth}
           frameSideWidth={sketch4.frameSideWidth}
           innerSketch={sketch4.sketch} 
+          boxShadow={true}
         />
-        </div>
-        <div style={frameWrapperStyles} >
+
         <RoyalFrame
           innerWidth={sketch5.width} 
           innerHeight={sketch5.height} 
           frameTopWidth={sketch5.frameTopWidth}
           frameSideWidth={sketch5.frameSideWidth}
           innerSketch={sketch5.sketch} 
+          boxShadow={true}
         />
-        </div>
-        <div style={frameWrapperStyles} >
+
         <RoyalFrame
           innerWidth={sketch6.width} 
           innerHeight={sketch6.height} 
           frameTopWidth={sketch6.frameTopWidth}
           frameSideWidth={sketch6.frameSideWidth}
           innerSketch={sketch6.sketch} 
+          boxShadow={true}
         />
-        </div>  */}
       </div>
     </>
   )
