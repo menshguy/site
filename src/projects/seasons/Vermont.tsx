@@ -134,7 +134,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[season](0.8, 0.5*treeLightness),
+        fills: colors[season](0.9, 0.55*treeLightness),
         fillsSunlight: colors[season](0.45, 0.85*treeLightness),  
         sunlight,
         leafWidth, 
