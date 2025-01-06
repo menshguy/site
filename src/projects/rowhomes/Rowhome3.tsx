@@ -32,12 +32,16 @@ const mySketch = (p: p5) => {
     buffers = [];
     trees = [];
 
+    // Colors
+    const mainRowhomeFill = p.color(23, 30, 30);
+    const otherRowhomeFill = p.color(23, 20, 30);
+
     // Draw Main Rowhome
     const h = p.random(ch / 3, ch);
     const w = p.random(ch / 6, cw);
     const x = (p.width - w) / 2;
     const y = p.height - bottom;
-    const fill_c = p.color(23, 30, 30);
+    const fill_c = mainRowhomeFill;
     const rowhome = new Rowhome({ x, y, w, h, fill_c });
     rowhomes.push(rowhome);
 
@@ -46,7 +50,7 @@ const mySketch = (p: p5) => {
     const lw = p.random(ch / 6, cw);
     const lx = x - lw - 2; // start at the main rowhome x and move over to the left by this rowhome's w
     const ly = p.height - bottom;
-    const fill_lc = p.color(23, 20, 30);
+    const fill_lc = otherRowhomeFill;
     const rowhome_left = new Rowhome({ x: lx, y: ly, w: lw, h: lh, fill_c: fill_lc });
     rowhomes.push(rowhome_left);
 
@@ -55,7 +59,7 @@ const mySketch = (p: p5) => {
     const rw = p.random(ch / 6, cw);
     const rx = x + w + 2; // start at the main rowhome x and move over to the right by main rowhome w
     const ry = p.height - bottom;
-    const fill_rc = p.color(23, 20, 30);
+    const fill_rc = otherRowhomeFill;
     const rowhome_right = new Rowhome({ x: rx, y: ry, w: rw, h: rh, fill_c: fill_rc });
     rowhomes.push(rowhome_right);
 
@@ -65,7 +69,7 @@ const mySketch = (p: p5) => {
       const w = p.random(ch / 6, cw);
       const x = lx - w - 2;
       const y = p.height - bottom;
-      const fill_c = p.color(23, 20, 30);
+      const fill_c = otherRowhomeFill;
       const rowhome_left = new Rowhome({ x, y, w, h, fill_c });
       rowhomes.push(rowhome_left);
     }
@@ -76,7 +80,7 @@ const mySketch = (p: p5) => {
       const w = p.random(ch / 6, cw);
       const x = rx + w + 2;
       const y = p.height - bottom;
-      const fill_c = p.color(23, 20, 30);
+      const fill_c = otherRowhomeFill;
       const rowhome_right = new Rowhome({ x, y, w, h, fill_c });
       rowhomes.push(rowhome_right);
     }
@@ -164,13 +168,17 @@ const mySketch = (p: p5) => {
     // Draw the Tree(s)
     trees.forEach(tree => {
       p.push()
-      p.strokeWeight(2)
+      p.strokeWeight(1)
       p.stroke(5, 42, 16)
       tree.drawTrunk(p, tree.trunkLines, true)
       p.pop()
       p.push()
+      p.strokeWeight(1)
+      p.stroke("black")
       tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf));
       tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf));
+      // tree.leaves.forEach(leaf => !leaf.isSunLeaf && tree.drawLeaf(p, leaf, true));
+      // tree.leaves.forEach(leaf => leaf.isSunLeaf && tree.drawLeaf(p, leaf, true));
       p.pop()
     });
 
@@ -180,6 +188,39 @@ const mySketch = (p: p5) => {
     p.blendMode(p.BLEND);
   };
 
+  // class _Rowhome {
+  //   constructor(p: p5, x: number, y: number, w: number, h: number, fill_c: p5.Color, stroke_c: p5.Color) {
+  //     this.p = p;
+  //     this.x = x;
+  //     this.y = y;
+  //     this.w = w;
+  //     this.h = h;
+  //     this.currentY = y;
+  //     this.currentX = x;
+  //     this.fill_c = fill_c;
+  //     this.stroke_c = stroke_c;
+  //   }
+
+  //   genBasement(){
+  //     const { p, x, y, w, h, fill_c, stroke_c } = this;
+  //     const include = p.random([true, false]) // Not every rowhome has a basement
+  //     const height = p.random(20, 50)
+
+  //     this.h 
+  //   }
+  //   genMainFloor(){}
+  //   genSecondaryFloor(){}
+  //   genRoof(){}
+
+  //   drawBasement(){}
+  //   drawMainFloor(){}
+  //   drawSecondaryFloor(){}
+  //   drawRoof(){}
+
+  //   drawDoor(){}
+  //   drawWindow(){}
+  // }
+  
   class Rowhome {
     x: number;
     y: number;
@@ -203,12 +244,16 @@ const mySketch = (p: p5) => {
       this.fill_c = fill_c;
       this.stroke_c = stroke_c;
       this.configs = [
-        { min: 0, max: 80, proportion: p.random([0, p.random(0.05, 0.1)]), content: ['window'] },
-        { min: 100, max: 200, proportion: p.random(0.25, 0.35), content: ['window', 'window'] },
-        { min: 100, max: 150, proportion: p.random([0, p.random(0.2, 0.25)]), content: ['circle', 'window'] },
-        { min: 0, max: 150, proportion: p.random([0, p.random(0.2, 0.25)]), content: ['circle', 'window'] },
-        { min: 0, max: 150, proportion: p.random([0, p.random(0.2, 0.25)]), content: ['circle', 'window'] },
-        { min: 20, max: 150, proportion: p.random(0.05, 0.25), content: ['circle', 'window'] },
+        // Basement
+        { story: 0, min: 0, max: 80, proportion: p.random([0, p.random(0.05, 0.1)]), content: ['window'] },
+        // Main Floor
+        { story: 1, min: 100, max: 200, proportion: p.random(0.25, 0.35), content: ['door', 'window'] },
+        // Second Floor(s)
+        { story: 2, min: 100, max: 150, proportion: p.random([0, p.random(0.2, 0.25)]), content: ['circle', 'window'] },
+        { story: 3, min: 0, max: 150, proportion: p.random([0, p.random(0.2, 0.25)]), content: ['circle', 'window'] },
+        { story: 4, min: 0, max: 150, proportion: p.random([0, p.random(0.2, 0.25)]), content: ['circle', 'window'] },
+        // Roof
+        { story: 5, min: 20, max: 150, proportion: p.random(0.05, 0.25), content: ['circle', 'window'] },
       ];
       this.numFloors = this.configs.length;
       this.totalHeight = this.configs.reduce((a, b) => a + b.proportion, 0); // sum of floor all proportions. Needed to calculate floor heights
@@ -224,7 +269,7 @@ const mySketch = (p: p5) => {
       const { x, y:_y, w, h, totalHeight, configs } = this;
       let y = _y
       return configs.map(config => {
-        // TODO: Fix this so that the total height is never exceeded
+        // @TODO: Fix this so that the total height is never exceeded
         let fh = (h / totalHeight) * config.proportion; // find each floor's height based on assigned proportion
         if (fh > config.max) fh = config.max;
         if (fh < config.min) fh = config.min;
@@ -271,7 +316,8 @@ const mySketch = (p: p5) => {
             h,
             content: p.random(content) as unknown as string,
             fill_c,
-            stroke_c
+            stroke_c,
+            story: config.story
           });
           sx += sw;
           return floorSection;
@@ -298,7 +344,7 @@ const mySketch = (p: p5) => {
 
     draw() {
       this.drawFloors();
-      if (false) this.drawFullHouseForTesting();
+      // if (false) this.drawFullHouseForTesting();
     }
   }
 
@@ -311,6 +357,7 @@ const mySketch = (p: p5) => {
     fill_c: p5.Color;
     stroke_c: p5.Color;
     fill_c_dark: p5.Color;
+    story: number;
 
     constructor({ 
       x, 
@@ -319,7 +366,8 @@ const mySketch = (p: p5) => {
       h, 
       content, 
       fill_c = p.color('yellow'), 
-      stroke_c = p.color('black') 
+      stroke_c = p.color('black'),
+      story
     }: FloorSectionConstructor) {
       const fill_c_dark = p.color(p.hue(fill_c), p.saturation(fill_c), p.max(0, p.lightness(fill_c) - 10));
       this.x = x; 
@@ -330,6 +378,7 @@ const mySketch = (p: p5) => {
       this.stroke_c = stroke_c; 
       this.fill_c = fill_c; 
       this.fill_c_dark = fill_c_dark 
+      this.story = story;
     }
 
     setStyles() {
@@ -350,10 +399,11 @@ const mySketch = (p: p5) => {
     }
 
     drawContent() {
-      const { x, y, w, h, fill_c_dark, content } = this;
+      const { x, y, w, h, fill_c_dark, content, story } = this;
+      console.log("drawContent", content, story)
       switch (content) {
         case 'door':
-          drawDoor(x, y, w, h, fill_c_dark);
+          if (story === 1) drawDoor(x, y, w, h, fill_c_dark);
           break;
         case 'window':
           drawWindow(x, y, w, h, fill_c_dark);
@@ -406,21 +456,231 @@ const mySketch = (p: p5) => {
   }
 
   //-- Details --//
-  function drawDoor(x: number, y: number, w: number, h: number, fill_c: p5.Color) {
+  function drawDoor(x: number, y: number, w: number, h: number, _fill_c: p5.Color) {
     // x,y should always be relative to the current section, so
-    const sw = p.random(40, 50);
-    const sh = p.random(80, 100);
+    // const sw = p.random(40, 50);
+    // const sh = p.random(80, 100);
 
-    const centered = x + w / 2 - sw / 2;
-    const aligned_left = x + p.random(5, 10);
-    const aligned_right = x + w - (sw + p.random(5, 10));
-    const sx = p.random([centered, aligned_left, aligned_right]);
-    const sy = y + h - sh;
+    // const centered = x + w / 2 - sw / 2;
+    // const aligned_left = x + p.random(5, 10);
+    // const aligned_right = x + w - (sw + p.random(5, 10));
+    // const sx = p.random([centered, aligned_left, aligned_right]);
+    // const sy = y + h - sh;
 
-    p.fill(fill_c);
-    p.noStroke();
-    p.rect(sx, sy, sw, sh);
-    p.noFill();
+    // p.fill(fill_c);
+    // p.noStroke();
+    // p.rect(sx, sy, sw, sh);
+    // p.noFill();
+
+    /** ---------------- */
+    /** GENERAL SETTINGS */
+    /** ---------------- */
+    //canvas
+    let bottom = y + h
+    //door
+    let alignment: "left" | "center" | "right" = p.random(["left", "center", "right"])
+    let dw = p.random(20, w/4) // door width
+    let dh = p.random(dw * 2.5, h) // door height
+    //doorframe
+    let _pad = p.random(10, 30)
+    let dfw = dw + _pad // door frame width
+    let dfh = dh + (_pad/2) // door frame height
+    //sides
+    let sw = p.random(dw/4, dw/2) // This is space reserved on either side of the door
+    let sh = dfh // If you want this to go up to top of the doorframe.window, you can check/use doorframeWindows.include
+    //doorframe windows
+    let ww = dfw //set the window width to the doorframe width. TODO: this can extend a little past irl, often patching the sides
+    let wh = p.random(10, 25)
+    //helpers
+    let _size = {
+      w: dfw + (sw*2), 
+      h: dfh + wh
+    }
+    let _start = {
+      left: {
+        x: x, 
+        y: bottom, 
+        center: {x: 0 + _size.w/2, y: bottom}
+      },
+      center: {
+        x: x + w/2 - _size.w/2, 
+        y: bottom,
+        center: {x: w/2, y: bottom}
+      },
+      right: {
+        x: x + w - _size.w, 
+        y: bottom,
+        center: {x: w - (_size.w/2), y: bottom}
+      }
+    }[alignment] //Set alignment here
+    console.log("_start", _start, alignment)
+    
+    
+    /** DOOR FRAME SETTINGS */
+    let doorframe = {
+      x: _start.x + sw,
+      y: _start.y - dfh,
+      w: dfw,
+      h: dfh,
+    }
+    
+    /** DOOR FRAME WINDOWS SETTINGS */
+    let doorframeWindows = {
+      x: doorframe.x,
+      y: doorframe.y - wh,
+      w: ww,
+      h: wh,
+      shape: p.random([
+        "rect",
+        "hemisphere",
+        "circle",
+        "none"
+      ]),
+      include: p.random([true, false]),
+      divisions: p.random([1,2,3,4])
+    }
+    
+    /** DOOR SETTINGS */
+    let door = {
+      x: _start.x + sw + ((dfw-dw)/2), 
+      y: _start.y - dh, 
+      w: dw,
+      h: dh,
+      sections: {
+        rows: p.random([1,2,3,4]),
+        cols: p.random([1,2,3,4])
+      },
+      windows: {
+        include: p.random([true, false]),
+      }
+    }
+    
+    /** SIDES SETTINGS */
+    let side = {
+      x: _start.x,
+      y: _start.y - sh,
+      w: sw, 
+      h: sh
+    }
+    
+    
+    /*** ---- ---- ---- ***/
+    /*** ---- ---- ---- ***/
+    /*** ---- DRAW ---- ***/
+    /*** ---- ---- ---- ***/
+    /*** ---- ---- ---- ***/
+    
+    /** DRAW DOORFRAME */
+    p.push()
+    p.stroke(1)
+    p.fill(p.random(["rgb(247,247,247)"]))
+    // Door Doorframe
+    p.rect(
+      doorframe.x, 
+      doorframe.y, 
+      doorframe.w, 
+      doorframe.h
+    )
+    
+    /** DRAW DOORFRAME WINDOW */
+    if (doorframeWindows.include) {
+      switch (doorframeWindows.shape) {
+        case ("rect"):
+          drawDoorFrameWindowsRect()
+          break;
+        case ("hemisphere"):
+          drawDoorFrameWindowsHemisphere()
+          break;
+        case ("circle"):
+          drawDoorFrameWindowsCircle()
+          break;
+        default:
+          break;
+      }
+    }
+    
+    /** DRAW DOOR */
+    p.push()
+    p.stroke(1)
+    p.fill(p.random(["rgb(255,106,106)", "rgb(164,164,231)", "rgb(228,228,228)", "rgb(77,77,77)"]))
+    p.rect(
+      door.x,
+      door.y,
+      door.w, 
+      door.h
+    )
+    p.pop()
+    
+    /** DRAW SIDES */
+    p.push()
+    p.stroke(1)
+    p.noFill()
+    // Left
+    p.rect(
+      side.x,
+      side.y,
+      side.w,
+      side.h
+    )
+    // Right
+    p.rect(
+      side.x + _size.w - side.w,
+      side.y,
+      side.w,
+      side.h
+    )
+    p.pop()
+    
+    /** DOORFRAME WINDOW FUNCS */
+    function drawDoorFrameWindowsRect() {
+      // Draw Container Rect
+      p.rect(
+        doorframeWindows.x, 
+        doorframeWindows.y, 
+        doorframeWindows.w, 
+        doorframeWindows.h
+      )
+      
+      // Draw Window Rects & Dividers
+      let _pad = 5 // padding
+      let x = doorframeWindows.x + _pad
+      let y = doorframeWindows.y - doorframe.h - doorframeWindows.h + _pad
+      let w = doorframeWindows.w - (_pad*2)
+      let h = doorframeWindows.h - (_pad*2)
+      let divisionLength = w / doorframeWindows.divisions
+      p.push()
+      p.fill("rgb(252,230,163)")
+      p.strokeWeight(2)
+      p.stroke(p.random(["rgb(224,209,196)", "rgb(88,88,88)"]))
+      p.rect(x, y, w, h)
+      // Draw Division Lines
+      for (let i = 1; i < doorframeWindows.divisions; i++) {
+        p.line(x + (i*divisionLength), y, x + (i*divisionLength), y + h)
+      }
+      p.pop()
+    }
+    
+    function drawDoorFrameWindowsHemisphere() {
+      // arc(x, y, w, h, start, stop, [mode], [detail])
+      p.arc(
+        doorframe.x + (doorframeWindows.w/2), 
+        doorframe.y, 
+        doorframeWindows.w,
+        doorframeWindows.h,
+        // doorframeWindows.w + side.w*2, // Uncomment to extend to full width include Sides
+        // doorframeWindows.h * 2,
+        p.PI, 
+        p.TWO_PI
+      );
+    }
+    
+    function drawDoorFrameWindowsCircle() {
+      //circle(x, y, d)
+      let _pad = p.random(5,10)
+      let circum = p.random(40, 80)
+      p.circle(_start.center.x, _start.y - _size.h - _pad + circum/2, circum);
+      console.log("TO DO")
+    }
   }
 
   function drawWindow(x: number, y: number, w: number, h: number, fill_c: p5.Color) {

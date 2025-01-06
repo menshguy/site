@@ -162,7 +162,8 @@ const mySketch = (p: p5) => {
             h, 
             content: p.random(content), 
             fill_c,
-            stroke_c
+            stroke_c,
+            story: 1
           });
           sx += sw;
           return floorSection;
