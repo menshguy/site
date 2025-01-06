@@ -39,7 +39,6 @@ const Page: React.FC<PageProps> = ({ sketches, route }) => {
           </option>
         ))}
       </select>
-
       <P5Wrapper includeSaveButton={true} sketch={sketches[selectedSketch]} />
     </div>
   );

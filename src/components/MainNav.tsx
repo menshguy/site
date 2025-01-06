@@ -8,9 +8,9 @@ function SeriesOnlyList() {
     'vermont', 
     'seasons', 
     // 'couch', // Nothing here yet
-    'rowhomes', 
+    // 'rowhomes', 
     // 'trees', // Nothing Intresting here - keep onTree for debuggin
-    'demos'
+    // 'demos'
   ]; // Hidden: crowds, pictureframes
   
   const styles: CSSProperties = {
