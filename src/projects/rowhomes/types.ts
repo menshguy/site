@@ -21,6 +21,7 @@ export interface FloorSectionConstructor {
   y: number;
   w: number;
   h: number;
+  story: number;
   // config: { 
   //   min: number; 
   //   max: number; 

@@ -3,7 +3,7 @@ import Page from '../../components/Page';
 import { mySketch as bezierDemoSketch } from './BezierDemo';
 
 const sketches = {
-  bezierDemo: bezierDemoSketch,
+  bezierDemo: bezierDemoSketch(),
 };
 
 const SeriesPage: React.FC = () => {

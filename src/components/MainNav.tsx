@@ -1,13 +1,44 @@
 // vite-project/src/components/MainNav.tsx
-
 import React, { CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
+
+
+function SeriesOnlyList() {
+  const series = [
+    'home',
+    'vermont', 
+    'seasons', 
+    // 'couch', // Nothing here yet
+    'rowhomes', 
+    // 'trees', // Nothing Intresting here - keep onTree for debuggin
+    'demos'
+  ]; // Hidden: crowds, pictureframes
+  
+  const styles: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '8px',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    maxWidth: '1200px',
+    marginLeft: '4px',
+  }
+  
+  return (
+    <div style={styles}>
+      {series.map((series, i) => (
+        <a key={i} href={`/${series}`}>{series}</a>
+      ))}
+    </div>
+  )
+}
 
 const MainNav: React.FC = () => {
 
     return (
         <nav style={styles.nav}>
-          <Link to={`/`} style={styles.button} >
+          <SeriesOnlyList />
+
+          {/* <Link to={`/`} style={styles.button} >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -17,7 +48,7 @@ const MainNav: React.FC = () => {
             >
                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
             </svg>
-          </Link>
+          </Link> */}
         </nav>
     );
 };

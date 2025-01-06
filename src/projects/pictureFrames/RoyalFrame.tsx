@@ -336,6 +336,8 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
   const max = 150
   const _frameTopWidth = frameTopWidth ? frameTopWidth : Math.floor(Math.random() * (max - min) + min)
   const _frameSideWidth = frameSideWidth ? frameSideWidth : _frameTopWidth
+  const totalHeight = innerHeight + (_frameTopWidth * 2)
+  // const totalWidth = innerWidth +  + (_frameSideWidth * 2)
 
   const _outerSketch = mySketch(innerWidth, innerHeight, _frameTopWidth, _frameSideWidth);
   const _innerSketch = innerSketch;
@@ -361,9 +363,49 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
     top: `${_frameTopWidth}px`,
     left: `${_frameSideWidth}px`,
   }
+  
+  const fancyFonts = [
+    'Brush Script MT, cursive',
+    'Lucida Handwriting, cursive',
+    'Palatino Linotype, serif',
+    'Garamond, serif',
+    // 'Copperplate, fantasy',
+    // 'Papyrus, fantasy'
+  ];
+  const labelContainerStyles: CSSProperties = {
+    position: 'absolute',
+    top: `${totalHeight - (_frameTopWidth)}px`,
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    zIndex: 1000,
+  }
+  const labelStyles: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    marginTop: `${Math.floor(Math.random() * (_frameTopWidth/2))}px`,
+    width: '200px',
+    textAlign: 'center',
+    fontFamily: fancyFonts[Math.floor(Math.random() * fancyFonts.length)],
+    fontSize: `${Math.floor(Math.random() * (18 - 24 + 1)) + 18}px`,
+    color: 'white',
+    backgroundColor: '#e7c59a',
+    border: '1px solid #855e2e',
+    borderRadius: '6px',
+    boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.3)',
+    zIndex: 1000,
+    padding: '4px 0px',
+  }
 
   return (
     <div style={containerStyles}>
+      <div style={labelContainerStyles}>
+        <div style={labelStyles} title="Some drawings take longer than others!">
+          Click to Redraw 
+        </div>
+      </div>
       <div style={childSketch}>
         <P5Wrapper 
           includeSaveButton={false} 

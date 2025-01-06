@@ -9,11 +9,11 @@ interface Line {
   isDragging?: { i: number } | false;
 }
 
-const mySketch = (p: p5) => {
-  let cw = 600;
-  let ch = 600;
+const mySketch = (_cw: number = 600, _ch: number = 600) => (p: p5) => {
+  let cw: number = _cw; 
+  let ch: number = _ch;
   let bottom = 100;
-  let lines: Line[] = []
+  let lines: Line[] = [];
   
   p.setup = () => {
     p.createCanvas(cw, ch);
@@ -128,7 +128,7 @@ const BezierDemo: React.FC = () => {
     <div>
       <h1>Bezier Demo</h1>
       <p>I found this visualization of the control points helpful in understanding bezier curves. Click to drag handles.</p>
-      <P5Wrapper sketch={mySketch} />
+      <P5Wrapper sketch={mySketch()} />
     </div>
   );
 };

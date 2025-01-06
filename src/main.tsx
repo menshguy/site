@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { DeviceProvider } from './context/DeviceContext.tsx';
 import MainNav from './components/MainNav.tsx';
 import App from './App.tsx'
@@ -16,14 +16,14 @@ import {mySketch as seasonalForestsSketch } from './projects/seasons/SeasonalFor
 import './index.css'
 
 function AppWithNav() {
-  const location = useLocation();
-  const isHomePage = location.pathname === '/';
 
   return (
     <>
-      {!isHomePage && <MainNav />}
+      <MainNav />
+      <div className="main-content">
       <Routes>
         <Route path="/" element={<App />} />
+        <Route path="/home" element={<App />} />
         <Route path="/vermont/*" element={<SeriesPageVermont />} />
         <Route path="/trees/*" element={<SeriesPageTrees />} />
         <Route path="/seasons/*" element={<SeriesPageSeasons />} />
@@ -45,6 +45,7 @@ function AppWithNav() {
           } 
         />
       </Routes>
+      </div>
     </>
   );
 }
