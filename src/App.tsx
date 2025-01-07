@@ -115,7 +115,7 @@ function App() {
       : Math.min(deviceWidth, 1280) - (frameSideWidth*2);
     const h1 = isMobile 
       ? deviceHeight - (frameTopWidth*2) 
-      : 400;
+      : 600;
     const sketch1 = vermontSketch(w1, h1);
     return { sketch: sketch1, width: w1, height: h1, frameTopWidth, frameSideWidth };
   }
@@ -190,7 +190,7 @@ function App() {
             </div>
             <div style={bioTextStyles}>
               <h3 style={nameStyles}>Jeffrey Fenster</h3>
-              <p style={{margin: '0px', width: '100%', textAlign: isMobile ? 'center' : 'left'}}> Shalom! I am a <strong>generative artist</strong>, <strong>software engineer</strong>, and <strong>illustator</strong>.</p>
+              <p style={{margin: '0px', width: '100%', textAlign: isMobile ? 'center' : 'left'}}> Shalom! I am a <strong>generative artist</strong>, <strong>software engineer</strong>, and <strong>illustrator</strong>.</p>
               <p style={{margin: '0px', width: '100%', textAlign: isMobile ? 'center' : 'left'}}> I like to doodle with code. I often post the results here & on <a target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">twitter/x</a>. </p>
               {/* <p style={{margin: '0px'}}> 
                 While you're here, enjoy the <a href="/seasons/vermont">seasons</a>, eat a <a href="/bagel/bagel">bagel</a>,

@@ -54,10 +54,10 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
       summer: (s: number = 1, l: number = 1) => () => p.color(p.random(70,125), 80*s, 55*l)
     }
     colorsBG = {
-      'summer': p.color(208,85,91), //light yellow
+      'summer': p.color(208,85,95), //light yellow
       'winter': p.color(208,18,98), //deep blue
       'spring': p.color(43, 62, 90), //orange
-      'fall': p.color(39, 26, 83) //brown
+      'fall': p.color(39, 26, 93) //brown
     }
 
     // Sunlight
@@ -96,7 +96,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
     starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
 
     /** FRONT TREES */
-    let numTreesInFront = 26;
+    let numTreesInFront = 36;
     for (let i = 0; i < numTreesInFront; i++) {
 
       // Trunk & Tree
@@ -108,7 +108,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
 
       // Points & Leaves
       let numPointsPerRow = p.random(10,11); // X points are draw within a boundary radius
-      let avg = season === "winter" ? 8 : 40
+      let avg = season === "winter" ? 8 : 30
       let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
       let pointBoundaryRadius = {min: 50, max: 60};
       let leavesStartY = p.height - bottom - pointBoundaryRadius.min-10; //where on y axis do leaves start
@@ -149,7 +149,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
 
     /** MIDDLE TREES */
     let middleBottom = bottom;
-    let numTreesInMiddle = 29;
+    let numTreesInMiddle = 13;
     for (let i = 0; i < numTreesInMiddle; i++) {
 
       // Trunk & Tree
@@ -187,7 +187,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[season](0.6, 0.4*treeLightness), 
+        fills: colors[season](0.6, 0.25*treeLightness), 
         fillsSunlight: colors[season](0.65, 0.4*treeLightness), 
         sunlight,
         leafWidth, 
@@ -202,7 +202,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
 
     /** BACK TREES */
     let backBottom = middleBottom;
-    let numTreesInBack = 14;
+    let numTreesInBack = 29;
     for (let i = 0; i < numTreesInBack; i++) {
 
       // Trunk & Tree
@@ -213,9 +213,9 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
       let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
 
       // Points & Leaves
-      let numPointsPerRow = p.random(30, 35); // X points are draw within a boundary radius
+      let numPointsPerRow = 40; // X points are draw within a boundary radius
       let pointBoundaryRadius = {min: 50, max: 60};
-      let avg = season === "winter" ? 1 : 25
+      let avg = season === "winter" ? 1 : 55
       let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
       let leavesStartY = p.height - backBottom - pointBoundaryRadius.min; //where on y axis do leaves start
       let leafWidth = p.random(2, 3);
