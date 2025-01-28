@@ -12,6 +12,14 @@
 .logo {
   width: 32px;
   height: 32px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  /* Add padding to prevent overlap when scaled */
+  padding: 5px;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 0.5em #646cffaa);
+  transform: scale(1.3);
 }
 
 .nav {
