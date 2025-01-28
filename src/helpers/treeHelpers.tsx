@@ -1,5 +1,5 @@
 import p5 from 'p5';
-import {Leaf, TrunkLine} from '../projects/trees/types.ts';
+import {Leaf, TrunkLine} from '../artwork/trees/types.ts';
 
 class VermontTree {
   private p: p5;

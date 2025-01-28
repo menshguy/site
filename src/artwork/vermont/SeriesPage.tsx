@@ -22,7 +22,7 @@ const SeriesPage: React.FC = () => {
       <h1>Vermont</h1>
       <Page 
         sketches={sketches} 
-        route={"vermont"}
+        route={"artwork/vermont"}
       />
     </div>
   );

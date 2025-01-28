@@ -1,5 +1,5 @@
 import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper';
+import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season, Leaf, TrunkLine} from '../trees/types.ts';
 import p5 from 'p5';
 

@@ -12,7 +12,7 @@ const SeriesPage: React.FC = () => {
       <h1>Demos & Tutorials</h1>
       <Page 
         sketches={sketches} 
-        route={"demos"}
+        route={"artwork/demos"}
         />
     </div>
   );

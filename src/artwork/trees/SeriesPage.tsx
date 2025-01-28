@@ -22,7 +22,7 @@ const SeriesPage: React.FC = () => {
       <h1>Trees</h1>
       <Page 
         sketches={sketches} 
-        route={"trees"}
+        route={"artwork/trees"}
         />
     </div>
   );

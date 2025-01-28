@@ -5,14 +5,16 @@ import { DeviceProvider } from './context/DeviceContext.tsx';
 import MainNav from './components/MainNav.tsx';
 import App from './App.tsx'
 
-import SeriesPageVermont from './projects/vermont/SeriesPage.tsx';
-import SeriesPageTrees from './projects/trees/SeriesPage.tsx';
-import SeriesPageSeasons from './projects/seasons/SeriesPage.tsx';
-import SeriesPageRowhomes from './projects/rowhomes/SeriesPage.tsx';
-import SeriesPageDemos from './projects/demos/SeriesPage.tsx';
-import SeriesPageCouch from './projects/couch/SeriesPage.tsx';
-import RoyalFrame from './projects/pictureFrames/RoyalFrame.tsx';
-import {mySketch as seasonalForestsSketch } from './projects/seasons/SeasonalForests.tsx';
+import ProjectPageNoise2Ink from './projects/ProjectPageNoise2Ink.tsx';
+
+import SeriesPageVermont from './artwork/vermont/SeriesPage.tsx';
+import SeriesPageTrees from './artwork/trees/SeriesPage.tsx';
+import SeriesPageSeasons from './artwork/seasons/SeriesPage.tsx';
+import SeriesPageRowhomes from './artwork/rowhomes/SeriesPage.tsx';
+import SeriesPageDemos from './artwork/demos/SeriesPage.tsx';
+import SeriesPageCouch from './artwork/couch/SeriesPage.tsx';
+import RoyalFrame from './artwork/pictureFrames/RoyalFrame.tsx';
+import {mySketch as seasonalForestsSketch } from './artwork/seasons/SeasonalForests.tsx';
 import './index.css'
 
 function AppWithNav() {
@@ -24,12 +26,21 @@ function AppWithNav() {
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/home" element={<App />} />
-        <Route path="/vermont/*" element={<SeriesPageVermont />} />
-        <Route path="/trees/*" element={<SeriesPageTrees />} />
-        <Route path="/seasons/*" element={<SeriesPageSeasons />} />
-        <Route path="/rowhomes/*" element={<SeriesPageRowhomes />} />
-        <Route path="/demos/*" element={<SeriesPageDemos />} />
-        <Route path="/couch/*" element={<SeriesPageCouch />} />
+        
+        <Route path="projects">
+          <Route path="noise2ink" element={<ProjectPageNoise2Ink />} />
+        </Route>
+        
+        <Route path="artwork">
+          <Route index element={<SeriesPageVermont />} />
+          <Route path="vermont/*" element={<SeriesPageVermont />} />
+          <Route path="trees/*" element={<SeriesPageTrees />} />
+          <Route path="seasons/*" element={<SeriesPageSeasons />} />
+          <Route path="rowhomes/*" element={<SeriesPageRowhomes />} />
+          <Route path="demos/*" element={<SeriesPageDemos />} />
+          <Route path="couch/*" element={<SeriesPageCouch />} />
+        </Route>
+        
         <Route 
           path="/pictureframes/royalframe" 
           element={

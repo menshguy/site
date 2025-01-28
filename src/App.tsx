@@ -3,9 +3,9 @@ import DESK_SVG from './assets/desk.svg';
 import CHARACTER_GIF_PERSONAL from './assets/character.gif';
 import CHARACTER_GIF_PROFESSIONAL from './assets/character_work.gif';
 // import {mySketch as vermontSeasonsSketch} from './projects/vermont/VermontSeasons.tsx';
-import {mySketch as vermontSketch} from './projects/seasons/Vermont.tsx';
+import {mySketch as vermontSketch} from './artwork/seasons/Vermont.tsx';
 import './App.css'
-import RoyalFrame from './projects/pictureFrames/RoyalFrame.tsx';
+import RoyalFrame from './artwork/pictureFrames/RoyalFrame.tsx';
 import { useDevice } from './context/DeviceContext.tsx';
 function SVGObject (
   { svgData, styles, label }: 

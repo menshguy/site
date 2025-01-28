@@ -1,78 +1,80 @@
 // vite-project/src/components/MainNav.tsx
-import React, { CSSProperties } from 'react';
+import React, { useState } from 'react';
+import styles from './MainNav.module.css';
 
+interface DropdownProps {
+  title: string;
+  items: {label: string, href: string}[];
+}
 
-function SeriesOnlyList() {
-  const series = [
-    'home',
-    'vermont', 
-    'seasons', 
-    // 'couch', // Nothing here yet
-    // 'rowhomes', 
-    // 'trees', // Nothing Intresting here - keep onTree for debuggin
-    // 'demos'
-  ]; // Hidden: crowds, pictureframes
-  
-  const styles: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '8px',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    maxWidth: '1200px',
-    marginLeft: '4px',
-  }
-  
+function Dropdown({ title, items }: DropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div style={styles}>
-      {series.map((series, i) => (
-        <a key={i} href={`/${series}`}>{series}</a>
-      ))}
+    <div 
+      className={styles.dropdown}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      <button className={styles.dropdownButton}>
+      <span>{title}</span>
+      <svg 
+        width="12" 
+        height="12" 
+        viewBox="0 0 24 24"
+        className={styles.dropdownArrow}
+      >
+        <path 
+          d="M7 10l5 5 5-5" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+      {isOpen && (
+        <div className={styles.dropdownContent}>
+          {items.map((item, i) => (
+            <a key={i} href={`${item.href}`} className={styles.dropdownItem}>
+              {item.label}
+            </a>
+          ))}
+        </div>
+      )}
+
     </div>
-  )
+  );
 }
 
 const MainNav: React.FC = () => {
+  const dropdown1Items = [
+    {label: 'Vermont', href: '/artwork/vermont'}, 
+    {label: 'Seasons', href: '/artwork/seasons'}, 
+    // '/sketches/couch',
+    // '/sketches/rowhomes', 
+    // '/sketches/trees',
+    // '/sketches/demos'
+    // '/sketches/crowds'
+    // '/sketches/pictureframes'
+  ];
 
-    return (
-        <nav style={styles.nav}>
-          <SeriesOnlyList />
+  const dropdown2Items = [
+    {label: 'Noise2Ink', href: 'projects/noise2Ink'},
+    // 'LLMs', 
+  ];
 
-          {/* <Link to={`/`} style={styles.button} >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                width="24px"
-                height="24px"
-            >
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-            </svg>
-          </Link> */}
-        </nav>
-    );
-};
-
-const styles: { nav: CSSProperties; button: CSSProperties } = {
-    nav: {
-      position: 'fixed', 
-      top: 0,            
-      width: '100%',     
-      display: 'flex',
-      alignItems: 'center',
-      padding: '5px',
-      backgroundColor: '#f8f9fa',
-      zIndex: 1000,      
-    },
-    button: {
-      borderRadius: '10%',
-      padding: '10px 15px',
-      backgroundColor: '#007bff',
-      color: '#fff',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '16px',
-    },
+  return (
+    <nav className={styles.nav}>
+      <div className={styles.navContent}>
+        <a href="/">
+          <img src="/me.svg" alt="Logo" className={styles.logo} />
+        </a>
+        <Dropdown title="Artwork" items={dropdown1Items} />
+        <Dropdown title="Projects" items={dropdown2Items} />
+      </div>
+    </nav>
+  );
 };
 
 export default MainNav;

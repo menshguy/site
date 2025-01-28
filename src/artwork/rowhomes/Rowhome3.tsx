@@ -1,8 +1,8 @@
 import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper';
+import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 import { RowhomeConstructor, FloorSectionConstructor } from './types.ts';
-import {VermontTree} from '../../helpers/treeHelpers';
+import {VermontTree} from '../../helpers/treeHelpers.tsx';
 
 const mySketch = (p: p5) => {
   let buffers: p5.Graphics[] = [];

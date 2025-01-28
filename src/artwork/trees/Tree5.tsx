@@ -1,5 +1,5 @@
 import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper';
+import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 import {Leaf, TrunkLine} from './types.ts';
 

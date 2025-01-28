@@ -15,7 +15,7 @@ const SeriesPage: React.FC = () => {
       <h2>COMING SOON</h2>
       {/* <Page 
         sketches={sketches} 
-        route={"couch"}
+        route={"artwork/couch"}
       /> */}
     </div>
   );

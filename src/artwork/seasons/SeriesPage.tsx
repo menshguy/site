@@ -18,7 +18,7 @@ const SeriesPage: React.FC = () => {
       <h1>Seasons</h1>
       <Page 
         sketches={sketches} 
-        route={"seasons"}
+        route={"artwork/seasons"}
       />
     </div>
   );
