@@ -1,4 +1,4 @@
-import { CSSProperties, useState } from 'react'
+import { CSSProperties, useState, useRef, useEffect } from 'react'
 import DESK_SVG from './assets/desk.svg';
 import CHARACTER_GIF_PERSONAL from './assets/character.gif';
 import CHARACTER_GIF_PROFESSIONAL from './assets/character_work.gif';
@@ -28,19 +28,33 @@ function App() {
   const sidePadding = isMobile ? 0 : 0;
   const marginTop = isMobile ? 0 : 100;
   
+  const [bioHeight, setBioHeight] = useState(0);
+  const bioRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (bioRef.current) {
+      setBioHeight(bioRef.current.offsetHeight);
+    }
+  }, []);
+  
   const mainSketch = (() => {
-    const randomMobileFrameSize = Math.floor(Math.random() * (20 - 80)) + 80;
-    const randomFrameSize = Math.floor(Math.random() * (150 - 50)) + 50;
-    const frameTopWidth = isMobile ? randomMobileFrameSize : randomFrameSize;
-    const frameSideWidth = isMobile ? randomMobileFrameSize : randomFrameSize;
+    
+    const randomFrameSize = isMobile
+      ? (Math.floor(Math.random() * (20 - 80)) + 80)
+      : (Math.floor(Math.random() * (150 - 50)) + 50);
+    const frameTopWidth = randomFrameSize;
+    const frameSideWidth = randomFrameSize;
+    
     const width = isMobile 
       ? deviceWidth - sidePadding - (frameSideWidth*2) 
       : Math.min(deviceWidth, 1280) - (frameSideWidth*2);
+    
     const height = isMobile 
       ? deviceHeight - (frameTopWidth*2) 
-      : 600 - marginTop;
-    const sketch1 = vermontSketch(width, height);
-    return { sketch: sketch1, width, height, frameTopWidth, frameSideWidth };
+      : deviceHeight - (frameTopWidth*2) - marginTop - bioHeight - 50; // extra 50px for padding
+    
+    const sketch = vermontSketch(width, height);
+    return { sketch, width, height, frameTopWidth, frameSideWidth };
   })();
 
   const styles = {
@@ -48,7 +62,7 @@ function App() {
       display: 'flex',
       flexDirection: 'column',
       gap: '12px',
-      marginTop: '102px',
+      marginTop: marginTop,
     } as CSSProperties,
     bioContainer: {
       backgroundColor: '#3a3c45',
@@ -102,7 +116,7 @@ function App() {
     <>
       <div style={styles.mainContainerStyles}>
         {/* BIO SECTION */}
-        <div style={styles.bioContainer}>
+        <div ref={bioRef} style={styles.bioContainer}>
             <div style={styles.animationContainer}>
               <SVGObject styles={styles.deskStyles} svgData={DESK_SVG} label="Desk"/>
               <SVGObject styles={styles.characterStyles} svgData={CHARACTER_GIF} label="Character"/>
