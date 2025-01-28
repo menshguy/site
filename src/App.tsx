@@ -213,9 +213,6 @@ function App() {
           includeBoxShadow={true}
         />
       </div>
-      <div style={galleryContainerStyles}>
-        
-      </div>
     </>
   );
 }
