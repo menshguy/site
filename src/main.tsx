@@ -7,6 +7,7 @@ import App from './App.tsx'
 
 import ProjectPageNoise2Ink from './projects/ProjectPageNoise2Ink.tsx';
 
+import ArtworkPage from './artwork/ArtworkPage.tsx';
 import SeriesPageVermont from './artwork/vermont/SeriesPage.tsx';
 import SeriesPageTrees from './artwork/trees/SeriesPage.tsx';
 import SeriesPageSeasons from './artwork/seasons/SeriesPage.tsx';
@@ -32,7 +33,7 @@ function AppWithNav() {
         </Route>
         
         <Route path="artwork">
-          <Route index element={<SeriesPageVermont />} />
+          <Route index element={<ArtworkPage />} />
           <Route path="vermont/*" element={<SeriesPageVermont />} />
           <Route path="trees/*" element={<SeriesPageTrees />} />
           <Route path="seasons/*" element={<SeriesPageSeasons />} />
