@@ -17,7 +17,7 @@ const mySketch = (_cw: number = 600, _ch: number = 600) => (p: p5) => {
 
   p.preload = () => {
     textureImg = p.loadImage(
-      '../textures/watercolor_1.jpg',
+      '/textures/watercolor_1.jpg',
       () => {
         console.log('Image loaded successfully');
       },

@@ -35,7 +35,7 @@ const mySketch = (p: p5) => {
   let y: number = -140;
   
   p.preload = () => {
-    // textureImg = p.loadImage('../textures/coldpressed_1.PNG');
+    // textureImg = p.loadImage('/textures/coldpressed_1.PNG');
     textureImg = p.loadImage('/couch3d//winter_couch_textures/color.jpg');
     // drawing = p.loadImage('/couch3d/couch.png');
 

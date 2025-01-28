@@ -16,8 +16,8 @@ const mySketch = (_cw: number = 600, _ch: number = 600) => (p: p5) => {
   let bgColor: p5.Color;
   
   p.preload = () => {
-    // img = loadImage('../textures/paper_smooth.jpg');
-    textureImg = p.loadImage('../textures/watercolor_1.jpg');
+    // img = loadImage('/textures/paper_smooth.jpg');
+    textureImg = p.loadImage('/textures/watercolor_1.jpg');
   }
   
   p.setup = () => {

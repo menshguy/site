@@ -23,7 +23,7 @@ const mySketch = (
   let deepRedColor: p5.Color
   
   p.preload = () => {
-    // textureImg = p.loadImage('../textures/gold7.png');
+    // textureImg = p.loadImage('/textures/gold7.png');
   }
 
   p.setup = () => {

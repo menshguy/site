@@ -19,7 +19,7 @@ const mySketch = (p: p5) => {
   let bgColor: p5.Color;
   
   p.preload = () => {
-    textureImg = p.loadImage('../textures/watercolor_1.jpg');
+    textureImg = p.loadImage('/textures/watercolor_1.jpg');
   }
   
   p.setup = () => {

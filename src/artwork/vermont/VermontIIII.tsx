@@ -24,7 +24,7 @@ const mySketch = (p: p5) => {
   let starsConfig: Stars;
   
   p.preload = () => {
-    textureImg = p.loadImage('../textures/coldpressed_1.PNG');
+    textureImg = p.loadImage('/textures/coldpressed_1.PNG');
   }
   
   p.setup = () => {

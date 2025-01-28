@@ -30,7 +30,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
   let treesInBack: VermontTree[] = [];
   
   p.preload = () => {
-    textureImg = p.loadImage('../textures/watercolor_1.jpg');
+    textureImg = p.loadImage('/textures/watercolor_1.jpg');
   }
   
   p.setup = () => {

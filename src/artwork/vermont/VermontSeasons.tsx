@@ -43,7 +43,7 @@ const mySketch = (p: p5) => {
   // let timer = 0;
 
   p.preload = () => {
-    textureImg = p.loadImage('../textures/coldpressed_1.PNG');
+    textureImg = p.loadImage('/textures/coldpressed_1.PNG');
   }
   
   p.setup = () => {

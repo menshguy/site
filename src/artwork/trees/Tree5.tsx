@@ -12,7 +12,7 @@ const mySketch = (p: p5) => {
   let textureImg: p5.Image;
   
   p.preload = () => {
-    textureImg = p.loadImage('../textures/watercolor_1.jpg');
+    textureImg = p.loadImage('/textures/watercolor_1.jpg');
   }
   
   p.setup = () => {
