@@ -5,8 +5,11 @@ import { DeviceProvider } from './context/DeviceContext.tsx';
 import MainNav from './components/MainNav.tsx';
 import App from './App.tsx'
 
+// Projects Imports
+import ProjectsPage from './projects/ProjectsPage.tsx';
 import ProjectPageNoise2Ink from './projects/ProjectPageNoise2Ink.tsx';
 
+// Artwork Imports
 import ArtworkPage from './artwork/ArtworkPage.tsx';
 import SeriesPageVermont from './artwork/vermont/SeriesPage.tsx';
 import SeriesPageTrees from './artwork/trees/SeriesPage.tsx';
@@ -29,6 +32,7 @@ function AppWithNav() {
         <Route path="/home" element={<App />} />
         
         <Route path="projects">
+          <Route index element={<ProjectsPage />} />
           <Route path="noise2ink" element={<ProjectPageNoise2Ink />} />
         </Route>
         

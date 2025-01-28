@@ -49,6 +49,7 @@ function Dropdown({ title, items }: DropdownProps) {
 
 const MainNav: React.FC = () => {
   const dropdown1Items = [
+    {label: 'All Artwork', href: '/artwork'}, 
     {label: 'Vermont', href: '/artwork/vermont'}, 
     {label: 'Seasons', href: '/artwork/seasons'}, 
     // '/sketches/couch',
@@ -60,7 +61,8 @@ const MainNav: React.FC = () => {
   ];
 
   const dropdown2Items = [
-    {label: 'Noise2Ink', href: 'projects/noise2Ink'},
+    {label: 'All Projects', href: '/projects'},
+    {label: 'Noise2Ink', href: '/projects/noise2Ink'},
     // 'LLMs', 
   ];
 
