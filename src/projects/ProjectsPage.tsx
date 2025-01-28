@@ -1,8 +1,4 @@
-import React from 'react';
-import { Link, Route, Routes } from 'react-router-dom';
-
 const ProjectsPage = () => {
-
     return (
         <>
         <h1>Projects</h1>

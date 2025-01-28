@@ -1,7 +1,4 @@
-import React from 'react';
-
 const ArtworkPage = () => {
-
     return (
         <>
         <h1>Artwork</h1>
