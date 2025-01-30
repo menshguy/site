@@ -2,9 +2,16 @@
 import React, { useState } from 'react';
 import styles from './MainNav.module.css';
 
+interface DropdownItem {
+  label: string;
+  href: string;
+  img?: string;
+  description?: string;
+}
+
 interface DropdownProps {
   title: string;
-  items: {label: string, href: string}[];
+  items: DropdownItem[];
 }
 
 function Dropdown({ title, items }: DropdownProps) {
@@ -16,28 +23,50 @@ function Dropdown({ title, items }: DropdownProps) {
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
     >
+      
+      {/* Dropdown Button */}
       <button className={styles.dropdownButton}>
-      <span>{title}</span>
-      <svg 
-        width="12" 
-        height="12" 
-        viewBox="0 0 24 24"
-        className={styles.dropdownArrow}
-      >
-        <path 
-          d="M7 10l5 5 5-5" 
-          stroke="currentColor" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        />
-      </svg>
-    </button>
+        <span>{title}</span>
+        <DownCaret />
+      </button>
+      
+      {/* Menu Content */}
       {isOpen && (
         <div className={styles.dropdownContent}>
           {items.map((item, i) => (
-            <a key={i} href={`${item.href}`} className={styles.dropdownItem}>
-              {item.label}
+            <a 
+              key={i} 
+              href={`${item.href}`} 
+              className={styles.dropdownItem}
+              style={item.img ? {
+                backgroundImage: `linear-gradient(rgba(248, 249, 250, 0.8), rgba(248, 249, 250, 0.8)), url(${item.img})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                transition: 'all 0.3s ease'
+              } : undefined}
+              onMouseEnter={(e) => {
+                if (item.img) {
+                  e.currentTarget.style.backgroundImage = `linear-gradient(rgba(248, 249, 250, 0.2), rgba(248, 249, 250, 0.2)), url(${item.img})`;
+                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.textShadow = '0 0 4px rgba(0,0,0,0.9)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (item.img) {
+                  e.currentTarget.style.backgroundImage = `linear-gradient(rgba(248, 249, 250, 0.8), rgba(248, 249, 250, 0.8)), url(${item.img})`;
+                  e.currentTarget.style.color = 'inherit';
+                  e.currentTarget.style.textShadow = '0 0 4px rgba(0,0,0,0.2)';
+                }
+              }}
+            >
+              <p className={styles.dropdownLabel}>
+                <strong>{item.label}</strong>
+              </p>
+              {item.description && (
+                <p className={styles.dropdownDescription}>
+                  {item.description}
+                </p>
+              )}
             </a>
           ))}
         </div>
@@ -47,11 +76,48 @@ function Dropdown({ title, items }: DropdownProps) {
   );
 }
 
+const DownCaret = () => (
+  <svg 
+  width="12" 
+  height="12" 
+  viewBox="0 0 24 24"
+  className={styles.dropdownArrow}
+  >
+    <path 
+      d="M7 10l5 5 5-5" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
 const MainNav: React.FC = () => {
   const dropdown1Items = [
-    {label: 'All Artwork', href: '/artwork'}, 
-    {label: 'Vermont', href: '/artwork/vermont'}, 
-    {label: 'Seasons', href: '/artwork/seasons'}, 
+    {
+      label: 'Vermont',
+      img: 'nav/nav_vermont_sm.png',
+      href: '/artwork/vermont',
+      description: 'A collection of generative p5js sketches inspired by Vermont landscapes'
+    }, 
+    {
+      label: 'Seasons', 
+      img: 'nav/nav_seasons_sm.png',
+      href: '/artwork/seasons',
+      description: 'A collection of generative p5js sketches exploring seasonal changes'
+    }, 
+    {
+      label: 'Royal Picture Frames (wip)', 
+      img: 'nav/nav_frames_blk_sm.png',
+      href: '/artwork/royalframes',
+      description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums'
+    }, 
+    {
+      label: 'All Artwork', 
+      href: '/artwork',
+      // description: 'View all artwork collections'
+    }, 
     // '/sketches/couch',
     // '/sketches/rowhomes', 
     // '/sketches/trees',
@@ -59,11 +125,31 @@ const MainNav: React.FC = () => {
     // '/sketches/crowds'
     // '/sketches/pictureframes'
   ];
-
+  
   const dropdown2Items = [
-    {label: 'All Projects', href: '/projects'},
-    {label: 'Noise2Ink', href: '/projects/noise2Ink'},
-    // 'LLMs', 
+    {
+      label: 'Noise to Ink', 
+      img: 'nav/nav_n2i_sm.png',
+      href: '/projects/noise2Ink',
+      description: 'A platform for generative artists to sell physical prints of their generative artwork.'
+    },
+    {
+      label: 'Snowy Afternoon', 
+      img: 'nav/nav_snowy_sm.png',
+      href: '/projects/snowFrame',
+      description: 'An animated picture frame I made for my wife using a raspberry pi and some acrylic sheets.'
+    },
+    {
+      label: 'NYC Anniversary Album', 
+      img: 'nav/nav_anniversary_sm.png',
+      href: '/projects/anniversary',
+      description: 'Another animated picture frame I made for my wife using a raspberry pi reflecting our time living in NYC.'
+    },
+    {
+      label: 'All Projects', 
+      href: '/projects',
+      // description: 'View all personal projects'
+    },
   ];
 
   return (

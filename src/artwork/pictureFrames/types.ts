@@ -7,6 +7,7 @@ interface RoyalFrameProps {
   frameTopWidth?: number;
   frameSideWidth?: number;
   includeBoxShadow?: boolean;
+  showPrompt?: boolean;
 }
 
 interface Subdivision {

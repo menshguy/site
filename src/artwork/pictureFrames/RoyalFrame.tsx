@@ -329,7 +329,8 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
   frameTopWidth,
   frameSideWidth,
   innerSketch,
-  includeBoxShadow
+  includeBoxShadow,
+  showPrompt = true
 }) => {
 
   const min = 25
@@ -401,11 +402,11 @@ const RoyalFrame: React.FC<RoyalFrameProps> = ({
 
   return (
     <div style={containerStyles}>
-      <div style={labelContainerStyles}>
+      {showPrompt && <div style={labelContainerStyles}>
         <div style={labelStyles} title="Some drawings take longer than others!">
           Click to Redraw 
         </div>
-      </div>
+      </div>}
       <div style={childSketch}>
         <P5Wrapper 
           includeSaveButton={false} 
