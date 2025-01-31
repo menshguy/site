@@ -97,19 +97,19 @@ const MainNav: React.FC = () => {
   const dropdown1Items = [
     {
       label: 'Vermont',
-      img: 'nav/nav_vermont_sm.png',
+      img: '/nav/nav_vermont_sm.png',
       href: '/artwork/vermont',
       description: 'A collection of generative p5js sketches inspired by Vermont landscapes'
     }, 
     {
       label: 'Seasons', 
-      img: 'nav/nav_seasons_sm.png',
+      img: '/nav/nav_seasons_sm.png',
       href: '/artwork/seasons',
       description: 'A collection of generative p5js sketches exploring seasonal changes'
     }, 
     {
       label: 'Royal Picture Frames (wip)', 
-      img: 'nav/nav_frames_blk_sm.png',
+      img: '/nav/nav_frames_blk_sm.png',
       href: '/artwork/royalframes',
       description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums'
     }, 
@@ -129,19 +129,19 @@ const MainNav: React.FC = () => {
   const dropdown2Items = [
     {
       label: 'Noise to Ink', 
-      img: 'nav/nav_n2i_sm.png',
+      img: '/nav/nav_n2i_sm.png',
       href: '/projects/noise2Ink',
       description: 'A platform for generative artists to sell physical prints of their generative artwork.'
     },
     {
       label: 'Snowy Afternoon', 
-      img: 'nav/nav_snowy_sm.png',
+      img: '/nav/nav_snowy_sm.png',
       href: '/projects/snowFrame',
       description: 'An animated picture frame I made for my wife using a raspberry pi and some acrylic sheets.'
     },
     {
       label: 'NYC Anniversary Album', 
-      img: 'nav/nav_anniversary_sm.png',
+      img: '/nav/nav_anniversary_sm.png',
       href: '/projects/anniversary',
       description: 'Another animated picture frame I made for my wife using a raspberry pi reflecting our time living in NYC.'
     },
