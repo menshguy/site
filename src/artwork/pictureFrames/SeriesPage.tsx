@@ -12,8 +12,6 @@ const blankSketch = (
     let cw = innerWidth;
     let ch = innerHeight;
     
-    let font: p5.Font;
-    
     p.preload = () => {
         // font = p.loadFont('https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto-Mono/RobotoMono-Regular.ttf');
     }
