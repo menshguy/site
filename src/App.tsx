@@ -1,5 +1,7 @@
 import { CSSProperties, useState, useRef, useEffect } from 'react'
 import DESK_SVG from './assets/desk.svg';
+import CHAIR_SVG from './assets/chair.svg';
+import CHAIR_ARM_SVG from './assets/chair_arm.svg';
 import CHARACTER_GIF_PERSONAL from './assets/character.gif';
 import CHARACTER_GIF_PROFESSIONAL from './assets/character_work.gif';
 import {mySketch as vermontSketch} from './artwork/seasons/Vermont.tsx';
@@ -83,18 +85,14 @@ function App() {
       height: isMobile ? '300px' : 'auto',
       position: 'relative',
     } as CSSProperties,
-    deskStyles: {
+    characterSvgPlacement: {
       width: '100%',
       position: 'absolute',
       bottom: '0px',
       left: 0,
     } as CSSProperties,
-    characterStyles: {
-      width: '100%',
-      position: 'absolute',
-      bottom: '0px',
-      left: 0,
-    } as CSSProperties,
+    characterStyles: {} as CSSProperties,
+    chairStyles: {} as CSSProperties,
     bioTextStyles: {
       display: 'flex',
       flexDirection: 'column',
@@ -118,8 +116,10 @@ function App() {
         {/* BIO SECTION */}
         <div ref={bioRef} style={styles.bioContainer}>
             <div style={styles.animationContainer}>
-              <SVGObject styles={styles.deskStyles} svgData={DESK_SVG} label="Desk"/>
-              <SVGObject styles={styles.characterStyles} svgData={CHARACTER_GIF} label="Character"/>
+              <SVGObject styles={styles.characterSvgPlacement} svgData={DESK_SVG} label="Desk"/>
+              <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_SVG} label="Chair"/>
+              <SVGObject styles={styles.characterSvgPlacement} svgData={CHARACTER_GIF} label="Character"/>
+              <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_ARM_SVG} label="Chair"/>
             </div>
             <div style={styles.bioTextStyles}>
               <h3 style={styles.nameStyles}>Jeffrey Fenster</h3>
