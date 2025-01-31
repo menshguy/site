@@ -6,17 +6,17 @@ const ProjectPageNoise2Ink: React.FC = () => {
   const descriptionContent = (
     <>
       <p>
-        Noise to Ink is an innovative project that offers the Generative Art community a space to quickly
-        and easily share their artwork and sell their work as art prints.
+        This photo album was a birthday gift to my wife. It uses a Raspberry Pi and sockets
+        to create an interactive photo album. 
       </p>
       <p>
-        The main objectives of this project include:
+        All the photos are copies from a thumb drive. Whenever she wants to add new photos or
+        albums she can simply add to the thumb drive and restart the pi.
       </p>
-      <ul>
-        <li><strong>In-Browser Code Editor:</strong> Artists can create and edit their artwork directly in the browser. </li>
-        <li><strong>Link Sharing:</strong> Artists can generate a shareable link that they can share anywhere.</li>
-        <li><strong>Sell Prints:</strong>Noise to Ink connects to a Print service, where customers can purchase a print of the artwork they generate.</li>
-      </ul>
+      <p>
+        Each album represents a subway stop, and clicking a little button on top of the frame
+        will navigate you to the next album.
+      </p>
     </>
   );
 
