@@ -1,6 +1,7 @@
 // vite-project/src/components/MainNav.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './MainNav.module.css';
+import { useDevice } from '../context/DeviceContext.tsx';
 
 interface DropdownItem {
   label: string;
@@ -16,16 +17,44 @@ interface DropdownProps {
 
 function Dropdown({ title, items }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const {isMobile} = useDevice();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (isOpen) {
+      const closeDropdown = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (!target.closest(`.${styles.dropdown}`)) {
+          setIsOpen(false);
+        }
+      };
+      document.addEventListener('click', closeDropdown);
+      return () => document.removeEventListener('click', closeDropdown);
+    }
+  }, [isOpen]);
+
+  // Prevent body scroll when mobile dropdown is open
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [isMobile, isOpen]);
 
   return (
     <div 
       className={styles.dropdown}
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseEnter={() => !isMobile && setIsOpen(true)}
+      onMouseLeave={() => !isMobile && setIsOpen(false)}
     >
       
       {/* Dropdown Button */}
-      <button className={styles.dropdownButton}>
+      <button 
+        className={styles.dropdownButton}
+        onClick={() => isMobile && setIsOpen(!isOpen)}
+      >
         <span>{title}</span>
         <DownCaret />
       </button>
@@ -39,7 +68,9 @@ function Dropdown({ title, items }: DropdownProps) {
               href={`${item.href}`} 
               className={styles.dropdownItem}
               style={item.img ? {
-                backgroundImage: `linear-gradient(rgba(248, 249, 250, 0.8), rgba(248, 249, 250, 0.8)), url(${item.img})`,
+                backgroundImage: isMobile ? `linear-gradient(rgba(248, 249, 250, 0.2), rgba(248, 249, 250, 0.2)), url(${item.img})` : `linear-gradient(rgba(248, 249, 250, 0.8), rgba(248, 249, 250, 0.8)), url(${item.img})`,
+                color: isMobile ? 'white' : 'inherit',
+                textShadow: isMobile ? '0 0 4px rgba(0,0,0,0.9)' : 'inherit',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 transition: 'all 0.3s ease'

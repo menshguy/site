@@ -12,7 +12,7 @@ export const DeviceProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [deviceInfo, _setDeviceInfo] = useState<DeviceContextProps>({
     deviceWidth: window.innerWidth,
     deviceHeight: window.innerHeight,
-    isMobile: window.innerWidth <= 768,
+    isMobile: window.innerWidth <= 480,
   });
 
   // useEffect(() => {
