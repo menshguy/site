@@ -1,5 +1,9 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 #root {
-  max-width: 1280px;
+  /* max-width: 1280px; */
   margin: 0 auto;
 }
 
@@ -64,9 +68,4 @@
   object-fit: cover;
   width: 100%;
   height: 100%;
-}
-
-.main-content {
-  padding: 0px 0px;
-  margin-top: 64px;
 }

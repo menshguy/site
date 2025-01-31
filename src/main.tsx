@@ -2,7 +2,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { DeviceProvider } from './context/DeviceContext.tsx';
+import { NavProvider } from './context/NavContext.tsx';
 import MainNav from './components/MainNav.tsx';
+import {useNav} from './context/NavContext.tsx';
 import App from './App.tsx'
 
 // Projects Imports
@@ -26,47 +28,49 @@ import './index.css'
 
 function AppWithNav() {
 
+  const {navHeight} = useNav();
+
   return (
     <>
       <MainNav />
-      <div className="main-content">
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/home" element={<App />} />
-        
-        <Route path="projects">
-          <Route index element={<ProjectsPage />} />
-          <Route path="noise2ink" element={<ProjectPageNoise2Ink />} />
-          <Route path="snowframe" element={<ProjectPageSnowFrame />} />
-          <Route path="anniversary" element={<ProjectPageAnniversary />} />
-        </Route>
-        
-        <Route path="artwork">
-          <Route index element={<ArtworkPage />} />
-          <Route path="vermont/*" element={<SeriesPageVermont />} />
-          <Route path="seasons/*" element={<SeriesPageSeasons />} />
-          <Route path="royalFrames/*" element={<SeriesPageRoyalFrames />} />
-          <Route path="trees/*" element={<SeriesPageTrees />} />
-          <Route path="rowhomes/*" element={<SeriesPageRowhomes />} />
-          <Route path="demos/*" element={<SeriesPageDemos />} />
-          <Route path="couch/*" element={<SeriesPageCouch />} />
-        </Route>
-        
-        <Route 
-          path="/pictureframes/royalframe" 
-          element={
-            <div style={{ position: 'absolute', top: '64px' }}>
-              <RoyalFrame 
-                innerWidth={800} 
-                innerHeight={800} 
-                // frameTopWidth={100}
-                // frameSideWidth={100}
-                innerSketch={seasonalForestsSketch()} 
-              />
-            </div>
-          } 
-        />
-      </Routes>
+      <div style={{marginTop: navHeight}}>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/home" element={<App />} />
+          
+          <Route path="projects">
+            <Route index element={<ProjectsPage />} />
+            <Route path="noise2ink" element={<ProjectPageNoise2Ink />} />
+            <Route path="snowframe" element={<ProjectPageSnowFrame />} />
+            <Route path="anniversary" element={<ProjectPageAnniversary />} />
+          </Route>
+          
+          <Route path="artwork">
+            <Route index element={<ArtworkPage />} />
+            <Route path="vermont/*" element={<SeriesPageVermont />} />
+            <Route path="seasons/*" element={<SeriesPageSeasons />} />
+            <Route path="royalFrames/*" element={<SeriesPageRoyalFrames />} />
+            <Route path="trees/*" element={<SeriesPageTrees />} />
+            <Route path="rowhomes/*" element={<SeriesPageRowhomes />} />
+            <Route path="demos/*" element={<SeriesPageDemos />} />
+            <Route path="couch/*" element={<SeriesPageCouch />} />
+          </Route>
+          
+          <Route 
+            path="/pictureframes/royalframe" 
+            element={
+              <div style={{ position: 'absolute', top: '64px' }}>
+                <RoyalFrame 
+                  innerWidth={800} 
+                  innerHeight={800} 
+                  // frameTopWidth={100}
+                  // frameSideWidth={100}
+                  innerSketch={seasonalForestsSketch()} 
+                />
+              </div>
+            } 
+          />
+        </Routes>
       </div>
     </>
   );
@@ -75,9 +79,11 @@ function AppWithNav() {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <DeviceProvider>
-      <Router>
-        <AppWithNav />
-      </Router>
+      <NavProvider>
+        <Router>
+          <AppWithNav />
+        </Router>
+      </NavProvider>
     </DeviceProvider>
   </StrictMode>
 )
