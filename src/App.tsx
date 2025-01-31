@@ -30,7 +30,50 @@ function App() {
   const CHARACTER_GIF = isProfessionalSite ? CHARACTER_GIF_PROFESSIONAL: CHARACTER_GIF_PERSONAL;
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Terminal State
+  const styles = {
+    contentContainer: {
+      height: `calc(100vh - ${navHeight}px)`,
+      backgroundColor: '#3a3c45',
+      color: 'white',
+      borderRadius: '2px',
+      textAlign: 'center',
+      border: "8px solid #e9c79d",
+      boxShadow: "rgba(0, 0, 0, 0.2) 0px 10px 20px",
+      display: 'flex',
+      justifyContent: isMobile ? 'center' : 'flex-start',
+      flexDirection: isMobile ? 'column-reverse' : 'row-reverse',
+      gap: '12px',
+      padding: isMobile ? '4px' : '0px',
+      position: 'relative', 
+    } as CSSProperties,
+    characterContainer: {
+      position: 'relative',
+      flex: 1,
+    } as CSSProperties,
+    characterSvgPlacement: {
+      width: '130%', // This works because the SVG image is not properly cropped, and there is is a lot of deadspace on the left side
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+    } as CSSProperties,
+    
+  };
+
+  return (
+    <div ref={contentRef} style={styles.contentContainer}>
+      <div style={styles.characterContainer}>
+        <SVGObject styles={styles.characterSvgPlacement} svgData={DESK_SVG} label="Desk"/>
+        <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_SVG} label="Chair"/>
+        <SVGObject styles={styles.characterSvgPlacement} svgData={CHARACTER_GIF} label="Character"/>
+        <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_ARM_SVG} label="Chair"/>
+      </div>
+      <TerminalWindow />
+    </div>
+  );
+}
+
+const TerminalWindow = () => {
+  const {isMobile} = useDevice();
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -67,45 +110,21 @@ function App() {
     };
   }, [isDragging, dragStart]);
 
+  const terminalGreen = '#00ff00'; // Original green color
+  const terminalGreenLight = '#00ff0078'; // Lighter, more vibrant green
+
   const floatingTerminalStyles = isMobile ? {
-      width: '100%',
-    } : {
-      position: 'relative',
-      maxWidth: '800px',
-      margin: '16px auto 0px',
-      transform: `translate(${position.x}px, ${position.y}px)`,
-      cursor: isDragging ? 'grabbing' : 'default',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-    }
+    width: '100%',
+  } : {
+    position: 'relative',
+    margin: 'auto 10px',
+    maxWidth: '800px',
+    transform: `translate(${position.x}px, ${position.y}px)`,
+    cursor: isDragging ? 'grabbing' : 'default',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+  }
 
   const styles = {
-    contentContainer: {
-      height: `calc(100vh - ${navHeight}px)`,
-      backgroundColor: '#3a3c45',
-      color: 'white',
-      borderRadius: '2px',
-      textAlign: 'center',
-      border: "8px solid #e9c79d",
-      boxShadow: "rgba(0, 0, 0, 0.2) 0px 10px 20px",
-      display: 'flex',
-      justifyContent: isMobile ? 'center' : 'flex-start',
-      flexDirection: isMobile ? 'column-reverse' : 'column-reverse',
-      gap: '12px',
-      padding: isMobile ? '4px' : '0px',
-      position: 'relative', 
-    } as CSSProperties,
-    characterContainer: {
-      position: 'relative',
-      flex: 1,
-    } as CSSProperties,
-    characterSvgPlacement: {
-      maxWidth: '100%',
-      maxHeight: 800,
-      position: 'absolute',
-      bottom: 0,
-      right: 0,
-
-    } as CSSProperties,
     terminalContainer: {
       display: 'flex',
       flexDirection: 'column',
@@ -118,7 +137,7 @@ function App() {
       fontFamily: 'Monaco, monospace',
       fontSize: '14px',
       lineHeight: '1.6',
-      color: '#00ff00',
+      color: terminalGreen,
       ...floatingTerminalStyles
     } as CSSProperties,
     terminalHeader: {
@@ -153,7 +172,7 @@ function App() {
       width: '12px',
       height: '12px',
       borderRadius: '50%',
-      backgroundColor: '#27c93f',
+      backgroundColor: terminalGreen,
     } as CSSProperties,
     terminalContent: {
       marginTop: '30px',
@@ -162,7 +181,7 @@ function App() {
     } as CSSProperties,
     nameStyles: {
       display: 'flex',
-      color: '#00ff00',
+      color: terminalGreen,
       margin: '0 0 15px 0',
       fontSize: '18px',
       fontWeight: 'bold',
@@ -171,48 +190,40 @@ function App() {
         marginRight: '8px',
       },
     } as CSSProperties,
-  };
-
+  }
+  
   return (
-    <div ref={contentRef} style={styles.contentContainer}>
-        <div style={styles.characterContainer}>
-          <SVGObject styles={styles.characterSvgPlacement} svgData={DESK_SVG} label="Desk"/>
-          <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_SVG} label="Chair"/>
-          <SVGObject styles={styles.characterSvgPlacement} svgData={CHARACTER_GIF} label="Character"/>
-          <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_ARM_SVG} label="Chair"/>
-        </div>
-        <div style={styles.terminalContainer}>
-          <div 
-            style={styles.terminalHeader}
-            onMouseDown={handleMouseDown}
-          >
-            <div style={styles.terminalButton}></div>
-            <div style={styles.terminalButtonYellow}></div>
-            <div style={styles.terminalButtonGreen}></div>
-          </div>
-          <div style={styles.terminalContent}>
-            {/* <h3 style={styles.nameStyles}>Jeffrey Fenster</h3> */}
-            <p style={{margin: '8px 0', color: '#00ff00'}}>
-              <span style={{color: '#00ff00'}}>$ </span>
-              whoami<br/>
-              <span style={{color: '#fff'}}> Hello! My name is Jeff Fenster. I am a <strong style={{color: '#00ff00'}}>software engineer</strong>, 
-              <strong style={{color: '#00ff00'}}>generative artist</strong>, <strong style={{color: '#00ff00'}}>illustrator</strong>, and a passionate <strong style={{color: '#00ff00'}}>Product Leader.</strong></span>
-            </p>
-            <p style={{margin: '20px 0', color: '#00ff00'}}>
-              <span style={{color: '#00ff00'}}>$ </span>
-              cat about.txt<br/>
-              <span style={{color: '#fff'}}> I like to doodle with code (they sometimes call it "Creative Coding" or "Generative Art"). I also draw, build stuff for the web, code, 
-                and I am passionate about all things product, UX, and AI.
-                <br />
-                <br />
-                I often post my work and ideas on <a style={{color: '#00ff00', textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">twitter/x</a>.
-                You can also find me on <a style={{color: '#00ff00', textDecoration: 'underline'}} href="https://www.linkedin.com/in/jeff-fenster/" target="_blank">linkedin</a>
-              </span>
-            </p>
-          </div>
-        </div>
+    <div style={styles.terminalContainer}>
+      {/* Terminal Window Top */}
+      <div style={styles.terminalHeader} onMouseDown={handleMouseDown}>
+        <div style={styles.terminalButton}></div>
+        <div style={styles.terminalButtonYellow}></div>
+        <div style={styles.terminalButtonGreen}></div>
+      </div>
+
+      {/* Terminal Content */}
+      <div style={styles.terminalContent}>
+        {/* <h3 style={styles.nameStyles}>Jeffrey Fenster</h3> */}
+        <p style={{margin: '8px 0', color: terminalGreen}}>
+          <span style={{color: terminalGreenLight}}>$ whoami </span>
+          <br/>
+          <span style={{color: '#fff'}}> Hello! My name is Jeff Fenster. I am a <strong style={{color: terminalGreen}}>Software engineer</strong>, 
+          <strong style={{color: terminalGreen}}> Generative artist</strong>, <strong style={{color: terminalGreen}}>Illustrator</strong>, and a passionate <strong style={{color: terminalGreen}}>Product Leader.</strong></span>
+        </p>
+        <p style={{margin: '20px 0', color: terminalGreen}}>
+          <span style={{color: terminalGreenLight}}>$cat about.txt</span>
+          <br/>
+          <span style={{color: '#fff'}}> I like to doodle with code (they sometimes call it "Creative Coding" or "Generative Art"). I also draw, build stuff for the web, code, 
+            and I am passionate about all things product, UX, and AI.
+            <br />
+            <br />
+            I often post my work and ideas on <a style={{color: terminalGreen, textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">Twitter/X</a> and <a style={{color: terminalGreen, textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://github.com/menshguy">Github</a>.
+            You can also find me on <a style={{color: terminalGreen, textDecoration: 'underline'}} href="https://www.linkedin.com/in/jeff-fenster/" target="_blank">LinkedIn</a>
+          </span>
+        </p>
+      </div>
     </div>
   );
-}
+};
 
 export default App;
