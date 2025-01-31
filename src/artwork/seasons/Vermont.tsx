@@ -42,8 +42,12 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
     treesInMiddle = [];
     treesInFront = [];
 
-    /** SEASON */
+    /** SEASON & DAYTIME */
     season = p.random(['spring', 'fall', 'summer']);
+    timeOfDay = p.random([
+      'day', 
+      'night'
+    ]);
     console.log("season", season)
     
     /** COLORS */
@@ -54,10 +58,10 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
       summer: (s: number = 1, l: number = 1) => () => p.color(p.random(70,125), 80*s, 55*l)
     }
     colorsBG = {
-      'summer': p.color(208,85,95), //light yellow
-      'winter': p.color(208,18,98), //deep blue
-      'spring': p.color(43, 62, 90), //orange
-      'fall': p.color(39, 26, 93) //brown
+      'summer': p.color(208, 85, 98), //light yellow
+      'winter': p.color(208, 18, 98), //deep blue
+      'spring': p.color(43, 62, 96), //orange
+      'fall': p.color(39, 26, 96) //brown
     }
 
     // Sunlight
@@ -67,13 +71,11 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
     let sunlight = {angle: sunAngle, fillPercentage: sunFillPercentage}
 
     /** DAY TIME */
-    timeOfDay = p.random(['day', 'night']);
-    let bgLightness = timeOfDay === "day" ? 0.85 : 0.01;
     let treeLightness = timeOfDay === "day" ? 1 : 0.65;
     bgColor = p.color(
       p.hue(colorsBG[season]), 
       p.saturation(colorsBG[season]), 
-      p.lightness(colorsBG[season])*bgLightness
+      p.lightness(colorsBG[season]) * (timeOfDay === "day" ? 0.9 : 0.01)
     );
     
     /** Moon */
@@ -96,18 +98,18 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
     starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
 
     /** FRONT TREES */
-    let numTreesInFront = 36;
+    let numTreesInFront = p.random(20, 40);
     for (let i = 0; i < numTreesInFront; i++) {
 
       // Trunk & Tree
       let trunkHeight = p.random(50, ch-bottom-100);
-      let trunkWidth = p.random(200, 200);
+      let trunkWidth = p.random(100, 150);
       let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
       let treeWidth = p.random(trunkWidth+20, 300); // total width including leaves
       let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
 
       // Points & Leaves
-      let numPointsPerRow = p.random(10,11); // X points are draw within a boundary radius
+      let numPointsPerRow = p.random(10, 15); // X points are draw within a boundary radius
       let avg = season === "winter" ? 8 : 30
       let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
       let pointBoundaryRadius = {min: 50, max: 60};
@@ -134,7 +136,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[season](0.9, 0.55*treeLightness),
+        fills: colors[season](0.9, 0.35*treeLightness),
         fillsSunlight: colors[season](0.45, 0.85*treeLightness),  
         sunlight,
         leafWidth, 
@@ -147,62 +149,62 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
       treesInFront.push(tree);
     }
 
-    /** MIDDLE TREES */
-    let middleBottom = bottom;
-    let numTreesInMiddle = 13;
-    for (let i = 0; i < numTreesInMiddle; i++) {
+    // /** MIDDLE TREES */
+    // let middleBottom = bottom;
+    // let numTreesInMiddle = 13;
+    // for (let i = 0; i < numTreesInMiddle; i++) {
 
-      // Trunk & Tree
-      let trunkHeight = p.random(300, 400);
-      let trunkWidth = p.random(100,150);
-      let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
-      let treeWidth = p.random(trunkWidth+20, 300); // total width including leaves
-      let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
+    //   // Trunk & Tree
+    //   let trunkHeight = p.random(300, 400);
+    //   let trunkWidth = p.random(100,150);
+    //   let treeHeight = p.random(trunkHeight, trunkHeight); // total height including leaves
+    //   let treeWidth = p.random(trunkWidth+20, 300); // total width including leaves
+    //   let numTrunkLines = p.random(4,8); //trunks are made up of X bezier curves
 
-      // Points & Leaves
-      let numPointsPerRow = p.random(13, 15); // X points are draw within a boundary radius
-      let pointBoundaryRadius = {min: 20, max: 30};
-      let avg = season === "winter" ? 5 : 30
-      let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
-      let leavesStartY = p.height - middleBottom - pointBoundaryRadius.min; //where on y axis do leaves start
-      let leafWidth = p.random(2, 3);
-      let leafHeight = p.random(4, 5);
-      let rowHeight = treeHeight/10; //x points will drawn p.randominly in each row. rows increment up by this amount
+    //   // Points & Leaves
+    //   let numPointsPerRow = p.random(13, 15); // X points are draw within a boundary radius
+    //   let pointBoundaryRadius = {min: 20, max: 30};
+    //   let avg = season === "winter" ? 5 : 30
+    //   let numLeavesPerPoint = p.random(avg-(avg/2), avg+(avg/2)); // X leaves are draw around each point.
+    //   let leavesStartY = p.height - middleBottom - pointBoundaryRadius.min; //where on y axis do leaves start
+    //   let leafWidth = p.random(2, 3);
+    //   let leafHeight = p.random(4, 5);
+    //   let rowHeight = treeHeight/10; //x points will drawn p.randominly in each row. rows increment up by this amount
 
-      // Start / Mid / Bulge
-      let startPoint = {x: p.random(-100, cw+100), y: ch - middleBottom};
-      let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + middleBottom};
-      let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
+    //   // Start / Mid / Bulge
+    //   let startPoint = {x: p.random(-100, cw+100), y: ch - middleBottom};
+    //   let midpoint = {x: startPoint.x ,y: startPoint.y - (treeHeight/2) + middleBottom};
+    //   let bulgePoint = { x: midpoint.x, y: p.random(midpoint.y, (startPoint.y - midpoint.y/3))};
     
-      /** Create Tree */
-      tree = new VermontTree({
-        p5Instance: p,
-        treeHeight, 
-        treeWidth, 
-        numTrunkLines, 
-        numPointsPerRow,
-        numLeavesPerPoint, 
-        startPoint, 
-        trunkHeight, 
-        trunkWidth, 
-        leavesStartY,
-        pointBoundaryRadius, 
-        fills: colors[season](0.6, 0.25*treeLightness), 
-        fillsSunlight: colors[season](0.65, 0.4*treeLightness), 
-        sunlight,
-        leafWidth, 
-        leafHeight,
-        rowHeight,
-        midpoint,
-        bulgePoint
-      });
+    //   /** Create Tree */
+    //   tree = new VermontTree({
+    //     p5Instance: p,
+    //     treeHeight, 
+    //     treeWidth, 
+    //     numTrunkLines, 
+    //     numPointsPerRow,
+    //     numLeavesPerPoint, 
+    //     startPoint, 
+    //     trunkHeight, 
+    //     trunkWidth, 
+    //     leavesStartY,
+    //     pointBoundaryRadius, 
+    //     fills: colors[season](0.6, 0.25*treeLightness), 
+    //     fillsSunlight: colors[season](0.65, 0.4*treeLightness), 
+    //     sunlight,
+    //     leafWidth, 
+    //     leafHeight,
+    //     rowHeight,
+    //     midpoint,
+    //     bulgePoint
+    //   });
 
-      treesInMiddle.push(tree);
-    }
+    //   treesInMiddle.push(tree);
+    // }
 
     /** BACK TREES */
-    let backBottom = middleBottom;
-    let numTreesInBack = 29;
+    let backBottom = bottom;
+    let numTreesInBack = p.random(10, 20);
     for (let i = 0; i < numTreesInBack; i++) {
 
       // Trunk & Tree
@@ -240,8 +242,8 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
         trunkWidth, 
         leavesStartY,
         pointBoundaryRadius, 
-        fills: colors[season](0.4, 0.2*treeLightness), 
-        fillsSunlight: colors[season](0.5, 0.3*treeLightness),
+        fills: colors[season](0.4, 0.35*treeLightness), 
+        fillsSunlight: colors[season](0.5, 0.45*treeLightness),
         sunlight,
         leafWidth, 
         leafHeight,
