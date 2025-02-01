@@ -74,13 +74,13 @@ function App() {
 
         {/* @TODO: Add a P5 Sketch with Rain here */}
         <div style={styles.BoxPlaceholder}></div>
-        
+        {/* Character Animation */}
         <SVGObject styles={styles.characterSvgPlacement} svgData={DESK_SVG} label="Desk"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_SVG} label="Chair"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHARACTER_GIF} label="Character"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_ARM_SVG} label="Chair"/>
       </div>
-      <TerminalWindow showInput={false} />
+      <TerminalWindow showInput={true} />
     </div>
   );
 }
@@ -124,8 +124,8 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
   }, [isDragging, dragStart]);
 
   const lightGray = '#323232';
-  const terminalGreen = '#00ff00'; // Original green color
-  const terminalGreenLight = '#00ff0078'; // Lighter, more vibrant green
+  const terminalGreen = '#00ff00';
+  const terminalGreenLight = '#00ff0078';
 
   const floatingTerminalStyles = isMobile ? {
     width: '100%',
@@ -236,22 +236,37 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
           <span style={{color: '#fff'}}> Hello! My name is Jeff Fenster. I am a Software Engineer, Creative Coder, and a passionate Product Leader.
           </span>
         </p>
-        <p style={{margin: '20px 0', color: terminalGreen}}>
-          <span style={{color: terminalGreenLight}}>$ cat about.txt</span>
-          <br/>
-          <span style={{color: '#fff'}}> I like to create illustrations and artwork using code (they sometimes call it "Creative Coding" or "Generative Art"). 
-            You can usually find me at my computer building stuff for the web.
-            <br />
-            <br />
-            I post my work and ideas on <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">Twitter/X</a> and <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://github.com/menshguy">Github</a>.
-            <br />
-            You can also find me on <a style={{textDecoration: 'underline'}} href="https://www.linkedin.com/in/jeff-fenster/" target="_blank">LinkedIn</a>
-          </span>
-        </p>
+        { isMobile ? (
+          <p style={{margin: '10px 0', color: terminalGreen}}>
+            <span style={{color: '#fff'}}>
+              <span>Find me on: </span>
+              {[
+                {href: 'https://x.com/menshguy', label: 'Twitter/X'},
+                {href: 'https://github.com/menshguy', label: 'Github'},
+                {href: 'https://linkedin.com/in/jeff-fenster/', label: 'LinkedIn'},
+              ].map(({href, label}) =>(
+                <a style={{textDecoration: 'underline', marginRight: 8}} target="_blank" rel="noopener noreferrer" href={href}>{label}</a>
+              ))} 
+            </span>
+          </p>
+        ) : (
+          <p style={{margin: '20px 0', color: terminalGreen}}>
+            <span style={{color: terminalGreenLight}}>$ cat about.txt</span>
+            <br/>
+            <span style={{color: '#fff'}}> I like to create illustrations and artwork using code (they sometimes call it "Creative Coding" or "Generative Art"). 
+              You can usually find me at my computer building stuff for the web.
+              <br />
+              <br />
+              I post my work and ideas on <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">Twitter/X</a> and <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://github.com/menshguy">Github</a>.
+              <br />
+              You can also find me on <a style={{textDecoration: 'underline'}} href="https://www.linkedin.com/in/jeff-fenster/" target="_blank">LinkedIn</a>
+            </span>
+          </p>
+        )}
         {showInput && (
           <>
           <p style={{color: terminalGreen }}>
-            Ask me anything below...
+            "Questions about me and what I do? Ask away below! 💭"
           </p>
           <div style={styles.terminalInputContainer}>
             <span style={{display: 'flex', alignItems: 'center', width: '100%', color: terminalGreenLight, padding: '0 10px'}}>
