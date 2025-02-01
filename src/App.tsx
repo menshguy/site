@@ -46,6 +46,15 @@ function App() {
       padding: isMobile ? '4px' : '0px',
       position: 'relative', 
     } as CSSProperties,
+    BoxPlaceholder: {
+      position: 'absolute',
+      // background: '#e4dce5',
+      background: '#adbff5',
+      height: '80%',
+      width: '60%',
+      bottom: '10%',
+      left: '30%',
+    } as CSSProperties,
     characterContainer: {
       position: 'relative',
       flex: 1,
@@ -62,17 +71,21 @@ function App() {
   return (
     <div ref={contentRef} style={styles.contentContainer}>
       <div style={styles.characterContainer}>
+
+        {/* @TODO: Add a P5 Sketch with Rain here */}
+        <div style={styles.BoxPlaceholder}></div>
+        
         <SVGObject styles={styles.characterSvgPlacement} svgData={DESK_SVG} label="Desk"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_SVG} label="Chair"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHARACTER_GIF} label="Character"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_ARM_SVG} label="Chair"/>
       </div>
-      <TerminalWindow />
+      <TerminalWindow showInput={false} />
     </div>
   );
 }
 
-const TerminalWindow = () => {
+const TerminalWindow = ({showInput}: {showInput: boolean}) => {
   const {isMobile} = useDevice();
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -110,6 +123,7 @@ const TerminalWindow = () => {
     };
   }, [isDragging, dragStart]);
 
+  const lightGray = '#323232';
   const terminalGreen = '#00ff00'; // Original green color
   const terminalGreenLight = '#00ff0078'; // Lighter, more vibrant green
 
@@ -118,7 +132,8 @@ const TerminalWindow = () => {
   } : {
     position: 'relative',
     margin: 'auto 10px',
-    maxWidth: '800px',
+    // maxWidth: '800px',
+    maxWidth: '50%',
     transform: `translate(${position.x}px, ${position.y}px)`,
     cursor: isDragging ? 'grabbing' : 'default',
     boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
@@ -126,6 +141,8 @@ const TerminalWindow = () => {
 
   const styles = {
     terminalContainer: {
+      maxHeight: '80%',
+      overflow: 'scroll',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'flex-start',
@@ -137,6 +154,7 @@ const TerminalWindow = () => {
       fontFamily: 'Monaco, monospace',
       fontSize: '14px',
       lineHeight: '1.6',
+      scrollbarWidth: 'none',
       color: terminalGreen,
       ...floatingTerminalStyles
     } as CSSProperties,
@@ -146,7 +164,7 @@ const TerminalWindow = () => {
       left: '0',
       right: '0',
       height: '25px',
-      backgroundColor: '#323232',
+      backgroundColor: lightGray,
       borderTopLeftRadius: '8px',
       borderTopRightRadius: '8px',
       display: 'flex',
@@ -175,7 +193,7 @@ const TerminalWindow = () => {
       backgroundColor: terminalGreen,
     } as CSSProperties,
     terminalContent: {
-      marginTop: '30px',
+      marginTop: '10px',
       textAlign: 'left',
       width: '100%',
     } as CSSProperties,
@@ -190,6 +208,14 @@ const TerminalWindow = () => {
         marginRight: '8px',
       },
     } as CSSProperties,
+    terminalInputContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      marginRight: '4px',
+      backgroundColor: lightGray,
+      padding: '8px 0',
+      borderRadius: 4
+    } as CSSProperties
   }
   
   return (
@@ -207,20 +233,38 @@ const TerminalWindow = () => {
         <p style={{margin: '8px 0', color: terminalGreen}}>
           <span style={{color: terminalGreenLight}}>$ whoami </span>
           <br/>
-          <span style={{color: '#fff'}}> Hello! My name is Jeff Fenster. I am a <strong style={{color: terminalGreen}}>Software engineer</strong>, 
-          <strong style={{color: terminalGreen}}> Generative artist</strong>, <strong style={{color: terminalGreen}}>Illustrator</strong>, and a passionate <strong style={{color: terminalGreen}}>Product Leader.</strong></span>
-        </p>
-        <p style={{margin: '20px 0', color: terminalGreen}}>
-          <span style={{color: terminalGreenLight}}>$cat about.txt</span>
-          <br/>
-          <span style={{color: '#fff'}}> I like to doodle with code (they sometimes call it "Creative Coding" or "Generative Art"). I also draw, build stuff for the web, code, 
-            and I am passionate about all things product, UX, and AI.
-            <br />
-            <br />
-            I often post my work and ideas on <a style={{color: terminalGreen, textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">Twitter/X</a> and <a style={{color: terminalGreen, textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://github.com/menshguy">Github</a>.
-            You can also find me on <a style={{color: terminalGreen, textDecoration: 'underline'}} href="https://www.linkedin.com/in/jeff-fenster/" target="_blank">LinkedIn</a>
+          <span style={{color: '#fff'}}> Hello! My name is Jeff Fenster. I am a Software Engineer, Creative Coder, and a passionate Product Leader.
           </span>
         </p>
+        <p style={{margin: '20px 0', color: terminalGreen}}>
+          <span style={{color: terminalGreenLight}}>$ cat about.txt</span>
+          <br/>
+          <span style={{color: '#fff'}}> I like to create illustrations and artwork using code (they sometimes call it "Creative Coding" or "Generative Art"). 
+            You can usually find me at my computer building stuff for the web.
+            <br />
+            <br />
+            I post my work and ideas on <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">Twitter/X</a> and <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://github.com/menshguy">Github</a>.
+            <br />
+            You can also find me on <a style={{textDecoration: 'underline'}} href="https://www.linkedin.com/in/jeff-fenster/" target="_blank">LinkedIn</a>
+          </span>
+        </p>
+        {showInput && (
+          <>
+          <p style={{color: terminalGreen }}>
+            Ask me anything below...
+          </p>
+          <div style={styles.terminalInputContainer}>
+            <span style={{display: 'flex', alignItems: 'center', width: '100%', color: terminalGreenLight, padding: '0 10px'}}>
+                $ 
+                <input
+                  className='terminalInput'
+                  type="text"
+                  placeholder="" 
+                />
+            </span>
+          </div>
+          </>
+        )}
       </div>
     </div>
   );
