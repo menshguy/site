@@ -257,9 +257,7 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
               You can usually find me at my computer building stuff for the web.
               <br />
               <br />
-              I post my work and ideas on <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">Twitter/X</a> and <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://github.com/menshguy">Github</a>.
-              <br />
-              You can also find me on <a style={{textDecoration: 'underline'}} href="https://www.linkedin.com/in/jeff-fenster/" target="_blank">LinkedIn</a>
+              I post my work and ideas on <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">Twitter/X</a> and <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://github.com/menshguy">Github</a>, and you can also find me on <a style={{textDecoration: 'underline'}} href="https://www.linkedin.com/in/jeff-fenster/" target="_blank">LinkedIn</a>
             </span>
           </p>
         )}
