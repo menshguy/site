@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { DeviceProvider } from './context/DeviceContext.tsx';
 import { NavProvider } from './context/NavContext.tsx';
+import { Analytics } from "@vercel/analytics/react"
 import MainNav from './components/MainNav.tsx';
 import {useNav} from './context/NavContext.tsx';
 import App from './App.tsx'
@@ -72,6 +73,9 @@ function AppWithNav() {
           />
         </Routes>
       </div>
+      
+      {/* Vercel Analytics: https://vercel.com/docs/analytics/quickstart#add-the-analytics-component-to-your-app */}
+      <Analytics />
     </>
   );
 }
