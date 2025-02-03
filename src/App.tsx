@@ -80,7 +80,7 @@ function App() {
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHARACTER_GIF} label="Character"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_ARM_SVG} label="Chair"/>
       </div>
-      <TerminalWindow showInput={true} />
+      <TerminalWindow showInput={false} />
     </div>
   );
 }
@@ -253,7 +253,7 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
           <p style={{margin: '20px 0', color: terminalGreen}}>
             <span style={{color: terminalGreenLight}}>$ cat about.txt</span>
             <br/>
-            <span style={{color: '#fff'}}> I like to create illustrations and artwork using code (they sometimes call it "Creative Coding" or "Generative Art"). 
+            <span style={{color: '#fff'}}> When I am not working, I like to create illustrations and artwork using code (they sometimes call it "Creative Coding" or "Generative Art"). 
               You can usually find me at my computer building stuff for the web.
               <br />
               <br />
@@ -265,8 +265,8 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
         )}
         {showInput && (
           <>
-          <p style={{color: terminalGreen }}>
-            "Questions about me and what I do? Ask away below! 💭"
+          <p style={{color: terminalGreenLight }}>
+            $ Questions about me and what I do? Ask away below! 💭
           </p>
           <div style={styles.terminalInputContainer}>
             <span style={{display: 'flex', alignItems: 'center', width: '100%', color: terminalGreenLight, padding: '0 10px'}}>
