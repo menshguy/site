@@ -74,22 +74,46 @@ function App() {
 
         {/* @TODO: Add a P5 Sketch with Rain here */}
         <div style={styles.BoxPlaceholder}></div>
+        
         {/* Character Animation */}
         <SVGObject styles={styles.characterSvgPlacement} svgData={DESK_SVG} label="Desk"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_SVG} label="Chair"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHARACTER_GIF} label="Character"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_ARM_SVG} label="Chair"/>
       </div>
-      <TerminalWindow showInput={false} />
+      <TerminalWindow show={true} />
     </div>
   );
 }
 
-const TerminalWindow = ({showInput}: {showInput: boolean}) => {
+const TerminalWindow = ({show}: {show: boolean}) => {
   const {isMobile} = useDevice();
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  // const [message, setMessage] = useState<string>('');
+  const [userInputs, setUserInputs] = useState<string[]>([]);
+  const [botResponses, setBotResponses] = useState<string[]>([]);
+  const [userInput, setUserInput] = useState<string>('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    const fetchResponse = async (userInput: string) => {
+      try {
+        const response = await fetch(`/api/bot?message=${encodeURIComponent(userInput || '')}`);
+        const data = await response.json();
+        setUserInputs([...userInputs, userInput]);
+        setBotResponses([...botResponses, data.message]);
+        // setMessage(data.message);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+      }
+    };
+
+    e.preventDefault();
+    fetchResponse(userInput);
+    setUserInput('');
+  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -220,6 +244,7 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
   
   return (
     <div style={styles.terminalContainer}>
+
       {/* Terminal Window Top */}
       <div style={styles.terminalHeader} onMouseDown={handleMouseDown}>
         <div style={styles.terminalButton}></div>
@@ -229,7 +254,6 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
 
       {/* Terminal Content */}
       <div style={styles.terminalContent}>
-        {/* <h3 style={styles.nameStyles}>Jeffrey Fenster</h3> */}
         <p style={{margin: '8px 0', color: terminalGreen}}>
           <span style={{color: terminalGreenLight}}>$ whoami </span>
           <br/>
@@ -261,20 +285,41 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
             </span>
           </p>
         )}
-        {showInput && (
+
+        {/* Display conversation history - this will interlace userInputs with botResponses */}
+        {Array.from({ length: Math.max(userInputs.length, botResponses.length) * 2 }, (_, i) => {
+          if (i % 2 === 0) {
+            const userInput = userInputs[i/2];
+            return userInput && (
+              <p key={`user-${i}`} style={{color: terminalGreenLight}}>
+                $ {userInput}
+              </p>
+            );
+          } else {
+            const botResponse = botResponses[(i-1)/2];
+            return botResponse && (
+              <p key={`bot-${i}`} style={{color: terminalGreen}}>
+                {botResponse}
+              </p>
+            );
+          }
+        })}
+
+        {/* User Input Field */}
+        {show && (
           <>
-          <p style={{color: terminalGreenLight }}>
-            $ Questions about me and what I do? Ask away below! 💭
-          </p>
           <div style={styles.terminalInputContainer}>
-            <span style={{display: 'flex', alignItems: 'center', width: '100%', color: terminalGreenLight, padding: '0 10px'}}>
+            <form onSubmit={handleSubmit} style={{display: 'flex', alignItems: 'center', width: '100%', color: terminalGreenLight, padding: '0 10px'}}>
                 $ 
                 <input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
                   className='terminalInput'
                   type="text"
-                  placeholder="" 
+                  placeholder="Questions about me and what I do? Ask away below! 💭" 
                 />
-            </span>
+              <button type="submit">Ask</button>
+            </form>
           </div>
           </>
         )}
