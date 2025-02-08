@@ -25,6 +25,17 @@
 /* Terminal Styles for Fake Terminal Input */
 /* --------------------------------------- */
 
+.terminal-scrollbar {
+  scroll-behavior: smooth;
+  overflow-y: auto;
+  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.terminal-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
 .terminalInput {
   width: 100%;
   background-color: #323232;
@@ -42,9 +53,9 @@
   opacity: 0.7;
 }
 
-.terminalInput:not(:focus):placeholder-shown {
+/* .terminalInput:not(:focus):placeholder-shown {
   animation: blink 0.8s step-end infinite;
-}
+} */
 
 .terminalInput:placeholder-shown {
   border-left: none;
@@ -55,7 +66,7 @@
   caret-color: #00ff00;
 }
 
-/* Flashing cursor animation */
+/* Blinking cursor animation - disabled for now */
 @keyframes blink {
   0%, 100% {
     border-left: 4px solid #00ff00;

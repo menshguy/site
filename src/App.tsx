@@ -81,37 +81,76 @@ function App() {
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHARACTER_GIF} label="Character"/>
         <SVGObject styles={styles.characterSvgPlacement} svgData={CHAIR_ARM_SVG} label="Chair"/>
       </div>
-      <TerminalWindow show={true} />
+
+      {/* Terminal Window & Input */}
+      <TerminalWindow showInput={true} />
     </div>
   );
 }
 
-const TerminalWindow = ({show}: {show: boolean}) => {
+const TerminalWindow = ({showInput}: {showInput: boolean}) => {
   const {isMobile} = useDevice();
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
+  const terminalContentRef = useRef<HTMLInputElement>(null);
+  const userInputRef = useRef<HTMLInputElement>(null);
   const [messages, setMessages] = useState<string[]>([]);
   const [userInput, setUserInput] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const scrollToBottom = () => {
+    if (terminalContentRef.current) {
+      terminalContentRef.current.scrollTo({
+        top: terminalContentRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const selectUserInput = () => {
+    if (userInputRef.current && showInput) {
+      userInputRef.current.focus();
+    }
+  };
+
+  useEffect(() => {
+    selectUserInput();
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
-    
+    e.preventDefault();
+
+    // Don't submit empty messages
+    if (!userInput.trim()) return;
+
+    // Add users input to terminal immediately and reset input
     setMessages((prevMessages) => [...prevMessages, userInput]);
-    
+    setUserInput('');
+    setIsLoading(true);
+
     const fetchResponse = async (userInput: string) => {
       try {
-        const response = await fetch(`/api/bot?message=${encodeURIComponent(userInput || '')}`);
+        // Fetch data
+        const response = await fetch(`/api/bot?message=${encodeURIComponent(userInput)}`);
         const data = await response.json();
+        
+        // Update state
         setMessages((prevMessages) => [...prevMessages, data.message]);
+        
+        // Use setTimeout to ensure state updates are complete before scrolling
+        setTimeout(scrollToBottom, 0);
+        setTimeout(() => selectUserInput(), 0);
       } catch (err) {
         console.error('Error fetching data:', err);
+        setUserInput(userInput); // If call fails, keep original input so user can try again.
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    e.preventDefault();
     fetchResponse(userInput);
-    setUserInput('');
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -152,10 +191,11 @@ const TerminalWindow = ({show}: {show: boolean}) => {
 
   const floatingTerminalStyles = isMobile ? {
     width: '100%',
+    maxHeight: '50%',
+    overflow: 'scroll',
   } : {
     position: 'relative',
     margin: 'auto 10px',
-    // maxWidth: '800px',
     maxWidth: '50%',
     transform: `translate(${position.x}px, ${position.y}px)`,
     cursor: isDragging ? 'grabbing' : 'default',
@@ -165,7 +205,6 @@ const TerminalWindow = ({show}: {show: boolean}) => {
   const styles = {
     terminalContainer: {
       maxHeight: '80%',
-      overflow: 'scroll',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'flex-start',
@@ -177,8 +216,6 @@ const TerminalWindow = ({show}: {show: boolean}) => {
       fontFamily: 'Monaco, monospace',
       fontSize: '14px',
       lineHeight: '1.6',
-      scrollbarWidth: 'none',
-      color: terminalGreen,
       ...floatingTerminalStyles
     } as CSSProperties,
     terminalHeader: {
@@ -219,6 +256,7 @@ const TerminalWindow = ({show}: {show: boolean}) => {
       marginTop: '10px',
       textAlign: 'left',
       width: '100%',
+      overflow: 'scroll',
     } as CSSProperties,
     nameStyles: {
       display: 'flex',
@@ -237,13 +275,23 @@ const TerminalWindow = ({show}: {show: boolean}) => {
       marginRight: '4px',
       backgroundColor: lightGray,
       padding: 0,
-      borderRadius: 4
+      borderRadius: 4,
+      width: '100%',
+    } as CSSProperties,
+    askButton: {
+      backgroundColor: terminalGreenLight,
+      color: '#fff',
+      border: 'none',
+      padding: '8px 12px',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      marginLeft: '8px',
     } as CSSProperties
   }
   
   return (
-    <div style={styles.terminalContainer}>
-
+    <div style={styles.terminalContainer} >
+      
       {/* Terminal Window Top */}
       <div style={styles.terminalHeader} onMouseDown={handleMouseDown}>
         <div style={styles.terminalButton}></div>
@@ -252,7 +300,11 @@ const TerminalWindow = ({show}: {show: boolean}) => {
       </div>
 
       {/* Terminal Content */}
-      <div style={styles.terminalContent}>
+      <div 
+        ref={terminalContentRef}
+        style={styles.terminalContent}
+        className="terminal-scrollbar"
+      >
         <p style={{margin: '8px 0', color: terminalGreen}}>
           <span style={{color: terminalGreenLight}}>$ whoami </span>
           <br/>
@@ -274,8 +326,8 @@ const TerminalWindow = ({show}: {show: boolean}) => {
           </p>
         ) : (
           <p style={{margin: '20px 0', color: terminalGreen}}>
-            <span style={{color: terminalGreenLight}}>$ cat about.txt</span>
-            <br/>
+            {/* <span style={{color: terminalGreenLight}}>$ cat about.txt</span>
+            <br/> */}
             <span style={{color: '#fff'}}> When I am not working, I like to create illustrations and artwork using code (they sometimes call it "Creative Coding" or "Generative Art"). 
               You can usually find me at my computer building stuff for the web.
               <br />
@@ -287,30 +339,34 @@ const TerminalWindow = ({show}: {show: boolean}) => {
 
         {messages.map((message, index) => (
           <p key={`message-${index}`} style={{color: index % 2 === 0 ? terminalGreenLight : terminalGreen}}>
-            {message}
+            {index % 2 === 0 ? `$ ${message}` : message}
           </p>
         ))}
 
         {/* User Input Field */}
-        {show && (
-          <>
-          <div style={styles.terminalInputContainer}>
-            <form onSubmit={handleSubmit} style={{display: 'flex', alignItems: 'center', width: '100%', color: terminalGreenLight, padding: '0 10px'}}>
-                $ 
-                <input
-                style={{color: terminalGreenLight}}
-                  value={userInput}
-                  onChange={e => setUserInput(e.target.value)}
-                  className='terminalInput'
-                  type="text"
-                  placeholder="Ask me anything..." 
-                />
-              <button type="submit">Ask</button>
-            </form>
-          </div>
-          </>
-        )}
       </div>
+      {showInput && (
+        <form 
+          onSubmit={handleSubmit}
+          style={{
+            ...styles.terminalInputContainer,
+            display: 'flex', alignItems: 'center', width: '100%', color: terminalGreenLight, padding: '0px 0px 0px 10px'
+          }}
+        >
+          $ 
+          <input
+            ref={userInputRef}
+            value={userInput}
+            style={{color: terminalGreenLight}}
+            disabled={isLoading}
+            onChange={e => setUserInput(e.target.value)}
+            className='terminalInput'
+            type="text"
+            placeholder={isLoading ? "💭" : "Ask me anything..."}
+          />
+          <button type="submit" style={styles.askButton}>Ask</button>
+        </form>
+      )}
     </div>
   );
 };
