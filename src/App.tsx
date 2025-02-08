@@ -25,7 +25,7 @@ function SVGObject (
 
 function App() {
   const {isMobile} = useDevice();
-  const { navHeight } = useNav();
+  const {navHeight} = useNav();
   const [isProfessionalSite, _setIsProfessionalSite] = useState(false);
   const CHARACTER_GIF = isProfessionalSite ? CHARACTER_GIF_PROFESSIONAL: CHARACTER_GIF_PERSONAL;
   const contentRef = useRef<HTMLDivElement>(null);
@@ -92,19 +92,18 @@ const TerminalWindow = ({show}: {show: boolean}) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  // const [message, setMessage] = useState<string>('');
-  const [userInputs, setUserInputs] = useState<string[]>([]);
-  const [botResponses, setBotResponses] = useState<string[]>([]);
+  const [messages, setMessages] = useState<string[]>([]);
   const [userInput, setUserInput] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent) => {
+    
+    setMessages((prevMessages) => [...prevMessages, userInput]);
+    
     const fetchResponse = async (userInput: string) => {
       try {
         const response = await fetch(`/api/bot?message=${encodeURIComponent(userInput || '')}`);
         const data = await response.json();
-        setUserInputs([...userInputs, userInput]);
-        setBotResponses([...botResponses, data.message]);
-        // setMessage(data.message);
+        setMessages((prevMessages) => [...prevMessages, data.message]);
       } catch (err) {
         console.error('Error fetching data:', err);
       }
@@ -237,7 +236,7 @@ const TerminalWindow = ({show}: {show: boolean}) => {
       alignItems: 'center',
       marginRight: '4px',
       backgroundColor: lightGray,
-      padding: '8px 0',
+      padding: 0,
       borderRadius: 4
     } as CSSProperties
   }
@@ -286,24 +285,11 @@ const TerminalWindow = ({show}: {show: boolean}) => {
           </p>
         )}
 
-        {/* Display conversation history - this will interlace userInputs with botResponses */}
-        {Array.from({ length: Math.max(userInputs.length, botResponses.length) * 2 }, (_, i) => {
-          if (i % 2 === 0) {
-            const userInput = userInputs[i/2];
-            return userInput && (
-              <p key={`user-${i}`} style={{color: terminalGreenLight}}>
-                $ {userInput}
-              </p>
-            );
-          } else {
-            const botResponse = botResponses[(i-1)/2];
-            return botResponse && (
-              <p key={`bot-${i}`} style={{color: terminalGreen}}>
-                {botResponse}
-              </p>
-            );
-          }
-        })}
+        {messages.map((message, index) => (
+          <p key={`message-${index}`} style={{color: index % 2 === 0 ? terminalGreenLight : terminalGreen}}>
+            {message}
+          </p>
+        ))}
 
         {/* User Input Field */}
         {show && (
@@ -312,11 +298,12 @@ const TerminalWindow = ({show}: {show: boolean}) => {
             <form onSubmit={handleSubmit} style={{display: 'flex', alignItems: 'center', width: '100%', color: terminalGreenLight, padding: '0 10px'}}>
                 $ 
                 <input
+                style={{color: terminalGreenLight}}
                   value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
+                  onChange={e => setUserInput(e.target.value)}
                   className='terminalInput'
                   type="text"
-                  placeholder="Questions about me and what I do? Ask away below! 💭" 
+                  placeholder="Ask me anything..." 
                 />
               <button type="submit">Ask</button>
             </form>
