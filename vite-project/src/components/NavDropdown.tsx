@@ -72,12 +72,14 @@ function NavDropdown({ title, items }: NavDropdownProps) {
               className={styles.dropdownItem}
               style={item.img ? {
                 backgroundImage: isMobile ? `linear-gradient(rgba(248, 249, 250, 0.2), rgba(248, 249, 250, 0.2)), url(${item.img})` : `linear-gradient(rgba(248, 249, 250, 0.8), rgba(248, 249, 250, 0.8)), url(${item.img})`,
-                color: isMobile && item.img ? 'white' : 'black',
-                textShadow: isMobile && item.img ? '0 0 4px rgba(0,0,0,0.9)' : 'inherit',
+                color: isMobile ? 'white' : 'inherit',
+                textShadow: isMobile ? '0 0 4px rgba(0,0,0,0.9)' : 'inherit',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 transition: 'all 0.3s ease'
-              } : undefined}
+              } : {
+                color: 'black'
+              }}
               onMouseEnter={(e) => {
                 if (item.img) {
                   e.currentTarget.style.backgroundImage = `linear-gradient(rgba(248, 249, 250, 0.2), rgba(248, 249, 250, 0.2)), url(${item.img})`;
