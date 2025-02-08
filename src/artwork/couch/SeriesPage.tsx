@@ -11,9 +11,9 @@ import React from 'react';
 const SeriesPage: React.FC = () => {
   return (
     <div>
-      <h1>Couch</h1>
-      <h2>COMING SOON</h2>
       {/* <Page 
+        header={"Couch"}
+        subheader={"COMING SOON"}
         sketches={sketches} 
         route={"artwork/couch"}
       /> */}

@@ -9,8 +9,8 @@ const sketches = {
 const SeriesPage: React.FC = () => {
   return (
     <div>
-      <h1>Demos & Tutorials</h1>
-      <Page 
+      <Page
+        header={"Demos & Tutorials"}
         sketches={sketches} 
         route={"artwork/demos"}
         />

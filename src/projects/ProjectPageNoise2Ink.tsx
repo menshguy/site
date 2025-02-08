@@ -7,17 +7,16 @@ const ProjectPageNoise2Ink: React.FC = () => {
     <>
       <p>
         Noise to Ink is a project that empowers Generative Artists to monetize their creations
-        by selling physical prints on various productions and mediums.
+        by selling physical prints on various products and mediums.
       </p>
       <p>
         Traditionally, Generative artists sell their artwork as NFTs. If they want to sell their artwork as prints, they
         are forced to generate a select few images and add them to online marketplaces like Etsy, Redbubble, etc. This destroys
-        one of the main benefits of Generative Art - the ability to create an unlimited number of totally unique pieces, meaning each
-        customer gets their own unique "1 of 1" piece. 
+        one of the unique aspects of Generative Art - the ability to create an unlimited number of original pieces.
       </p>
       <p>
-        "Noise to ink" aims to solve this issue by giving artist their own space to create and edit their artwork, and share it
-        with their followings.
+        "Noise to ink" aims to solve this issue by giving artist their own space to create their artwork, share it with 
+        others, and allow their followers to buy prints of their artwork.
       </p>
       <p>
         The main features include:

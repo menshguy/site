@@ -40,8 +40,8 @@ const blankSketch = (
 
 
 const SeriesPage: React.FC = () => {
-
     const { isMobile, deviceWidth, deviceHeight } = useDevice();
+    const userPrompt = isMobile ? 'Refresh page to redraw' : 'Click to redraw. Refresh Page to resize.';
 
     const padding = isMobile ? 5 : 50;
     
@@ -62,9 +62,9 @@ const SeriesPage: React.FC = () => {
     const frameSideWidth = Math.floor(Math.random() * (maxFrameHeight - 100 + 1)) + 100;
 
     return (
-        <div>
+        <div style={{padding: padding}}>
         <h1>Royal Picture Frames</h1>
-        <p>Click to redraw. Refresh Page to resize.</p>
+        <p>{userPrompt}</p>
         <RoyalFrame 
             innerWidth={innerWidth} 
             innerHeight={innerHeight} 

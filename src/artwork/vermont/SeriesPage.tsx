@@ -19,8 +19,8 @@ const sketches = {
 const SeriesPage: React.FC = () => {
   return (
     <div>
-      <h1>Vermont</h1>
-      <Page 
+      <Page
+        header={"Vermont"}
         sketches={sketches} 
         route={"artwork/vermont"}
       />
