@@ -195,7 +195,7 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
   const floatingTerminalStyles = isMobile ? {
     width: '100%',
     maxHeight: '50%',
-    overflow: 'scroll',
+    overflowY: 'scroll',
   } : {
     position: 'relative',
     margin: 'auto 10px',
