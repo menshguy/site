@@ -32,7 +32,9 @@ function App() {
 
   const styles = {
     contentContainer: {
-      height: `calc(100vh - ${navHeight}px)`,
+      height: isMobile 
+        ? `calc(100dvh - ${navHeight}px)` 
+        : `calc(100vh - ${navHeight}px)`,
       backgroundColor: '#3a3c45',
       color: 'white',
       borderRadius: '2px',
@@ -102,10 +104,11 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
 
   const scrollToBottom = () => {
     if (terminalContentRef.current) {
-      terminalContentRef.current.scrollTo({
-        top: terminalContentRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
+      // terminalContentRef.current.scrollTo({
+      //   top: terminalContentRef.current.scrollHeight,
+      //   behavior: 'smooth'
+      // });
+      terminalContentRef.current.scrollTop = terminalContentRef.current.scrollHeight;
     }
   };
 
@@ -141,7 +144,7 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
         
         // Use setTimeout to ensure state updates are complete before scrolling
         setTimeout(scrollToBottom, 0);
-        setTimeout(() => selectUserInput(), 0);
+        setTimeout(selectUserInput, 0);
       } catch (err) {
         console.error('Error fetching data:', err);
         setUserInput(userInput); // If call fails, keep original input so user can try again.
