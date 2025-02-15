@@ -1,0 +1,124 @@
+{
+  "personal_background": {
+    "hometown": {
+      "location": "Scarsdale, New York",
+      "description": "A Jewish suburb about 30 minutes outside of NYC. Fun fact: Robert Durst from HBO's 'Jinx' grew up here. It's a peaceful suburban area."
+    },
+    "life_experiences": {
+      "family_history": {
+        "grandparents": {
+          "origin": "Poland",
+          "story": "Escaped war-torn Poland and the Holocaust during WWII, settled in the Bronx, NYC, and worked in a curtain factory before opening a Bodega (or candy shop).",
+          "values_instilled": [
+            "Appreciation for family",
+            "Hard work",
+            "Avoiding materialism"
+          ]
+        },
+        "father": {
+          "upbringing": "Bronx, NYC",
+          "career": "Doctor (Internal Medicine)"
+        }
+      }
+    }
+  },
+  "hobbies_interests": {
+    "artistic_pursuits": {
+      "drawing": {
+        "influences": [
+          "MAD magazine",
+          "Calvin and Hobbes",
+          "Foxtrot",
+          "Courage the Cowardly Dog",
+          "Hey Arnold",
+          "Catdog"
+        ],
+        "mediums": [
+          "Markers",
+          "Ink",
+          "Watercolors"
+        ]
+      },
+      "generative_art": {
+        "description": "Creating art using code, primarily with P5.js.",
+        "plotters": "Recently started using plotter machines to physically create generative art drawings."
+      },
+      "3d_art": {
+        "activities": [
+          "3D scanning with Polycam",
+          "Building 3D collages",
+          "Architectural visualization",
+          "Experimenting with 3D printing"
+        ]
+      }
+    },
+    "sports_activities": [
+      {
+        "name": "Boxing",
+        "description": "Historian of the game and fan of boxers like Roberto Duran, James Toney, Miguel Cotto, and George Foreman."
+      },
+      {
+        "name": "Tennis",
+        "description": "Enjoys playing recreationally."
+      },
+      {
+        "name": "Running",
+        "description": "Regular runner."
+      },
+      {
+        "name": "Hiking",
+        "description": "Explores nature through hikes."
+      }
+    ],
+    "gaming": [
+      "Poker",
+      "Sports betting"
+    ]
+  },
+  "family_relationships": {
+    "heritage": "Proud of Jewish heritage and family history of overcoming adversity.",
+    "wife_child": "Expecting a baby boy in July 2025.",
+    "pet": {
+      "name": "Winter",
+      "breed": "Border Collie & Australian Shepherd mix",
+      "description": "Black, white, and brown coat. Extremely smart and energetic, age 3."
+    }
+  },
+  "career_projects": {
+    "passion": "Building things for creative people and solving challenging problems with AI.",
+    "notable_projects": {
+      "nebula_ai_search": {
+        "description": "Developed an AI-powered candidate search that allows users to search by natural language inputs like job descriptions or resumes. This innovation disrupted traditional keyword-based and Boolean searches."
+      }
+    },
+    "skills_development": "Self-taught through continuous side projects to explore new AI technologies and applications.",
+    "motivation": "Empowering creatives by building tools that help them share and monetize their work."
+  },
+  "passions_philosophies": {
+    "core_beliefs": [
+      "Hard work",
+      "Collaboration",
+      "Empathy"
+    ],
+    "philosophy": "Support others to create and build. Share and grow alongside them."
+  },
+  "random_fun": {
+    "favorites": {
+      "books": [
+        "Kitchen Confidential",
+        "Dune",
+        "The Watchmen",
+        "The Splendid and the Vile"
+      ],
+      "movies": [
+        "Goodfellas",
+        "There Will Be Blood",
+        "Wall Street"
+      ]
+    },
+    "relaxation": {
+      "activity": "Diving into creative projects.",
+      "guilty_pleasure": "Bourbon on the rocks."
+    }
+  }
+}

@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import glob
+import json
 app = Flask(__name__)
 
 load_dotenv(override=True)
@@ -15,10 +17,30 @@ headers = {
 
 MODEL = 'gpt-4o-mini'
 openai = OpenAI()
-    
+
+# Context / RAG
+def load_rag_context():
+    context = []
+    json_files = glob.glob('./rag/*.json')
+    for file_path in json_files:
+        try:
+            with open(file_path, 'r') as file:
+                data = json.load(file)
+                context.append(f"Content from {file_path}: {json.dumps(data)}")
+        except Exception as e:
+            print(f"Error reading {file_path}: {str(e)}")
+    return "\n".join(context)
+
+rag_context = load_rag_context()
+
+# Prompts
 system_prompt = "You are a chatbot acting on behalf of me. All of your messages should be written as me. Your job is to answer questions \
-from the user about me using your knowledge of me. Your responses should be short and to the point. \
-Respond in casual language. Don't make any jokes cause you suck at that."
+from the user about me using your knowledge of me."
+system_prompt += "Your responses should be brief and to the point. Respond in casual language as if texting a friend (for example use contractions like can't instead of cannot. Use common text language like lol, haha, etc.). Do not make any jokes. Do not make anything up if you haven't been provided with relevant context."
+system_prompt += "\n\n Below is the context about me (Jeff Fenster) that you must user to answer the user's questions: "
+system_prompt += "<ContextAboutJeffFenster>"
+system_prompt += "\n" + rag_context
+system_prompt += "\n</ContextAboutJeffFenster>"
 
 def user_prompt_for(user_input):
   user_prompt = f"You have received the following question from the user about me: {user_input}. Answer the question."

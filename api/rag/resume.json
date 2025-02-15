@@ -1,0 +1,103 @@
+{
+  "personal_info": {
+    "name": "Jeffrey Fenster",
+    "location": "Philadelphia, PA",
+    "email": "fenster.js@gmail.com",
+    "phone": "914-582-5299",
+    "linkedin": "https://www.linkedin.com/in/jeff-fenster/"
+  },
+  "personal_summary": "Accomplished Product leader with over 10 years of experience driving AI-powered SaaS innovation. Proven success in launching scalable products, improving engagement and retention, and leading cross-functional teams to deliver measurable business impact.",
+  "skills": {
+    "product_management": [
+      "Product Strategy",
+      "Roadmap Ownership",
+      "Product Discovery",
+      "User Research",
+      "Data-Driven Experimentation",
+      "Go-to-Market Planning",
+      "PLG",
+      "OKRs & KPI Tracking"
+    ],
+    "leadership": [
+      "Agile Methodologies",
+      "Team Leadership",
+      "Stakeholder Collaboration",
+      "Cross-Functional Team Alignment"
+    ],
+    "ai_ml_expertise": [
+      "NLP",
+      "Vector Search",
+      "LLMs",
+      "RLHF",
+      "SFT",
+      "PyTorch",
+      "Gradio",
+      "AI-driven UX"
+    ],
+    "technical": [
+      "SQL",
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Figma",
+      "Tableau",
+      "Google Analytics",
+      "Pendo",
+      "Posthog"
+    ]
+  },
+  "professional_experience": [
+    {
+      "title": "Product Manager",
+      "company": "Nebula.io",
+      "dates": "Jun 2021 - Present",
+      "responsibilities": [
+        "Launched Nebula.io, an all-in-one AI recruitment SaaS platform that combines Sourcing, Engagement, and ATS functionality.",
+        "Led a cross-functional team of 8, including Data Scientists, Engineers, and Designers, overseeing Agile ceremonies and roadmap strategies.",
+        "Delivered NLP-based talent search experience, leading to a 2x increase in quality results and 50% reduction in customer churn.",
+        "Led RLHF fine-tuning initiative, enhancing model performance through feedback collection and internal leaderboards.",
+        "Developed an AI chatbot for automated outreach, increasing candidate response rates and talent pipeline additions."
+      ]
+    },
+    {
+      "title": "Engineering Manager",
+      "company": "Nebula.io",
+      "dates": "Jun 2020 - Jun 2021",
+      "responsibilities": [
+        "Managed a distributed team of 10 engineers to build and launch AVA, an AI-powered internal recruitment platform.",
+        "Implemented NLP, vector search, and automated LLM engagement features, reducing time-to-fill rates and generating $1MM in ARR.",
+        "Collaborated with leadership to align product milestones with business goals and implemented Agile processes, increasing team velocity by 25%."
+      ]
+    },
+    {
+      "title": "Frontend Engineer",
+      "company": "Nebula.io",
+      "dates": "May 2018 - Jul 2020",
+      "responsibilities": [
+        "Led UI development for a talent acquisition platform using React, JavaScript, and TypeScript.",
+        "Directed the migration effort from AngularJS to React, maintaining component libraries and state management."
+      ]
+    },
+    {
+      "title": "Frontend Engineer",
+      "company": "PNC",
+      "dates": "Oct 2016 - Apr 2018",
+      "responsibilities": [
+        "Developed FinTech software for small businesses using AngularJS, JavaScript, and Node.js.",
+        "Collaborated with a team of 8, including Business Analysts, Engineers, and Designers."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of Connecticut",
+      "degree": "B.S. in Computer Science",
+      "graduation_date": "Jun 2013"
+    },
+    {
+      "institution": "Fullstack Academy Bootcamp",
+      "program": "Full Stack Engineering",
+      "graduation_date": "Jun 2016"
+    }
+  ]
+}
