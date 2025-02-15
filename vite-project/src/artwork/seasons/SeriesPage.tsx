@@ -4,6 +4,7 @@ import Page from '../../components/Page';
 import { mySketch as fallSunlightSketch } from './FallSunlight';
 import { mySketch as seasonalForestsSketch } from './SeasonalForests';
 import { mySketch as vermontSketch } from './Vermont';
+import { useDevice } from '../../context/DeviceContext';
 
 const sketches = {
   // treefallBreeze: fallBreezeSketch(),
@@ -13,13 +14,18 @@ const sketches = {
 };
 
 const SeriesPage: React.FC = () => {
+  const {isMobile} = useDevice();
   return (
     <div>
-      <Page
-        header={"Seasons"}
-        sketches={sketches} 
-        route={"artwork/seasons"}
-      />
+      { isMobile ? (
+        <h2 style={{margin: "80px 20px"}}> These sketches can be viewed on Desktop only 😢 </h2>        
+      ) : (
+        <Page
+          header={"Seasons"}
+          sketches={sketches} 
+          route={"artwork/seasons"}
+        />
+      )}
     </div>
   );
 };

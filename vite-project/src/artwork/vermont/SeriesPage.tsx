@@ -6,6 +6,7 @@ import { mySketch as vermontIIISketch } from './VermontIII';
 // import { mySketch as vermontIIIWildCardSketch } from './VermontIIIWildCard';
 import { mySketch as vermontIIIISketch } from './VermontIIII';
 import Page from '../../components/Page';
+import { useDevice } from '../../context/DeviceContext';
 
 const sketches = {
   "VermontIII": vermontIIISketch,
@@ -17,13 +18,18 @@ const sketches = {
 };
 
 const SeriesPage: React.FC = () => {
+  const {isMobile} = useDevice();
   return (
     <div>
-      <Page
-        header={"Vermont"}
-        sketches={sketches} 
-        route={"artwork/vermont"}
-      />
+      { isMobile ? (
+        <h2 style={{margin: "80px 20px"}}> These sketches can be viewed on Desktop only 😢 </h2>        
+      ) : (
+        <Page
+          header={"Vermont"}
+          sketches={sketches} 
+          route={"artwork/vermont"}
+        />
+      )}
     </div>
   );
 };
