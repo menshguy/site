@@ -7,6 +7,7 @@ import CHARACTER_GIF_PROFESSIONAL from './assets/character_work.gif';
 import './App.css'
 import { useDevice } from './context/DeviceContext.tsx';
 import { useNav } from './context/NavContext';
+import { getSiteMode } from './utils/siteMode';
 
 function SVGObject (
   { svgData, styles, label }: 
@@ -26,8 +27,8 @@ function SVGObject (
 function App() {
   const {isMobile} = useDevice();
   const {navHeight} = useNav();
-  const [isProfessionalSite, _setIsProfessionalSite] = useState(false);
-  const CHARACTER_GIF = isProfessionalSite ? CHARACTER_GIF_PROFESSIONAL: CHARACTER_GIF_PERSONAL;
+  const siteMode = getSiteMode();
+  const CHARACTER_GIF = siteMode === 'professional' ? CHARACTER_GIF_PROFESSIONAL : CHARACTER_GIF_PERSONAL;
   const contentRef = useRef<HTMLDivElement>(null);
 
   const styles = {
@@ -95,7 +96,7 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-
+  const siteMode = getSiteMode();
   const terminalContentRef = useRef<HTMLInputElement>(null);
   const userInputRef = useRef<HTMLInputElement>(null);
   const [messages, setMessages] = useState<string[]>([]);
@@ -291,6 +292,35 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
       marginLeft: '8px',
     } as CSSProperties
   }
+
+  const BioLinks = () => (
+    <>
+    {siteMode === 'personal' && <a style={{textDecoration: 'underline', marginRight: 8}} target="_blank" rel="noopener noreferrer" href={'https://x.com/menshguy'}>{'Twitter/X'}</a>}
+    {siteMode === 'personal' && <a style={{textDecoration: 'underline', marginRight: 8}} target="_blank" rel="noopener noreferrer" href={'https://github.com/menshguy'}>{'Github'}</a>}
+    <a style={{textDecoration: 'underline', marginRight: 8}} target="_blank" rel="noopener noreferrer" href={'https://linkedin.com/in/jeff-fenster/'}>{'LinkedIn'}</a>
+    </>
+  )
+
+  const BioMobile = () => (
+    <p style={{margin: '10px 0', color: terminalGreen}}>
+      <span style={{color: '#fff'}}>
+        <span>Find me on: </span>
+        <BioLinks />
+      </span>
+    </p>
+  )
+  
+  const BioDesktop = () => (
+    <p style={{margin: '20px 0', color: terminalGreen}}>
+    <span style={{color: '#fff'}}> 
+      When I am not working, I like to create illustrations and artwork using code (they sometimes call it "Creative Coding" or "Generative Art"). 
+      You can usually find me at my computer building stuff for the web.
+      <br />
+      <br />
+      You can also find me on: <BioLinks />
+    </span>
+    </p>
+  )
   
   return (
     <div style={styles.terminalContainer} >
@@ -314,31 +344,8 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
           <span style={{color: '#fff'}}> Hello! My name is Jeff Fenster. I am a Software Engineer, Creative Coder, and a passionate Product Leader.
           </span>
         </p>
-        { isMobile ? (
-          <p style={{margin: '10px 0', color: terminalGreen}}>
-            <span style={{color: '#fff'}}>
-              <span>Find me on: </span>
-              {[
-                {href: 'https://x.com/menshguy', label: 'Twitter/X'},
-                {href: 'https://github.com/menshguy', label: 'Github'},
-                {href: 'https://linkedin.com/in/jeff-fenster/', label: 'LinkedIn'},
-              ].map(({href, label}) =>(
-                <a style={{textDecoration: 'underline', marginRight: 8}} target="_blank" rel="noopener noreferrer" href={href}>{label}</a>
-              ))} 
-            </span>
-          </p>
-        ) : (
-          <p style={{margin: '20px 0', color: terminalGreen}}>
-            {/* <span style={{color: terminalGreenLight}}>$ cat about.txt</span>
-            <br/> */}
-            <span style={{color: '#fff'}}> When I am not working, I like to create illustrations and artwork using code (they sometimes call it "Creative Coding" or "Generative Art"). 
-              You can usually find me at my computer building stuff for the web.
-              <br />
-              <br />
-              I post my work and ideas on <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://x.com/menshguy">Twitter/X</a> and <a style={{textDecoration: 'underline'}} target="_blank" rel="noopener noreferrer" href="https://github.com/menshguy">Github</a>, and you can also find me on <a style={{textDecoration: 'underline'}} href="https://www.linkedin.com/in/jeff-fenster/" target="_blank">LinkedIn</a>
-            </span>
-          </p>
-        )}
+
+        { isMobile ? <BioMobile /> : <BioDesktop /> }
 
         {messages.map((message, index) => (
           <p key={`message-${index}`} style={{color: index % 2 === 0 ? terminalGreenLight : terminalGreen}}>
