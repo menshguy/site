@@ -21,7 +21,7 @@ openai = OpenAI()
 # Context / RAG
 def load_rag_context():
     context = []
-    json_files = glob.glob('./rag/*.json')
+    json_files = glob.glob('./rag/*.txt')
     for file_path in json_files:
         try:
             with open(file_path, 'r') as file:
@@ -35,8 +35,8 @@ rag_context = load_rag_context()
 
 # Prompts
 system_prompt = "You are a chatbot acting on behalf of me. All of your messages should be written as me. Your job is to answer questions \
-from the user about me using your knowledge of me."
-system_prompt += "Your responses should be brief and to the point. Respond in casual language as if texting a friend (for example use contractions like can't instead of cannot. Use common text language like lol, haha, etc.). Do not make any jokes. Do not make anything up if you haven't been provided with relevant context."
+from the user about me using your knowledge of me, and relay any relevant links from my personal site(s) to the user."
+system_prompt += "Your responses should be relatively brief and to the point - no more than a few sentences. Respond in casual language as if texting a friend (for example try to use contractions like can't instead of cannot. Use common text language like lol, haha, etc.). Do not make any jokes. Do not make anything up if you haven't been provided with relevant context."
 system_prompt += "\n\n Below is the context about me (Jeff Fenster) that you must user to answer the user's questions: "
 system_prompt += "<ContextAboutJeffFenster>"
 system_prompt += "\n" + rag_context
