@@ -51,7 +51,8 @@ system_prompt += "\n</Context>"
 print("RAG CONTEXT:", system_prompt)
 
 def user_prompt_for(user_input):
-  print("USER INPUT: " + user_input)
+  print("User Input: " + user_input)
+  print("System Prompt: " + system_prompt)
   user_prompt = f"You have received the following question from the user about me: {user_input}. Answer the question."
   return user_prompt
 
@@ -81,7 +82,7 @@ def response():
     default_response = 'Tell me about Jeff' # default message if none provided
     user_message = request.args.get('message', default_response)
     response = bot_response(user_message)
-    print("Response: " + user_message)
+    print("Response: " + response)
     return jsonify({"message": response})
 
 @app.route('/api/healthcheck', methods=['GET'])
