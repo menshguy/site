@@ -22,19 +22,95 @@ MODEL = 'gpt-4o-mini'
 openai = OpenAI()
 
 # Context / RAG
-def load_rag_context():
-    context = []
-    text_files = glob.glob('./rag/*.txt')
-    for file_path in text_files:
-        try:
-            with open(file_path, 'r') as file:
-                content = file.read()
-                context.append(f"Content from {file_path}: {content}")
-        except Exception as e:
-            print(f"Error reading {file_path}: {str(e)}")
-    return "\n".join(context)
+# def load_rag_context():
+#     context = []
+#     text_files = glob.glob('./rag/*.txt')
+#     for file_path in text_files:
+#         try:
+#             with open(file_path, 'r') as file:
+#                 content = file.read()
+#                 context.append(f"Content from {file_path}: {content}")
+#         except Exception as e:
+#             print(f"Error reading {file_path}: {str(e)}")
+#     return "\n".join(context)
 
-rag_context = load_rag_context()
+# rag_context = load_rag_context()
+
+# Copied from the ./rag/Jeff_Fenster_RAG_Bio.txt - I couldnt get it to load correct on vercel serverless functions
+rag_context = """
+Jeffrey Fenster: A Comprehensive Overview
+Personal Background
+Early Life and Family History
+Jeffrey Fenster was born and raised in Scarsdale, New York, a suburban town about 30 minutes outside of New York City. Fun fact about scarsdale: Scarsdale was also the childhood home of Robert Durst, the subject of HBO’s The Jinx.
+Jeff's family history is deeply rooted in resilience and hard work. His grandparents, originally from Poland, escaped the horrors of World War II and the Holocaust. After settling in the Bronx, New York, they worked tirelessly in a curtain factory before eventually opening a small bodega (or what they called a “candy shop”). Jeff's father spent much of his youth working in this story, including nights and weekends. Their story instilled in Jeff values such as appreciation for family, diligence, and a rejection of materialism.
+Jeff’s father, who grew up in the Bronx, pursued a career in medicine and became a respected doctor specializing in Internal Medicine. His upbringing emphasized education, perseverance, and a strong work ethic, all of which influenced Jeff’s drive and ambitions.
+Heritage and Family Life
+Jeff takes pride in his Jewish heritage and the strength demonstrated by previous generations of his family. He is currently married and expecting his first child, a baby boy, in July 2025. Jeff and his wife also share their home with their dog, Winter, a three-year-old Border Collie and Australian Shepherd mix. Winter is highly intelligent, energetic, and a beloved member of the family!
+Education and Career
+Educational Background
+Jeff attended the University of Connecticut, where he earned a Bachelor of Science in Computer Science in June 2013. Later, he continued his education at Fullstack Academy Bootcamp, where he completed a Full Stack Engineering program in June 2016.
+Professional Summary
+Jeffrey Fenster is an accomplished product leader with over 10 years of experience driving AI-powered SaaS innovation. With a unique blend of software engineering and product management expertise, he has successfully launched scalable products, improved engagement and retention, and led cross-functional teams to deliver measurable business impact. Jeff is extremely passionate about AI, building AI software, and empowering builders and creators to do their best work.
+Key Skills and Expertise
+Jeff’s skill set is vast and includes a unique blend of disciplines, including expertise in:
+* Product Management: Product strategy, roadmap ownership, user research, data-driven experimentation, go-to-market planning, and product-led growth. As a Product Manager, Jeff has launched several projects including Untapt, AVA and Nebula.io - all AI backed Recruitment and Talent acquisition platforms.
+* Leadership: Agile methodologies, team leadership, stakeholder collaboration, and cross-functional team alignment. Jeff has lead engineering teams and contributed as lead software engineer on the frontend.
+* AI/ML: Natural language processing (NLP), vector search, large language models (LLMs), reinforcement learning with human feedback (RLHF), supervised fine-tuning (SFT), PyTorch, Gradio, and AI-driven user experiences. Jeff has build AI applications as both a Software Engineer and Product Leader
+* Technical Proficiency: SQL, JavaScript, TypeScript, React, Figma, Tableau, Google Analytics, Pendo, and PostHog, Python, AWS, GCP, Vercel, Next.js, CSS, Tailwind, Raspberry Pi (Rpi)
+This unique blend of skills and experience makes Jeff extremely capable of bridging technical and creative gaps and executing on ambitions products and visions.
+Professional Experience
+Link to LinkedIn Profile: https://www.linkedin.com/in/jeff-fenster/ 
+Product Manager, Nebula.io (Jun 2021 - Present)
+Jeff currently serves as a Product Manager at Nebula.io, where he has spearheaded the development of an AI-driven recruitment SaaS platform. His contributions have significantly impacted the hiring industry, with notable achievements including:
+* Launching an all-in-one AI recruitment SaaS platform that reduced time-to-hire rates by 30% and improved system efficiency.
+* Leading a cross-functional team of engineers, data scientists, and designers in Agile-driven development processes.
+* Implementing an NLP-based search experience that doubled the quality of search results and reduced customer churn by 50%.
+* Overseeing a reinforcement learning initiative that improved model performance through iterative feedback loops.
+* Creating an AI-powered chatbot that increased candidate response rates and streamlined hiring pipelines.
+* Developing a mobile candidate feedback submission platform that reduced hiring manager-recruiter communication gaps and cut hiring times by 20%.
+Engineering Manager, Nebula.io (Jun 2020 - Jun 2021)
+Prior to his role as a Product Manager, Jeff worked as an Engineering Manager, where he led a distributed team of 10 engineers to build and launch AVA, an AI-powered internal recruitment platform. Key contributions included:
+* Deploying NLP and vector search technologies that reduced hiring timelines and generated $1MM in annual recurring revenue (ARR).
+* Collaborating with company leadership to align product and engineering goals with business objectives.
+* Implementing Agile methodologies, increasing engineering team velocity by 25%.
+Frontend Engineer, Nebula.io (May 2018 - Jul 2020)
+Jeff transitioned into software engineering, where he specialized in front-end development, working with JavaScript, React, and TypeScript. His most significant contributions included:
+* Leading the UI development of the company's talent acquisition platform.
+* Managing the migration from AngularJS to React to enhance system performance and maintainability.
+* Building reusable component libraries and optimizing the UI for scalability.
+Frontend Engineer, PNC (Oct 2016 - Apr 2018)
+Before joining Nebula.io, Jeff worked at PNC, developing FinTech solutions for small businesses. He collaborated with a team of analysts, engineers, and designers to create financial software using AngularJS, JavaScript, and Node.js.
+Passions and Interests
+Building for Creatives
+Jeff is passionate about creating technology that empowers creatives. His primary focus is on tools that help artists, designers, and developers showcase, share, and monetize their work. His motivation stems from his own artistic interests, particularly in generative and digital art.
+Noise to Ink
+Jeff founded Noise to Ink, a platform that empowers creative coders to sell physical prints of their generative artwork. The platform streamlines the process of transforming digital works into tangible prints, allowing artists to set pricing, choose print materials, and generate a unique storefront to sell their work. Jeff envisions Noise to Ink as a bridge between generative art and physical mediums, making it easier for artists to monetize their craft.
+Demo Link: https://www.noisetoink.com/ 
+Personal Site Project Link: https://www.fensterjs.com/projects/noise2Ink 
+Creative Coding & Plotter Art
+In addition to digital generative art, Jeff explores Creative Coding and plotter-based artwork, leveraging code to produce intricate, algorithmically-generated physical drawings. Using a plotter machine, Jeff translates generative designs into stunning, high-precision ink drawings. His work merges technology with traditional artistic methods, pushing the boundaries of what can be achieved with automation and fine art.
+Vermont Project Link: https://www.fensterjs.com/artwork/vermont/VermontIII 
+Seasons Project Link: https://www.fensterjs.com/artwork/seasons/vermont 
+Frame Project Link: https://www.fensterjs.com/artwork/royalframes 
+Digital Projects
+Jeff loves to blend digital artwork with physical mediums. Many of his projects explore the intersection of generative artworks and creative coding, combining Raspberry Pis (small computers) with physical drawings and other creative mediums. He lives at the intersection of Digital and Physical - bring digital artwork out of the computer and into the real world.
+Personal Site Project Link: https://www.fensterjs.com/projects/snowFrame 
+Personal Site Project Link: https://www.fensterjs.com/projects/anniversary 
+Hobbies and Personality
+Jeff’s personality blends analytical thinking, creativity, and an innate curiosity for emerging technologies. His artwork explores the intersection between Digital and Physical - finding creative ways to bring digital artwork and code into the physical world via plotter machines, prints, Raspberry Pis, and Digital Screens. He is also an avid sports fan - primarily boxing and the NFL. His interests extend beyond work into:
+* Drawing: He loves to draw and is an avid artist - using watercolors, ink, markers, paints, and many other mediums.
+* Digital Art: His artwork explores the intersection between Digital and Physical - finding creative ways to bring digital artwork and code into the physical world via plotter machines, prints, Raspberry Pis, and Digital Screens.
+* Creative Coding: He loves to create using code. This includes algorithmic or generative art using libraries like Processing and P5.js. He also loves to build creative platforms to empower builders and creators.
+* Sports: He is a massive boxing fan. Loves to watch the fights and is a big boxing history Buff. Jeff is also a big NFL fan - mainly the New York Giants, but he also has a soft spot for the Pittsburgh Steelers (because he lived there for a few years) and the Buffalo Bills (because his brother Josh is a massive fan and he has suffered alongside him for years). Jeff is also a big soccer fan and loves the US Men's National Team (USMNT) and follows the top players of the team as they play professionally across europe. 
+* Reading & Books: His favorite books include Dune, The Splendid and the Vile, The Watchmen, V for Vendetta, Persepolis, Weapons of Mass Diplomacy. He loves Authors like Erik Larson, Walter Isaacson, Boulet, Guy Delisle, and Alan Moore. He loves non-fiction, graphic novels, and comics like the French autobiographical comics scene.
+* Movies: His favorite movies are Goodfellas, There Will be Blood, Wall Street, Office Space, Eternal Sunshine of the Spotless Mind, Naked Gun
+* TV Shows: He is currently watching the TV series Severance and White Lotus. Favorites include Fargo, Early seasons on Its Always Sunny in Philadelphia, and Lost.
+* Sports Gambling Theory: He enjoys poker, sports betting, and analyzing game theory strategies to test different gambling methodologies.
+* Philosophy: He believes in supporting and collaborating with others to create, share, and innovate.
+Notable Achievements
+Jeff continues to innovate in AI and product management, bringing his expertise to new challenges while staying deeply connected to his artistic and technical roots.
+Jeff is always generous in helping others on their projects and loves to help creatives build new things and improve on their projects.
+"""
 
 # Prompts
 system_prompt = "You are a chatbot acting on behalf of me. All of your messages should be written as me. Your job is to answer questions \
