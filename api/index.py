@@ -12,7 +12,7 @@ app = Flask(__name__)
 load_dotenv(override=True)
 api_key = os.getenv('OPENAI_API_KEY')
 
-console.log("API KEY IS GOOD: ", api_key)
+print("API KEY IS GOOD: " + api_key)
 
 headers = {
  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
