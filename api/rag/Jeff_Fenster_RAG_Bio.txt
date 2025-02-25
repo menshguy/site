@@ -57,13 +57,16 @@ Jeff loves to blend digital artwork with physical mediums. Many of his projects 
 Personal Site Project Link: https://www.fensterjs.com/projects/snowFrame 
 Personal Site Project Link: https://www.fensterjs.com/projects/anniversary 
 Hobbies and Personality
-Jeff’s personality blends analytical thinking, creativity, and an innate curiosity for emerging technologies. His artwork explores the intersection between Digital and Physical - finding creative ways to bring digital artwork and code into the physical world via plotter machines, prints, Raspberry Pis, and Digital Screens. His interests extend beyond work into:
-* Gaming & Gambling Theory: He enjoys poker, sports betting, and analyzing game theory strategies to test different gambling methodologies.
-* Sports: A dedicated soccer fan, Jeff follows teams and matches closely. He also enjoys boxing, tennis, running, and hiking.
-* Reading & Media: He appreciates literature and cinema, favoring books such as Dune and The Splendid and the Vile, and movies like Goodfellas and There Will Be Blood.
-* Philosophy: He believes in supporting and collaborating with others to create, share, and innovate.
+Jeff’s personality blends analytical thinking, creativity, and an innate curiosity for emerging technologies. His artwork explores the intersection between Digital and Physical - finding creative ways to bring digital artwork and code into the physical world via plotter machines, prints, Raspberry Pis, and Digital Screens. He is also an avid sports fan - primarily boxing and the NFL. His interests extend beyond work into:
 * Drawing: He loves to draw and is an avid artist - using watercolors, ink, markers, paints, and many other mediums.
-* Digital Art: His artwork explores the intersection between Digital and Physical - finding creative ways to bring digital artwork and code into the physical world via plotter machines, prints, Raspberry Pis, and Digital Screens
+* Digital Art: His artwork explores the intersection between Digital and Physical - finding creative ways to bring digital artwork and code into the physical world via plotter machines, prints, Raspberry Pis, and Digital Screens.
+* Creative Coding: He loves to create using code. This includes algorithmic or generative art using libraries like Processing and P5.js. He also loves to build creative platforms to empower builders and creators.
+* Sports: He is a massive boxing fan. Loves to watch the fights and is a big boxing history Buff. Jeff is also a big NFL fan - mainly the New York Giants, but he also has a soft spot for the Pittsburgh Steelers (because he lived there for a few years) and the Buffalo Bills (because his brother Josh is a massive fan and he has suffered alongside him for years). Jeff is also a big soccer fan and loves the US Men's National Team (USMNT) and follows the top players of the team as they play professionally across europe. 
+* Reading & Books: His favorite books include Dune, The Splendid and the Vile, The Watchmen, V for Vendetta, Persepolis, Weapons of Mass Diplomacy. He loves Authors like Erik Larson, Walter Isaacson, Boulet, Guy Delisle, and Alan Moore. He loves non-fiction, graphic novels, and comics like the French autobiographical comics scene.
+* Movies: His favorite movies are Goodfellas, There Will be Blood, Wall Street, Office Space, Eternal Sunshine of the Spotless Mind, Naked Gun
+* TV Shows: He is currently watching the TV series Severance and White Lotus. Favorites include Fargo, Early seasons on Its Always Sunny in Philadelphia, and Lost.
+* Sports Gambling Theory: He enjoys poker, sports betting, and analyzing game theory strategies to test different gambling methodologies.
+* Philosophy: He believes in supporting and collaborating with others to create, share, and innovate.
 Notable Achievements
 Jeff continues to innovate in AI and product management, bringing his expertise to new challenges while staying deeply connected to his artistic and technical roots.
 Jeff is always generous in helping others on their projects and loves to help creatives build new things and improve on their projects.
