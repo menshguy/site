@@ -21,12 +21,12 @@ openai = OpenAI()
 # Context / RAG
 def load_rag_context():
     context = []
-    json_files = glob.glob('./rag/*.txt')
-    for file_path in json_files:
+    text_files = glob.glob('./rag/*.txt')
+    for file_path in text_files:
         try:
             with open(file_path, 'r') as file:
-                data = json.load(file)
-                context.append(f"Content from {file_path}: {json.dumps(data)}")
+                content = file.read()
+                context.append(f"Content from {file_path}: {content}")
         except Exception as e:
             print(f"Error reading {file_path}: {str(e)}")
     return "\n".join(context)
