@@ -12,6 +12,8 @@ app = Flask(__name__)
 load_dotenv(override=True)
 api_key = os.getenv('OPENAI_API_KEY')
 
+console.log("API KEY IS GOOD: ", api_key)
+
 headers = {
  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
 }
@@ -78,8 +80,8 @@ def after_request(response):
 def response():
     default_response = 'Tell me about Jeff' # default message if none provided
     user_message = request.args.get('message', default_response)
-    print("USER MESSAGE FROM FE: " + user_message)
     response = bot_response(user_message)
+    print("Response: " + user_message)
     return jsonify({"message": response})
 
 @app.route('/api/healthcheck', methods=['GET'])
