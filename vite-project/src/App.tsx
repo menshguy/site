@@ -352,30 +352,30 @@ const TerminalWindow = ({showInput}: {showInput: boolean}) => {
             {index % 2 === 0 ? `$ ${message}` : message}
           </p>
         ))}
+      </div>
 
       {/* User Input Field */}
-      </div>
-        {showInput && (
-          <form 
-            onSubmit={handleSubmit}
-            style={{
-              ...styles.terminalInputContainer,
-              display: 'flex', alignItems: 'center', width: '100%', color: terminalGreenLight, padding: '0px 0px 0px 10px'
-            }}
-          >
-            $ 
-            <input
-              ref={userInputRef}
-              value={userInput}
-              style={{color: terminalGreenLight}}
-              disabled={isLoading}
-              onChange={e => setUserInput(e.target.value)}
-              className='terminalInput'
-              type="text"
-              placeholder={isLoading ? "💭" : "Ask me anything..."}
-            />
-            <button type="submit" style={styles.askButton}>Ask</button>
-          </form>
+      {showInput && (
+        <form 
+          onSubmit={handleSubmit}
+          style={{
+            ...styles.terminalInputContainer,
+            display: 'flex', alignItems: 'center', width: '100%', color: terminalGreenLight, padding: '0px 0px 0px 10px'
+          }}
+        >
+          $ 
+          <input
+            ref={userInputRef}
+            value={userInput}
+            style={{color: terminalGreenLight}}
+            disabled={isLoading}
+            onChange={e => setUserInput(e.target.value)}
+            className='terminalInput'
+            type="text"
+            placeholder={isLoading ? "💭" : "Ask me anything..."}
+          />
+          <button type="submit" style={styles.askButton}>Ask</button>
+        </form>
       )}
     </div>
   );
