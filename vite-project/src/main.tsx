@@ -23,6 +23,7 @@ import SeriesPageRowhomes from './artwork/rowhomes/SeriesPage.tsx';
 import SeriesPageDemos from './artwork/demos/SeriesPage.tsx';
 import SeriesPageCouch from './artwork/couch/SeriesPage.tsx';
 import SeriesPageRoyalFrames from './artwork/pictureFrames/SeriesPage.tsx';
+import SeriesPageScribbleFrames from './artwork/pictureFrames/SeriesPageScribble.tsx';
 import RoyalFrame from './artwork/pictureFrames/RoyalFrame.tsx';
 import {mySketch as seasonalForestsSketch } from './artwork/seasons/SeasonalForests.tsx';
 import './index.css'
@@ -51,6 +52,7 @@ function AppWithNav() {
             <Route path="vermont/*" element={<SeriesPageVermont />} />
             <Route path="seasons/*" element={<SeriesPageSeasons />} />
             <Route path="royalFrames/*" element={<SeriesPageRoyalFrames />} />
+            <Route path="scribbleFrames/*" element={<SeriesPageScribbleFrames />} />
             <Route path="trees/*" element={<SeriesPageTrees />} />
             <Route path="rowhomes/*" element={<SeriesPageRowhomes />} />
             <Route path="demos/*" element={<SeriesPageDemos />} />

@@ -10,6 +10,16 @@ interface RoyalFrameProps {
   showPrompt?: boolean;
 }
 
+interface ScribbleFrameProps {
+  innerSketch: (p: p5) => void;
+  innerWidth: number;
+  innerHeight: number;
+  frameTopWidth?: number;
+  frameSideWidth?: number;
+  includeBoxShadow?: boolean;
+  showPrompt?: boolean;
+}
+
 interface Subdivision {
   length: number, 
   depth: number, 
@@ -27,4 +37,4 @@ type PatternFunction = (
   strokeColor: p5.Color
 ) => void;
 
-export type { RoyalFrameProps, Subdivision, PatternFunction };
+export type { RoyalFrameProps, ScribbleFrameProps, Subdivision, PatternFunction };
