@@ -28,7 +28,6 @@ interface Subdivision {
 }
 
 type PatternFunction = (
-  p: p5, 
   x: number,
   y: number,
   w: number,
