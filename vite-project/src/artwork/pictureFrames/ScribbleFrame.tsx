@@ -116,7 +116,7 @@ const mySketch = (
   }
   
   p.draw = () => {
-    p.noLoop()
+    // p.noLoop()
     p.clear()
 
     /** LIGHT SOURCE UPDATE */
@@ -132,17 +132,19 @@ const mySketch = (
       NORTHWEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y < innerCoords.top_left.y && lightSourceCoords.y < innerCoords.bottom_left.y, 
     } as const;
     lightSourceDirection = Object.keys(lightSourceDirections).find(key => lightSourceDirections[key as Direction] === true) as Direction;
-    console.log("Directions", lightSourceDirections, "Direction", lightSourceDirection)
 
     /** DRAW FRAME SHAPES */
     p.push()
+    
     p.noStroke()
     p.fill(primaryColor.shadowLight[0])
     topFrame()
     rightFrame()
+
     p.fill(primaryColor.base[0])
     leftFrame()
     bottomFrame()
+
     p.pop()
 
     /** DRAW GRADIENTS IN EACH FRAME SHAPE */
@@ -165,8 +167,13 @@ const mySketch = (
     p.fill(shadowColor)
     p.noStroke()
 
+    let _topShadowDepth = innerCoords.top_right.y - lightSourceCoords.y
+    let _leftSideShadowDepth = innerCoords.top_left.x - lightSourceCoords.x
+    let _bottomShadowDepth = lightSourceCoords.y - innerCoords.bottom_left.y
+    let _rightSideShadowDepth = lightSourceCoords.x - innerCoords.top_right.x
+
     if (lightSourceDirection === "NORTH") {
-      let shadowDepth = _shadowDepth
+      let shadowDepth = _topShadowDepth
       p.beginShape()
       p.vertex(innerCoords.top_right.x, innerCoords.top_right.y) //upper right
       p.vertex(innerCoords.top_left.x, innerCoords.top_left.y) //upper left
@@ -176,8 +183,8 @@ const mySketch = (
     }
     if (lightSourceDirection === "NORTHEAST"){
       
-      let sideShadowDepth = _shadowDepth
-      let topShadowDepth = _shadowDepth
+      let sideShadowDepth = _rightSideShadowDepth
+      let topShadowDepth = _topShadowDepth
 
       p.beginShape()
       p.vertex(innerCoords.top_right.x, innerCoords.top_right.y) //upper right
@@ -193,7 +200,7 @@ const mySketch = (
       p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "EAST"){
-      let shadowDepth = _shadowDepth
+      let shadowDepth = _rightSideShadowDepth
       p.beginShape()
       p.vertex(innerCoords.top_right.x, innerCoords.top_right.y)
       p.vertex(innerCoords.top_right.x - shadowDepth, innerCoords.top_right.y)
@@ -202,8 +209,8 @@ const mySketch = (
       p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "SOUTHEAST"){
-      let sideShadowDepth = _shadowDepth
-      let bottomShadowDepth = _shadowDepth
+      let sideShadowDepth = _rightSideShadowDepth
+      let bottomShadowDepth = _bottomShadowDepth
       p.beginShape()
       p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
       p.vertex(innerCoords.top_right.x, innerCoords.top_right.y)
@@ -218,7 +225,7 @@ const mySketch = (
       p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "SOUTH"){
-      let shadowDepth = _shadowDepth
+      let shadowDepth = _bottomShadowDepth
       p.beginShape()
       p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
       p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
@@ -227,8 +234,8 @@ const mySketch = (
       p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "SOUTHWEST"){
-      let sideShadowDepth = _shadowDepth
-      let bottomShadowDepth = _shadowDepth
+      let sideShadowDepth = _leftSideShadowDepth
+      let bottomShadowDepth = _bottomShadowDepth
       p.beginShape()
       p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
       p.vertex(innerCoords.top_left.x, innerCoords.top_left.y)
@@ -243,7 +250,7 @@ const mySketch = (
       p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "WEST"){
-      let shadowDepth = _shadowDepth
+      let shadowDepth = _leftSideShadowDepth
       p.beginShape()
       p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
       p.vertex(innerCoords.top_left.x, innerCoords.top_left.y)
@@ -252,8 +259,8 @@ const mySketch = (
       p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "NORTHWEST"){
-      let sideShadowDepth = _shadowDepth
-      let topShadowDepth = _shadowDepth
+      let sideShadowDepth = _leftSideShadowDepth
+      let topShadowDepth = _topShadowDepth
       p.beginShape()
       p.vertex(innerCoords.top_left.x, innerCoords.top_left.y)
       p.vertex(innerCoords.top_right.x, innerCoords.top_right.y)
