@@ -4,6 +4,8 @@ import p5 from 'p5';
 import { ScribbleFrameProps, Subdivision, PatternFunction } from './types';
 import { drawGradientRect } from '../../helpers/shapes';
 
+type Direction = "NORTH" | "NORTHEAST" | "EAST" | "SOUTHEAST" | "SOUTH" | "SOUTHWEST" | "WEST" | "NORTHWEST";
+
 const mySketch = (
   innerWidth: number, 
   innerHeight: number, 
@@ -34,12 +36,23 @@ const mySketch = (
   let allowTrim: boolean
   let trimWidth: number
   let trimColor: p5.Color
+  let subdivisions: Subdivision[]
+  let sideSubdivisions: Subdivision[]
+  let topSubdivisions: Subdivision[]
+  let shadowWidth : number
+  let shadowHeight : number
+  let _shadowDepth : number
+  let shadowColor : p5.Color
+  let lightSourceCoords: {x: number, y: number}
+  let lightSourceDirection: Direction
+  let lightSourceDirections: Record<Direction, boolean>
   
   p.preload = () => {
     // textureImg = p.loadImage('/textures/gold7.png');
   }
 
   p.setup = () => {
+    console.log("RUNS")
     p.createCanvas(cw, ch)
     p.colorMode(p.HSL)
 
@@ -58,18 +71,69 @@ const mySketch = (
     allowTrim = p.random(0, 1) > 0.70 ? true : false;
     trimWidth = p.random(2, 3);
     trimColor = p.random([
-      // p.color("white"), //white in HSL
       p.color("black"), //black in HSL
       p.color(34, 62.1, 74.1),
       p.color(15, 63, 44), //deep red in HSL
       p.color(15, 83, 14), //darker deep red in HSL
-      // p.color(229, 63, 17) // dark blue
     ])
+
+    /** LIGHT SOURCE SETTINGS */
+    lightSourceCoords = {x: outerCoords.top_right.x, y: outerCoords.top_right.y}
+    lightSourceDirections = {
+      NORTH: lightSourceCoords.x > innerCoords.top_left.x && lightSourceCoords.x < innerCoords.top_right.x && lightSourceCoords.y < innerCoords.top_left.y,
+      NORTHEAST: lightSourceCoords.x > innerCoords.top_right.x && lightSourceCoords.y < innerCoords.top_left.y, 
+      EAST: lightSourceCoords.x > innerCoords.top_right.x && lightSourceCoords.y > innerCoords.top_right.y && lightSourceCoords.y < innerCoords.bottom_right.y, 
+      SOUTHEAST: lightSourceCoords.x > innerCoords.bottom_right.x && lightSourceCoords.y > innerCoords.bottom_right.y,
+      SOUTH: lightSourceCoords.x > innerCoords.bottom_left.x && lightSourceCoords.x < innerCoords.bottom_right.x && lightSourceCoords.y > innerCoords.bottom_left.y, 
+      SOUTHWEST: lightSourceCoords.x < innerCoords.bottom_left.x && lightSourceCoords.y > innerCoords.bottom_left.y, 
+      WEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y > innerCoords.top_left.y && lightSourceCoords.y < innerCoords.bottom_left.y, 
+      NORTHWEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y > innerCoords.top_left.y
+    } as const;
+    console.log("Directions", lightSourceDirections, "Direction", lightSourceDirection)
+
+    /** SHADOW SETTINGS */
+    shadowWidth = innerWidth;
+    shadowHeight = innerCoords.top_left.y - lightSourceCoords.y;
+    _shadowDepth = p.random(1, 100);
+    shadowColor = p.color(3, 56, 17, 0.25)
+    
+    /** CREATE SUBDIVISIONS FOR EACH FRAME SHAPE/SIDE */
+    subdivisions = generateSubdivisions(p.random(2, 10)) // Divide frame into subdivisions
+    sideSubdivisions = normalizeSubdivisions(subdivisions, frameSideWidth) // Normalize subdivisions to fit side widths
+    topSubdivisions = normalizeSubdivisions(subdivisions, frameTopWidth) // Normalize subdivisions  to fit top & bottom widths
+    
+    /** DRAW FLORAL PATTERNS IN EACH FRAME SHAPE */
+    // p.push();
+    // // p.blendMode(p.SCREEN); // p.SCREEN, or p.ADD
+    // let floralColor = primaryColor.shadowDark[0]
+    // drawPattern(drawFloralPattern, 0, 0, 0, topSubdivisions, topFrame, "top", floralColor) // Top
+    // drawPattern(drawFloralPattern, cw, ch, 180, topSubdivisions, bottomFrame, "bottom", floralColor) // Bottom
+    // drawPattern(drawFloralPattern, 0, ch, -90, sideSubdivisions, leftFrame, "left", floralColor) // Left
+    // drawPattern(drawFloralPattern, cw, 0, 90, sideSubdivisions,rightFrame, "right", floralColor) // Right 
+    // p.pop();
+    
+
   }
   
   p.draw = () => {
     p.noLoop()
-    
+    p.clear()
+
+    /** LIGHT SOURCE UPDATE */
+    lightSourceCoords = {x: p.mouseX || outerCoords.top_right.x, y: p.mouseY || outerCoords.top_right.y}
+    lightSourceDirections = {
+      NORTH: lightSourceCoords.x > innerCoords.top_left.x && lightSourceCoords.x < innerCoords.top_right.x && lightSourceCoords.y < innerCoords.top_left.y,
+      NORTHEAST: lightSourceCoords.x > innerCoords.top_right.x && lightSourceCoords.y < innerCoords.top_left.y, 
+      EAST: lightSourceCoords.x > innerCoords.top_right.x && lightSourceCoords.y > innerCoords.top_right.y && lightSourceCoords.y < innerCoords.bottom_right.y, 
+      SOUTHEAST: lightSourceCoords.x > innerCoords.bottom_right.x && lightSourceCoords.y > innerCoords.bottom_right.y,
+      SOUTH: lightSourceCoords.x > innerCoords.bottom_left.x && lightSourceCoords.x < innerCoords.bottom_right.x && lightSourceCoords.y > innerCoords.bottom_left.y, 
+      SOUTHWEST: lightSourceCoords.x < innerCoords.bottom_left.x && lightSourceCoords.y > innerCoords.bottom_left.y, 
+      WEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y > innerCoords.top_left.y && lightSourceCoords.y < innerCoords.bottom_left.y,
+      NORTHWEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y < innerCoords.top_left.y && lightSourceCoords.y < innerCoords.bottom_left.y, 
+    } as const;
+    lightSourceDirection = Object.keys(lightSourceDirections).find(key => lightSourceDirections[key as Direction] === true) as Direction;
+    console.log("Directions", lightSourceDirections, "Direction", lightSourceDirection)
+
     /** DRAW FRAME SHAPES */
     p.push()
     p.noStroke()
@@ -80,12 +144,7 @@ const mySketch = (
     leftFrame()
     bottomFrame()
     p.pop()
-    
-    /** CREATE SUBDIVISIONS FOR EACH FRAME SHAPE/SIDE */
-    let subdivisions = generateSubdivisions(p.random(2, 10)) // Divide frame into subdivisions
-    let sideSubdivisions = normalizeSubdivisions(subdivisions, frameSideWidth) // Normalize subdivisions to fit side widths
-    let topSubdivisions = normalizeSubdivisions(subdivisions, frameTopWidth) // Normalize subdivisions  to fit top & bottom widths
-    
+
     /** DRAW GRADIENTS IN EACH FRAME SHAPE */
     let shadowColorLight = primaryColor.shadowLight[0]
     let shadowColorDark = primaryColor.shadowDark[0]
@@ -93,34 +152,129 @@ const mySketch = (
     drawPattern(drawSloppyRect, sideSubdivisions, rightFrame, "right", shadowColorDark) // Right 
     drawPattern(drawSloppyRect, topSubdivisions, bottomFrame, "bottom", shadowColorLight) // Bottom
     drawPattern(drawSloppyRect, sideSubdivisions, leftFrame, "left", shadowColorLight) // Left
+
+    /** Draw Light Source Dot*/
+    p.push()
+    p.strokeWeight(10)
+    p.stroke("red")
+    p.point(lightSourceCoords.x, lightSourceCoords.y)
+    p.pop()
     
-    /** */
-
-    /** DRAW FLORAL PATTERNS IN EACH FRAME SHAPE */
-    // p.push();
-    // // p.blendMode(p.SCREEN); // p.SCREEN, or p.ADD
-    // let floralColor = primaryColor.shadowDark[0]
-    // drawPattern(drawFloralPattern, 0, 0, 0, topSubdivisions, topFrame, "top", floralColor) // Top
-    // drawPattern(drawFloralPattern, cw, ch, 180, topSubdivisions, bottomFrame, "bottom", floralColor) // Bottom
-    // drawPattern(drawFloralPattern, 0, ch, -90, sideSubdivisions, leftFrame, "left", floralColor) // Left
-    // drawPattern(drawFloralPattern, cw, 0, 90, sideSubdivisions,rightFrame, "right", floralColor) // Right 
-    // p.pop();
-
-
     /** DRAW SHADOWS */
-    // Shadow Settings
-    const shadowWidth = innerWidth;
-    const shadowHeight = innerHeight;
-    const shadowDepth = p.random(1, 100);
-    const shadowColor = p.color(3, 56, 17, 0.25)
+    p.push()
+    p.fill(shadowColor)
+    p.noStroke()
 
-    // Draw Shadows
-    drawInnerShadowShapeSmall(shadowDepth, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
-    drawInnerShadowShapeLarge(shadowDepth + 10, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
+    if (lightSourceDirection === "NORTH") {
+      let shadowDepth = _shadowDepth
+      p.beginShape()
+      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y) //upper right
+      p.vertex(innerCoords.top_left.x, innerCoords.top_left.y) //upper left
+      p.vertex(innerCoords.top_left.x, innerCoords.top_left.y + shadowDepth) //lower left
+      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y + shadowDepth) //lower right
+      p.endShape(p.CLOSE)
+    }
+    if (lightSourceDirection === "NORTHEAST"){
+      
+      let sideShadowDepth = _shadowDepth
+      let topShadowDepth = _shadowDepth
+
+      p.beginShape()
+      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y) //upper right
+      p.vertex(innerCoords.top_left.x, innerCoords.top_left.y)  //upper left
+      p.vertex(innerCoords.top_left.x, innerCoords.top_left.y + topShadowDepth) //lower left
+      
+      let control1 = {x: innerCoords.bottom_right.x - sideShadowDepth, y: innerCoords.top_left.y + topShadowDepth}
+      let control2 = {x: innerCoords.bottom_right.x - sideShadowDepth, y: innerCoords.top_left.y + topShadowDepth}
+      let anchor2 = {x: innerCoords.bottom_right.x - sideShadowDepth, y: innerCoords.bottom_right.y}
+      p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y); // lower right (inner)
+      
+      p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y) //lower right2 (outer)
+      p.endShape(p.CLOSE)
+    }
+    if (lightSourceDirection === "EAST"){
+      let shadowDepth = _shadowDepth
+      p.beginShape()
+      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y)
+      p.vertex(innerCoords.top_right.x - shadowDepth, innerCoords.top_right.y)
+      p.vertex(innerCoords.top_right.x - shadowDepth, innerCoords.bottom_right.y)
+      p.vertex(innerCoords.top_right.x, innerCoords.bottom_right.y)
+      p.endShape(p.CLOSE)
+    }
+    if (lightSourceDirection === "SOUTHEAST"){
+      let sideShadowDepth = _shadowDepth
+      let bottomShadowDepth = _shadowDepth
+      p.beginShape()
+      p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
+      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y)
+      p.vertex(innerCoords.top_right.x - sideShadowDepth, innerCoords.top_right.y)
+      
+      let control1 = {x: innerCoords.bottom_right.x - sideShadowDepth, y: innerCoords.bottom_right.y - bottomShadowDepth}
+      let control2 = {x: innerCoords.bottom_right.x - sideShadowDepth, y: innerCoords.bottom_right.y - bottomShadowDepth}
+      let anchor2 = {x: innerCoords.bottom_left.x, y: innerCoords.bottom_left.y - bottomShadowDepth}
+      p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y); // lower right (inner)
+      
+      p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
+      p.endShape(p.CLOSE)
+    }
+    if (lightSourceDirection === "SOUTH"){
+      let shadowDepth = _shadowDepth
+      p.beginShape()
+      p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
+      p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
+      p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y - shadowDepth)
+      p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y - shadowDepth)
+      p.endShape(p.CLOSE)
+    }
+    if (lightSourceDirection === "SOUTHWEST"){
+      let sideShadowDepth = _shadowDepth
+      let bottomShadowDepth = _shadowDepth
+      p.beginShape()
+      p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
+      p.vertex(innerCoords.top_left.x, innerCoords.top_left.y)
+      p.vertex(innerCoords.top_left.x + sideShadowDepth, innerCoords.top_left.y)
+      
+      let control1 = {x: innerCoords.bottom_left.x + sideShadowDepth, y: innerCoords.bottom_left.y - bottomShadowDepth}
+      let control2 = {x: innerCoords.bottom_left.x + sideShadowDepth, y: innerCoords.bottom_left.y - bottomShadowDepth}
+      let anchor2 = {x: innerCoords.bottom_right.x, y: innerCoords.bottom_right.y - bottomShadowDepth}
+      p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y); // lower right (inner)
+      
+      p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
+      p.endShape(p.CLOSE)
+    }
+    if (lightSourceDirection === "WEST"){
+      let shadowDepth = _shadowDepth
+      p.beginShape()
+      p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
+      p.vertex(innerCoords.top_left.x, innerCoords.top_left.y)
+      p.vertex(innerCoords.top_left.x + shadowDepth, innerCoords.top_left.y)
+      p.vertex(innerCoords.bottom_left.x + shadowDepth, innerCoords.bottom_left.y )
+      p.endShape(p.CLOSE)
+    }
+    if (lightSourceDirection === "NORTHWEST"){
+      let sideShadowDepth = _shadowDepth
+      let topShadowDepth = _shadowDepth
+      p.beginShape()
+      p.vertex(innerCoords.top_left.x, innerCoords.top_left.y)
+      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y)
+      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y + topShadowDepth)
+      
+      let control1 = {x: innerCoords.top_left.x + sideShadowDepth, y: innerCoords.top_left.y + topShadowDepth}
+      let control2 = {x: innerCoords.top_left.x + sideShadowDepth, y: innerCoords.top_left.y + topShadowDepth}
+      let anchor2 = {x: innerCoords.bottom_left.x + sideShadowDepth, y: innerCoords.bottom_left.y}
+      p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y); // lower right (inner)
+      
+      p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
+      p.endShape(p.CLOSE)
+    }
+    
+    p.pop()
+    // drawInnerShadowShapeSmall(shadowDepth, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
+    // drawInnerShadowShapeLarge(shadowDepth + 10, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
 
     /** APPLY TEXTURE */
+    // applyNoiseTexture(p, fullframeMask)
     // applyTexture(p, textureImg, fullframeMask)
-    applyNoiseTexture(p, fullframeMask)
   }
 
   /**
@@ -203,6 +357,15 @@ const mySketch = (
     p.pop();
   }
 
+  /**
+   * Draws a sloppy rectangle with a wobble effect
+   * @param {number} startX The x-coordinate of the top-left corner of the rectangle
+   * @param {number} startY The y-coordinate of the top-left corner of the rectangle
+   * @param {number} w The width of the rectangle
+   * @param {number} h The height of the rectangle
+   * @param {boolean} isUpward Whether the rectangle is oriented upward (true) or downward (false)
+   * @param {p5.Color} shadowColor The color of the shadow rectangle
+   */
   function drawSloppyRect (
     startX: number,
     startY: number,
@@ -628,7 +791,8 @@ const ScribbleFrame: React.FC<ScribbleFrameProps> = ({
     boxShadow: includeBoxShadow ? '0px 10px 20px rgba(0, 0, 0, 0.2)' : 'none',
     height: `${innerHeight + _frameTopWidth + _frameSideWidth}px`,
     width: `${innerWidth + _frameSideWidth + _frameSideWidth}px`,
-  }
+    cursor: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"%23FFD700\"><path d=\"M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z\"/></svg>') 16 16, pointer",
+  };
 
   const childFrame: CSSProperties = {
     position: 'relative',
@@ -690,7 +854,9 @@ const ScribbleFrame: React.FC<ScribbleFrameProps> = ({
         />
       </div>
       <div style={childFrame}>
-        <P5Wrapper 
+        <P5Wrapper
+          disableClickToSetup
+          // disableClickToClear
           includeSaveButton={false} 
           sketch={_outerSketch} 
         />

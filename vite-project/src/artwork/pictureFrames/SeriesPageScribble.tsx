@@ -46,7 +46,7 @@ const blankSketch = (
 const SeriesPage: React.FC = () => {
     const { isMobile, deviceWidth, deviceHeight } = useDevice();
     const {navHeight} = useNav();
-    const userPrompt = isMobile ? 'Refresh page to redraw.' : 'Click to redraw. Refresh Page to resize.';
+    const userPrompt = isMobile ? 'Refresh page to redraw.' : 'Move Mouse to move light.';
     const padding = isMobile ? 0 : 50;
     let innerWidth, innerHeight, frameTopWidth, frameSideWidth;
 
