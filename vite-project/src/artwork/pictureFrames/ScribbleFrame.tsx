@@ -6,6 +6,8 @@ import { drawGradientRect } from '../../helpers/shapes';
 
 type Direction = "NORTH" | "NORTHEAST" | "EAST" | "SOUTHEAST" | "SOUTH" | "SOUTHWEST" | "WEST" | "NORTHWEST";
 
+const DEBUG_SHADOWS = true;
+
 const mySketch = (
   innerWidth: number, 
   innerHeight: number, 
@@ -167,22 +169,57 @@ const mySketch = (
     p.fill(shadowColor)
     p.noStroke()
 
-    let _topShadowDepth = innerCoords.top_right.y - lightSourceCoords.y
-    let _leftSideShadowDepth = innerCoords.top_left.x - lightSourceCoords.x
-    let _bottomShadowDepth = lightSourceCoords.y - innerCoords.bottom_left.y
-    let _rightSideShadowDepth = lightSourceCoords.x - innerCoords.top_right.x
+    const MAX_SHADOW_DEPTH_SIDES = innerWidth;
+    const MAX_SHADOW_DEPTH_TOP = innerHeight;
+    let _topShadowDepth = Math.min(innerCoords.top_right.y - lightSourceCoords.y, MAX_SHADOW_DEPTH_TOP)
+    let _leftSideShadowDepth = Math.min(innerCoords.top_left.x - lightSourceCoords.x, MAX_SHADOW_DEPTH_SIDES)
+    let _bottomShadowDepth = Math.min(lightSourceCoords.y - innerCoords.bottom_left.y, MAX_SHADOW_DEPTH_TOP)
+    let _rightSideShadowDepth = Math.min(lightSourceCoords.x - innerCoords.top_right.x, MAX_SHADOW_DEPTH_SIDES)
 
-    if (lightSourceDirection === "NORTH") {
-      let shadowDepth = _topShadowDepth
+    function addBezier(
+      a: {x: number, y: number}, 
+      b: {x: number, y: number}, 
+      c: {x: number, y: number}, 
+      mouse: number,
+      topShadowDepth: number,
+      sideShadowDepth: number
+    ) {
       p.beginShape()
-      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y) //upper right
-      p.vertex(innerCoords.top_left.x, innerCoords.top_left.y) //upper left
-      p.vertex(innerCoords.top_left.x, innerCoords.top_left.y + shadowDepth) //lower left
-      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y + shadowDepth) //lower right
+      p.vertex(a.x, a.y) 
+      p.vertex(b.x, b.y) 
+      
+      p.vertex(b.x, p.map(mouse, b.x, a.x, c.y, a.y + topShadowDepth)) 
+      let control1 = {x: Math.max(mouse, b.x), y: b.y + topShadowDepth}
+      let control2 = {x: Math.min(mouse, a.x), y: b.y + topShadowDepth}
+      let anchor = {x: Math.min(c.x - sideShadowDepth, c.x), y: p.map(mouse, b.x, a.x, a.y + topShadowDepth, c.y)}
+      if (DEBUG_SHADOWS) {
+        drawControlPoint(a, "yellow")
+        drawControlPoint(b, "yellow")
+        drawControlPoint(c, "black")
+        drawControlPoint(control1, "blue")
+        drawControlPoint(control2, "blue")
+        drawControlPoint(anchor, "green")
+      }
+      p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor.x, anchor.y); 
+
+      p.vertex(a.x, innerCoords.top_right.y + topShadowDepth)
       p.endShape(p.CLOSE)
     }
+
+    if (lightSourceDirection === "NORTH") {
+      let topShadowDepth = _topShadowDepth
+      let sideShadowDepth = _rightSideShadowDepth
+
+      addBezier(
+        innerCoords.top_right, //upper right
+        innerCoords.top_left, //upper left
+        innerCoords.bottom_right, //bottom right
+        p.mouseX,
+        topShadowDepth,
+        sideShadowDepth 
+      )
+    }
     if (lightSourceDirection === "NORTHEAST"){
-      
       let sideShadowDepth = _rightSideShadowDepth
       let topShadowDepth = _topShadowDepth
 
@@ -194,19 +231,30 @@ const mySketch = (
       let control1 = {x: innerCoords.bottom_right.x - sideShadowDepth, y: innerCoords.top_left.y + topShadowDepth}
       let control2 = {x: innerCoords.bottom_right.x - sideShadowDepth, y: innerCoords.top_left.y + topShadowDepth}
       let anchor2 = {x: innerCoords.bottom_right.x - sideShadowDepth, y: innerCoords.bottom_right.y}
+      // drawControlPoint(control1, control2, "green", DEBUG_SHADOWS)
       p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y); // lower right (inner)
       
       p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y) //lower right2 (outer)
       p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "EAST"){
-      let shadowDepth = _rightSideShadowDepth
-      p.beginShape()
-      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y)
-      p.vertex(innerCoords.top_right.x - shadowDepth, innerCoords.top_right.y)
-      p.vertex(innerCoords.top_right.x - shadowDepth, innerCoords.bottom_right.y)
-      p.vertex(innerCoords.top_right.x, innerCoords.bottom_right.y)
-      p.endShape(p.CLOSE)
+      let topShadowDepth = _topShadowDepth
+      let sideShadowDepth = _rightSideShadowDepth
+
+      addBezier(
+        innerCoords.bottom_right, //upper right
+        innerCoords.top_right, //upper left
+        innerCoords.bottom_left, //bottom right
+        p.mouseY,
+        topShadowDepth,
+        sideShadowDepth 
+      )
+      // p.beginShape()
+      // p.vertex(innerCoords.top_right.x, innerCoords.top_right.y)
+      // p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
+      // p.vertex(innerCoords.bottom_right.x - sideShadowDepth, innerCoords.bottom_right.y)
+      // p.vertex(innerCoords.top_right.x - sideShadowDepth, innerCoords.top_right.y)
+      // p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "SOUTHEAST"){
       let sideShadowDepth = _rightSideShadowDepth
@@ -761,6 +809,14 @@ const mySketch = (
     bottomFrame()
     topFrame()
   }
+
+  function drawControlPoint(point1: {x: number, y: number}, color: string) {
+    p.push()
+    p.strokeWeight(10)
+    p.stroke(color)
+    p.point(point1.x, point1.y)
+    p.pop()
+  }
   
   p.mousePressed = () => {
     // Check if mouse is inside canvas
@@ -798,7 +854,7 @@ const ScribbleFrame: React.FC<ScribbleFrameProps> = ({
     boxShadow: includeBoxShadow ? '0px 10px 20px rgba(0, 0, 0, 0.2)' : 'none',
     height: `${innerHeight + _frameTopWidth + _frameSideWidth}px`,
     width: `${innerWidth + _frameSideWidth + _frameSideWidth}px`,
-    cursor: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"%23FFD700\"><path d=\"M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z\"/></svg>') 16 16, pointer",
+    cursor: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"white\"><path d=\"M12 2C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm-3 19v-1h6v1c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1z\"/></svg>') 16 16, pointer",
   };
 
   const childFrame: CSSProperties = {
