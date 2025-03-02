@@ -18,7 +18,8 @@ type PatternFunction = (
   strokeColor: p5.Color
 ) => void;
 
-const DEBUG_SHADOWS = true;
+const DEBUG_SHADOWS = false;
+const DEBUG_SHADOWS_SMALL = false;
 
 const mySketch = (
   innerWidth: number, 
@@ -28,19 +29,21 @@ const mySketch = (
 ) => (p: p5) => {
 
   /** CANVAS SETTINGS */
-  let cw = innerWidth + (frameSideWidth * 2);
-  let ch = innerHeight + (frameTopWidth * 2);
+  const padding = 50; // Add padding around the drawing
+  let cw = innerWidth + (frameSideWidth * 2) + (padding * 2);
+  let ch = innerHeight + (frameTopWidth * 2) + (padding * 2);
+  let textureImg: p5.Image;
   const innerCoords = {
-    top_left: {x: frameSideWidth, y: frameTopWidth},
-    top_right: {x: frameSideWidth + innerWidth, y: frameTopWidth},
-    bottom_left: {x: frameSideWidth, y: ch - frameTopWidth},
-    bottom_right: {x: cw - frameSideWidth, y: ch - frameTopWidth}
+    top_left: {x: frameSideWidth + padding, y: frameTopWidth + padding},
+    top_right: {x: frameSideWidth + innerWidth + padding, y: frameTopWidth + padding},
+    bottom_left: {x: frameSideWidth + padding, y: ch - frameTopWidth - padding},
+    bottom_right: {x: cw - frameSideWidth - padding, y: ch - frameTopWidth - padding}
   }
   const outerCoords = {
-    top_left: {x: 0, y: 0},
-    top_right: {x: cw, y: 0},
-    bottom_left: {x: 0, y: ch},
-    bottom_right: {x: cw, y: ch}
+    top_left: {x: padding, y: padding},
+    top_right: {x: cw - padding, y: padding},
+    bottom_left: {x: padding, y: ch - padding},
+    bottom_right: {x: cw - padding, y: ch - padding}
   }
   
   
@@ -57,7 +60,7 @@ const mySketch = (
   let lightSourceCoords: {x: number, y: number}
   
   p.preload = () => {
-    // textureImg = p.loadImage('/textures/gold7.png');
+    textureImg = p.loadImage('/textures/watercolor_1.jpg');
   }
 
   p.setup = () => {
@@ -68,7 +71,7 @@ const mySketch = (
     gold = {
       base: [p.color(39, 72.3, 81.6)],
       shadowLight: [p.color(31, 62.9, 67.3)],
-      shadowDark: [p.color(18, 36.7, 44)],
+      shadowDark: [p.color(28, 42.7, 44)],
       highlight: [p.color(80, 66.7, 96.5)],
     }
 
@@ -84,6 +87,12 @@ const mySketch = (
   p.draw = () => {
     p.noLoop()
     p.clear()
+    p.push()
+    p.stroke("lightgray")
+    p.strokeWeight(1)
+    p.rect(0, 0, cw, ch)
+    p.pop()
+
 
     /** DRAW GRADIENTS IN EACH FRAME SHAPE */
     drawSubdivision(drawSloppyRect, "top", primaryColor, true) // Top
@@ -92,10 +101,10 @@ const mySketch = (
     drawSubdivision(drawSloppyRect, "left", primaryColor, false) // Left
     
     /** DRAW CIRCLES */
-    drawSubdivision(drawFlourishes, "top", primaryColor, true) // Top
-    drawSubdivision(drawFlourishes, "right", primaryColor, true) // Right 
-    drawSubdivision(drawFlourishes, "bottom", primaryColor, false) // Bottom
-    drawSubdivision(drawFlourishes, "left", primaryColor, false) // Left
+    // drawFlourishes(primaryColor) // Top
+    // drawFlourishes(primaryColor) // Right 
+    // drawFlourishes(primaryColor) // Bottom
+    // drawFlourishes(primaryColor) // Left
     
     /** DRAW SHADOWS */
     let lightSourceCoords = {x: outerCoords.top_right.x, y: outerCoords.top_right.y}
@@ -106,9 +115,15 @@ const mySketch = (
     
     p.push()
     p.noStroke()
-    drawInnerShadowShapeSmall(shadowDepth, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
+    // drawInnerShadowShapeSmall(shadowDepth, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
     drawInnerShadowShapeLarge(shadowDepth + 10, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
     p.pop()
+    
+    // p.push();
+    // p.clip(fullframeMask);
+    // p.blendMode(p.OVERLAY);
+    // p.image(textureImg, 0, 0 )
+    // p.pop()
   }
 
   /**
@@ -179,20 +194,19 @@ const mySketch = (
    * @param {p5.Color} shadowColor The color of the shadow rectangle
    */
   function drawFlourishes (
-    startX: number,
-    startY: number,
-    w: number,
-    h: number,
     color: p5.Color
   ) {
     p.push();
     p.fill(color);
     // p.strokeWeight(2);
     p.noStroke();
-    p.beginShape();
-
+    // p.beginShape();
     
+    let width = 80
+    let height = 40
+    p.ellipse(w/2, h/2, width, height);
     
+    // p.endShape(p.CLOSE);
     p.pop();
   }
   
@@ -305,11 +319,11 @@ const mySketch = (
     }
 
     // Add outer and inner subdivisions to represent the inside and outside borders of the frame
-    let outerSubdivisionHeight = p.random(1, 5);
+    let outerSubdivisionHeight = p.random(1, 2);
     let innerSubdivisionHeight = p.random(1, 5);
     subdivisions.unshift({
       subdivisionHeight: outerSubdivisionHeight,
-      isShadowShape: false,
+      isShadowShape: true,
     });
     subdivisions.push({
       subdivisionHeight: innerSubdivisionHeight, 
@@ -340,52 +354,29 @@ const mySketch = (
     p.noStroke()
     p.beginShape();
 
-    // BOTTOM RIGHT
-    if (debug) {
-      p.push()
-      p.stroke("red")
-      p.strokeWeight(10)
-      p.point(shadowWidth, 150)
-      p.pop()
-    }
-    p.vertex(shadowWidth, 150); // (172, 81.94)
-    
-    // BOTTOM LEFT
+    // BOTTOM RIGHT, LEFT
+    let anchor1 = {x: shadowWidth, y: 150}
+    let anchor2 = {x: shadowWidth/2.43, y: 0}
     let control1 = {x: shadowWidth/1.27 + 112, y: 23.54}
-    let control2 = {x: (shadowWidth/2.43) + 61.73, y: 0}
-    let anchor = {x: shadowWidth/2.43, y: 0}
+    let control2 = {x: shadowWidth - 80 , y: 0}
+    p.vertex(anchor1.x, anchor1.y); // (172, 81.94)
+    p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y);
 
-    if (debug) {
+    if (DEBUG_SHADOWS_SMALL) {
       p.push()
       p.strokeWeight(10)
+      p.stroke("green")
+      p.point(anchor1.x, anchor1.y)
       p.stroke("yellow")
-      p.point(anchor.x, anchor.y)
+      p.point(anchor2.x, anchor2.y)
       p.stroke("pink")
       p.point(control1.x, control1.y)
       p.stroke("orange")
       p.point(control2.x, control2.y)
       p.pop()
     }
-    p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor.x, anchor.y);
-    
-    // TOP LEFT
-    if (debug) {
-      p.push()
-      p.stroke("blue")
-      p.strokeWeight(10)
-      p.point(0, 0)
-      p.pop()
-    }
-    // p.vertex(0, 0);
     
     // TOP RIGHT
-    if (debug) {
-      p.push()
-      p.stroke("green")
-      p.strokeWeight(10)
-      p.point(shadowWidth, 0)
-      p.pop()
-    }
     p.vertex(shadowWidth, 0);
     p.endShape(p.CLOSE);
     p.pop()
@@ -401,7 +392,7 @@ const mySketch = (
     p.beginShape();
 
     // BOTTOM RIGHT
-    if (debug) {
+    if (DEBUG_SHADOWS) {
       p.push()
       p.stroke("red")
       p.strokeWeight(10)
@@ -410,27 +401,30 @@ const mySketch = (
       p.pop()
     }
     p.vertex(shadowWidth, innerHeight);
-    p.vertex(shadowWidth - shadowDepth, innerHeight);
     
     // BOTTOM LEFT
-    let control1 = {x: shadowWidth/1.27, y: 23.54}
-    let control2 = {x: 61.73, y: shadowDepth}
-    let anchor = {x: 0, y: shadowDepth}
-    if (debug) {
+    let anchor1 = {x: shadowWidth - shadowDepth, y: innerHeight}
+    let anchor2 = {x: 0, y: shadowDepth}
+    let control1 = {x: anchor1.x + (innerCoords.top_right.x - anchor1.x)/3, y: 23.54}
+    let control2 = {x: anchor1.x, y: shadowDepth/2}
+    p.vertex(anchor1.x, anchor1.y);
+    p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y);
+    if (DEBUG_SHADOWS) {
       p.push()
-      p.strokeWeight(10)
+      p.strokeWeight(20)
       p.stroke("yellow")
-      p.point(anchor.x, anchor.y)
+      p.point(anchor1.x, anchor1.y)
+      p.stroke("green")
+      p.point(anchor2.x, anchor2.y)
       p.stroke("pink")
       p.point(control1.x, control1.y)
       p.stroke("orange")
       p.point(control2.x, control2.y)
       p.pop()
     }
-    p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor.x, anchor.y);
     
     // TOP LEFT
-    if (debug) {
+    if (DEBUG_SHADOWS) {
       p.push()
       p.stroke("blue")
       p.strokeWeight(10)
@@ -440,7 +434,7 @@ const mySketch = (
     p.vertex(0, 0);
     
     // TOP RIGHT
-    if (debug) {
+    if (DEBUG_SHADOWS) {
       p.push()
       p.stroke("green")
       p.strokeWeight(10)
@@ -456,34 +450,34 @@ const mySketch = (
   /** FRAME SHAPES */
   function topFrame() {
     p.beginShape();
-    p.vertex(0, 0);
-    p.vertex(cw, 0);
-    p.vertex(cw - frameSideWidth, frameTopWidth);
-    p.vertex(frameSideWidth, frameTopWidth);
+    p.vertex(padding, padding);
+    p.vertex(cw - padding, padding);
+    p.vertex(cw - padding - frameSideWidth, frameTopWidth + padding);
+    p.vertex(frameSideWidth + padding, frameTopWidth + padding);
     p.endShape(p.CLOSE);
   }
   function leftFrame() {
     p.beginShape();
-    p.vertex(0, 0);
-    p.vertex(0, ch);
-    p.vertex(frameSideWidth, ch - frameTopWidth);
-    p.vertex(frameSideWidth, frameTopWidth);
+    p.vertex(padding, padding);
+    p.vertex(padding, ch - padding);
+    p.vertex(frameSideWidth + padding, ch - frameTopWidth - padding);
+    p.vertex(frameSideWidth + padding, frameTopWidth + padding);
     p.endShape(p.CLOSE);
   }
   function rightFrame() {
     p.beginShape();
-    p.vertex(cw, 0); // top right
-    p.vertex(cw, ch); // bottom right 
-    p.vertex(cw - frameSideWidth, ch - frameTopWidth); // bottom left
-    p.vertex(cw - frameSideWidth, frameTopWidth); // top left
+    p.vertex(cw - padding, padding); // top right
+    p.vertex(cw - padding, ch - padding); // bottom right 
+    p.vertex(cw - frameSideWidth - padding, ch - frameTopWidth - padding); // bottom left
+    p.vertex(cw - frameSideWidth - padding, frameTopWidth + padding); // top left
     p.endShape(p.CLOSE);
   }
   function bottomFrame() {
     p.beginShape();
-    p.vertex(0, ch);
-    p.vertex(cw, ch);
-    p.vertex(cw - frameSideWidth, ch-frameTopWidth);
-    p.vertex(frameSideWidth, ch-frameTopWidth);
+    p.vertex(padding, ch - padding);
+    p.vertex(cw - padding, ch - padding);
+    p.vertex(cw - frameSideWidth - padding, ch - frameTopWidth - padding);
+    p.vertex(frameSideWidth + padding, ch - frameTopWidth - padding);
     p.endShape(p.CLOSE);
   }
   function fullframeMask () {
@@ -493,7 +487,7 @@ const mySketch = (
     topFrame()
   }
 
-  function drawControlPoint(point1: {x: number, y: number}, color: string) {
+  function drawPoint(point1: {x: number, y: number}, color: string) {
     p.push()
     p.strokeWeight(10)
     p.stroke(color)
@@ -523,6 +517,7 @@ const ScribbleFrame2: React.FC<ScribbleFrameProps> = ({
   const _frameTopWidth = frameTopWidth ? frameTopWidth : Math.floor(Math.random() * (max - min) + min)
   const _frameSideWidth = frameSideWidth ? frameSideWidth : _frameTopWidth
   const totalHeight = innerHeight + (_frameTopWidth * 2)
+  const padding = 50; // Add padding around the drawing
   // const totalWidth = innerWidth +  + (_frameSideWidth * 2)
 
   const _outerSketch = mySketch(innerWidth, innerHeight, _frameTopWidth, _frameSideWidth);
@@ -547,8 +542,8 @@ const ScribbleFrame2: React.FC<ScribbleFrameProps> = ({
   }
   const childSketch: CSSProperties = {
     position: 'absolute',
-    top: `${_frameTopWidth}px`,
-    left: `${_frameSideWidth}px`,
+    top: `${_frameTopWidth + padding}px`,
+    left: `${_frameSideWidth + padding}px`,
   }
   
   const fancyFonts = [
@@ -561,7 +556,7 @@ const ScribbleFrame2: React.FC<ScribbleFrameProps> = ({
   ];
   const labelContainerStyles: CSSProperties = {
     position: 'absolute',
-    top: `${totalHeight - (_frameTopWidth)}px`,
+    top: `${totalHeight - (_frameTopWidth) + padding}px`,
     width: '100%',
     display: 'flex',
     justifyContent: 'center',
