@@ -7,8 +7,12 @@ type Direction = "NORTH" | "NORTHEAST" | "EAST" | "SOUTHEAST" | "SOUTH" | "SOUTH
 
 interface Subdivision {
   subdivisionHeight: number, 
-  isShadowShape: boolean,
+  colorType: ColorType
 }
+
+type Color = {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[], highlight: p5.Color[]}
+
+type ColorType = "base" | "shadowLight" | "shadowDark" | "highlight"
 
 type PatternFunction = (
   x: number,
@@ -17,6 +21,8 @@ type PatternFunction = (
   h: number,
   strokeColor: p5.Color
 ) => void;
+
+
 
 const DEBUG_SHADOWS = false;
 const DEBUG_SHADOWS_SMALL = false;
@@ -49,7 +55,9 @@ const mySketch = (
   
   /** FRAME SETTINGS */
   let primaryColor: {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[], highlight: p5.Color[]}
+  let secondaryColor: {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[], highlight: p5.Color[]}
   let gold: {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[], highlight: p5.Color[]}
+  let goldDark: {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[], highlight: p5.Color[]}
   let subdivisions: Subdivision[]
   let sideSubdivisions: Subdivision[]
   let topSubdivisions: Subdivision[]
@@ -69,14 +77,29 @@ const mySketch = (
 
     /** COLOR PALETTE(s) */
     gold = {
-      base: [p.color(39, 72.3, 81.6)],
-      shadowLight: [p.color(31, 62.9, 67.3)],
-      shadowDark: [p.color(28, 42.7, 44)],
-      highlight: [p.color(80, 66.7, 96.5)],
+      base: [p.color(34, 82.3, 73.6)],
+      shadowLight: [p.color(34, 82.3, 67.6)],
+      shadowDark: [p.color(34, 48.7, 44)],
+      highlight: [p.color(34, 95.3, 87.6)],
     }
+    
+    goldDark = {
+      base: [p.color(34, 60.3, 55.6)],
+      shadowLight: [p.color(34, 60.3, 50.6)],
+      shadowDark: [p.color(34, 42.7, 36)],
+      highlight: [p.color(34, 95.3, 87.6)],
+    }
+    
+    // goldDark = {
+    //   base: [p.color(31, 62.9, 67.3)],
+    //   shadowLight: [p.color(28, 42.7, 44)],
+    //   shadowDark: [p.color(28, 42.7, 44)],
+    //   highlight: [p.color(60, 66.7, 96.5)],
+    // }
 
     /** FRAME COLORS */
     primaryColor = gold // Add more colors later
+    secondaryColor = goldDark // Add more colors later
     
     /** CREATE SUBDIVISIONS FOR EACH FRAME SHAPE/SIDE */
     subdivisions = generateSubdivisions(p.random(1, 5)) // Divide frame into subdivisions
@@ -87,6 +110,8 @@ const mySketch = (
   p.draw = () => {
     p.noLoop()
     p.clear()
+    
+    // Draw Subtle border around canvas
     p.push()
     p.stroke("lightgray")
     p.strokeWeight(1)
@@ -94,12 +119,35 @@ const mySketch = (
     p.rect(0, 0, cw, ch)
     p.pop()
 
+    /** DRAW SHADOWS */
+    let lightSourceCoords = {x: outerCoords.top_right.x, y: outerCoords.top_right.y}
+    shadowWidth = innerWidth;
+    shadowHeight = innerCoords.top_left.y - lightSourceCoords.y;
+    shadowDepth = p.random(1, 100);
+    // shadowColor = p.color(3, 56, 17, 0.15)
+    shadowColor = p.color(3, 16, 47, 0.60)
+
+    // Draw Shadow shape first so that remaining layers are drawn on top
+    p.push()
+    p.noStroke()
+    // drawInnerShadowShapeSmall(shadowDepth, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
+    drawInnerShadowShapeLarge(shadowDepth + 10, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
+    drawOuterShadowShape(
+      shadowDepth + 10, 
+      shadowColor, 
+      {x: outerCoords.top_left.x, y: outerCoords.top_left.y + shadowDepth}, 
+      outerCoords.bottom_left, 
+      {x: outerCoords.bottom_right.x - shadowDepth, y: outerCoords.bottom_right.y}, 
+      false
+    )
+    p.pop()
+
 
     /** DRAW GRADIENTS IN EACH FRAME SHAPE */
-    drawSubdivision(drawSloppyRect, "top", primaryColor, true) // Top
-    drawSubdivision(drawSloppyRect, "right", primaryColor, true) // Right 
-    drawSubdivision(drawSloppyRect, "bottom", primaryColor, false) // Bottom
-    drawSubdivision(drawSloppyRect, "left", primaryColor, false) // Left
+    drawSubdivision(drawSloppyRect, "top", true) // Top
+    drawSubdivision(drawSloppyRect, "right", true) // Right 
+    drawSubdivision(drawSloppyRect, "bottom", false) // Bottom
+    drawSubdivision(drawSloppyRect, "left", false) // Left
     
     /** DRAW CIRCLES */
     // drawFlourishes(primaryColor) // Top
@@ -107,18 +155,9 @@ const mySketch = (
     // drawFlourishes(primaryColor) // Bottom
     // drawFlourishes(primaryColor) // Left
     
-    /** DRAW SHADOWS */
-    let lightSourceCoords = {x: outerCoords.top_right.x, y: outerCoords.top_right.y}
-    shadowWidth = innerWidth;
-    shadowHeight = innerCoords.top_left.y - lightSourceCoords.y;
-    shadowDepth = p.random(1, 100);
-    shadowColor = p.color(3, 56, 17, 0.25)
+
     
-    p.push()
-    p.noStroke()
-    // drawInnerShadowShapeSmall(shadowDepth, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
-    drawInnerShadowShapeLarge(shadowDepth + 10, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
-    p.pop()
+ 
     
     // p.push();
     // p.clip(fullframeMask);
@@ -140,7 +179,6 @@ const mySketch = (
   function drawSubdivision(
     patternFunction: PatternFunction,
     side: 'top' | 'right' | 'bottom' | 'left',
-    color: {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[], highlight: p5.Color[]},
     isInShadow: boolean
   ) {
     
@@ -172,18 +210,56 @@ const mySketch = (
     // Draw each subdivision
     let currentY = 0;
     
-    subdivisions.forEach(({ subdivisionHeight, isShadowShape }) => {
+    subdivisions.forEach(({ subdivisionHeight, colorType }) => {
+      const color = isInShadow ? secondaryColor[colorType][0] : primaryColor[colorType][0];
+
       // Apply the pattern function
-      const baseColor = isInShadow ? color.shadowLight[0] : color.base[0]
-      const shadowColor = isInShadow ? color.shadowDark[0] : color.shadowLight[0]
-      const _color = isShadowShape ? shadowColor : baseColor
-      patternFunction(0, currentY, subDivisionWidth, subdivisionHeight, _color);
+      patternFunction(0, currentY, subDivisionWidth, subdivisionHeight, color );
       
       // Move to next subdivision
       currentY += subdivisionHeight;
     });
     
     p.pop();
+  }
+
+  function generateSubdivisions(numSubdivisions: number) {
+    let subdivisions: Subdivision[] = [];
+
+    // Generate random length and depth values for each subdivision.
+    for (let i = 0; i < numSubdivisions; i++) {
+      let subdivisionHeight = p.random(2, 10);
+      let colorType = p.random(["shadowLight", "base"]) as ColorType;
+      subdivisions.push({subdivisionHeight, colorType});
+    }
+
+    // Add outer and inner subdivisions to represent the inside and outside borders of the frame
+    let outerSubdivisionHeight = p.random(5, 10);
+    let innerSubdivisionHeight = p.random(1, 5);
+    subdivisions.unshift({
+      subdivisionHeight: outerSubdivisionHeight,
+      colorType: "highlight",
+    });
+    subdivisions.push({
+      subdivisionHeight: innerSubdivisionHeight, 
+      colorType: "shadowDark",
+    });
+    
+    return subdivisions;
+  }
+
+  function normalizeSubdivisions(subdivisions: Subdivision[], h: number) {
+
+    // Calculate the total length of all subdivisions
+    let total = subdivisions.reduce((acc, subdivision) => acc + subdivision.subdivisionHeight, 0);
+    
+    // Normalize the subdivisions and depth values to sum up to h
+    const normalized = subdivisions.map(subdivision => ({
+      ...subdivision,
+      subdivisionHeight: subdivision.subdivisionHeight / total * h,
+    }));
+    
+    return normalized;
   }
   
   /**
@@ -228,7 +304,6 @@ const mySketch = (
   ) {
     p.push();
     p.fill(color);
-    // p.strokeWeight(2);
     p.noStroke();
     p.beginShape();
 
@@ -309,45 +384,6 @@ const mySketch = (
     p.pop();
   }
 
-  function generateSubdivisions(numSubdivisions: number) {
-    let subdivisions: Subdivision[] = [];
-
-    // Generate random length and depth values for each subdivision.
-    for (let i = 0; i < numSubdivisions; i++) {
-      let subdivisionHeight = p.random(2, 10);
-      let isShadowShape = p.random(0, 1) > 0.75 ? true : false;
-      subdivisions.push({subdivisionHeight, isShadowShape});
-    }
-
-    // Add outer and inner subdivisions to represent the inside and outside borders of the frame
-    let outerSubdivisionHeight = p.random(1, 2);
-    let innerSubdivisionHeight = p.random(1, 5);
-    subdivisions.unshift({
-      subdivisionHeight: outerSubdivisionHeight,
-      isShadowShape: true,
-    });
-    subdivisions.push({
-      subdivisionHeight: innerSubdivisionHeight, 
-      isShadowShape: true,
-    });
-    
-    return subdivisions;
-  }
-
-  function normalizeSubdivisions(subdivisions: Subdivision[], h: number) {
-
-    // Calculate the total length of all subdivisions
-    let total = subdivisions.reduce((acc, subdivision) => acc + subdivision.subdivisionHeight, 0);
-    
-    // Normalize the subdivisions and depth values to sum up to h
-    const normalized = subdivisions.map(subdivision => ({
-      ...subdivision,
-      subdivisionHeight: subdivision.subdivisionHeight / total * h,
-    }));
-    
-    return normalized;
-  }
-
   function drawInnerShadowShapeSmall(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, _shadowHeight: number, startX: number, startY: number, debug: boolean) {
     p.push();
     p.translate(startX, startY)
@@ -385,6 +421,15 @@ const mySketch = (
   }
 
   function drawInnerShadowShapeLarge(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, shadowHeight: number, startX: number, startY: number, debug: boolean) {
+    
+    p.push()
+    p.clip(() => {
+      topFrame()
+      rightFrame()
+    })
+    p.fill(shadowColor)
+    p.rect(0, 0, cw, ch)
+    p.pop()
     
     p.push();
     p.translate(startX, startY)
@@ -445,7 +490,22 @@ const mySketch = (
     p.vertex(shadowWidth, 0);
     p.endShape(p.CLOSE);
     p.pop()
-
+  }
+ 
+  function drawOuterShadowShape(shadowDepth: number, shadowColor: p5.Color, pointA: {x:number, y:number}, pointB: {x:number, y:number}, pointC: {x:number, y:number}, debug: boolean) {
+    // (shadowDepth + 10, shadowColor, shadowWidth, shadowHeight, outerCoords.top_left.x, outerCoords.bottom_left, outerCoords.bottom_right, false)
+    p.push();
+    p.fill(shadowColor)
+    p.noStroke()
+    p.beginShape()
+    p.vertex(pointA.x, pointA.y);
+    p.vertex(pointB.x, pointB.y);
+    p.vertex(pointC.x, pointC.y);
+    p.vertex(pointC.x - shadowDepth, pointC.y + shadowDepth);
+    p.vertex(pointB.x - shadowDepth, pointB.y + shadowDepth);
+    p.vertex(pointA.x - shadowDepth, pointA.y + shadowDepth);
+    p.endShape(p.CLOSE)
+    p.pop();
   }
 
   /** FRAME SHAPES */
