@@ -90,6 +90,7 @@ const mySketch = (
     p.push()
     p.stroke("lightgray")
     p.strokeWeight(1)
+    p.noFill()
     p.rect(0, 0, cw, ch)
     p.pop()
 
