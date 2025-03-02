@@ -2,11 +2,10 @@ import React, { CSSProperties } from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 import { ScribbleFrameProps, Subdivision, PatternFunction } from './types';
-import { drawGradientRect } from '../../helpers/shapes';
 
-type Direction = "NORTH" | "NORTHEAST" | "EAST" | "SOUTHEAST" | "SOUTH" | "SOUTHWEST" | "WEST" | "NORTHWEST";
+type Direction = 'NORTH' | 'NORTHEAST' | 'EAST' | 'SOUTHEAST' | 'SOUTH' | 'SOUTHWEST' | 'WEST' | 'NORTHWEST';
 
-const DEBUG_SHADOWS = true;
+const DEBUG_SHADOWS = true
 
 const mySketch = (
   innerWidth: number, 
@@ -179,7 +178,8 @@ const mySketch = (
     function addBezier(
       a: {x: number, y: number}, 
       b: {x: number, y: number}, 
-      c: {x: number, y: number}, 
+      min: number,
+      max: number,
       mouse: number,
       topShadowDepth: number,
       sideShadowDepth: number
@@ -188,22 +188,26 @@ const mySketch = (
       p.vertex(a.x, a.y) 
       p.vertex(b.x, b.y) 
       
-      p.vertex(b.x, p.map(mouse, b.x, a.x, c.y, a.y + topShadowDepth)) 
-      let control1 = {x: Math.max(mouse, b.x), y: b.y + topShadowDepth}
-      let control2 = {x: Math.min(mouse, a.x), y: b.y + topShadowDepth}
-      let anchor = {x: Math.min(c.x - sideShadowDepth, c.x), y: p.map(mouse, b.x, a.x, a.y + topShadowDepth, c.y)}
+      const anchor1Clamp = b.y + topShadowDepth;
+      const anchor2Clamp = a.y + topShadowDepth;
+      const anchor1 = {x: b.x, y: Math.max(p.map(mouse, b.x, a.x/2 + frameSideWidth, max, min + topShadowDepth), anchor1Clamp)}
+      const anchor2 = {x: Math.min(a.x - sideShadowDepth, a.x), y: Math.max(p.map(mouse, b.x + innerWidth/2, a.x, min + topShadowDepth, max), anchor2Clamp)}
+      const control1 = {x: Math.max(mouse, b.x), y: b.y + topShadowDepth}
+      const control2 = {x: Math.min(mouse, a.x), y: b.y + topShadowDepth}
+      p.vertex(anchor1.x, anchor1.y) 
+      p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y); 
+
+      p.vertex(a.x, a.y + topShadowDepth)
+      p.endShape(p.CLOSE)
+
       if (DEBUG_SHADOWS) {
         drawControlPoint(a, "yellow")
         drawControlPoint(b, "yellow")
-        drawControlPoint(c, "black")
+        drawControlPoint(anchor1, "pink")
         drawControlPoint(control1, "blue")
         drawControlPoint(control2, "blue")
-        drawControlPoint(anchor, "green")
+        drawControlPoint(anchor2, "green")
       }
-      p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor.x, anchor.y); 
-
-      p.vertex(a.x, innerCoords.top_right.y + topShadowDepth)
-      p.endShape(p.CLOSE)
     }
 
     if (lightSourceDirection === "NORTH") {
@@ -213,7 +217,8 @@ const mySketch = (
       addBezier(
         innerCoords.top_right, //upper right
         innerCoords.top_left, //upper left
-        innerCoords.bottom_right, //bottom right
+        frameTopWidth,
+        ch - frameTopWidth,
         p.mouseX,
         topShadowDepth,
         sideShadowDepth 
@@ -242,9 +247,10 @@ const mySketch = (
       let sideShadowDepth = _rightSideShadowDepth
 
       addBezier(
-        innerCoords.bottom_right, //upper right
-        innerCoords.top_right, //upper left
-        innerCoords.bottom_left, //bottom right
+        innerCoords.bottom_right,
+        innerCoords.top_right,
+        frameSideWidth,
+        cw - frameSideWidth,
         p.mouseY,
         topShadowDepth,
         sideShadowDepth 
@@ -273,13 +279,25 @@ const mySketch = (
       p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "SOUTH"){
-      let shadowDepth = _bottomShadowDepth
-      p.beginShape()
-      p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
-      p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
-      p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y - shadowDepth)
-      p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y - shadowDepth)
-      p.endShape(p.CLOSE)
+      let bottomShadowDepth = _bottomShadowDepth
+      let sideShadowDepth = _rightSideShadowDepth
+      
+      addBezier(
+        innerCoords.bottom_right,
+        innerCoords.bottom_left,
+        ch - frameTopWidth,
+        frameTopWidth,
+        p.mouseX,
+        bottomShadowDepth,
+        sideShadowDepth 
+      )
+      // let shadowDepth = _bottomShadowDepth
+      // p.beginShape()
+      // p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
+      // p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
+      // p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y - shadowDepth)
+      // p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y - shadowDepth)
+      // p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "SOUTHWEST"){
       let sideShadowDepth = _leftSideShadowDepth
