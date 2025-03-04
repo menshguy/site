@@ -8,9 +8,12 @@ interface PageProps {
   route: string;
   header: string;
   subheader?: string;
+  disableClickToSetup?: boolean;
+  disableClickToClear?: boolean;
+  disableClickToRedraw?: boolean;
 }
 
-const Page: React.FC<PageProps> = ({ sketches, route, header, subheader }) => {
+const Page: React.FC<PageProps> = ({ sketches, route, header, subheader, ...props }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const {isMobile} = useDevice();
@@ -55,7 +58,7 @@ const Page: React.FC<PageProps> = ({ sketches, route, header, subheader }) => {
       </div>
 
       {/* Sketch */}
-      <P5Wrapper includeSaveButton={true} sketch={sketches[selectedSketch]} />
+      <P5Wrapper includeSaveButton={true} sketch={sketches[selectedSketch]} {...props} />
     </div>
   );
 };
