@@ -9,9 +9,9 @@ import { drawGradientRect } from '../../helpers/shapes.ts';
 
 const mySketch = (p: p5) => {
 
-  let cw: number = 1000; 
-  let ch: number = 600;
-  let bottom = 300;
+  let cw: number = 1400; 
+  let ch: number = 800;
+  let bottom = ch/2;
   let debug = false;
   let tree: VermontTree;
   let sunAngle: number;
