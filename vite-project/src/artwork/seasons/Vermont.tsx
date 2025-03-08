@@ -4,7 +4,7 @@ import {Season} from '../trees/types.ts';
 import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import p5 from 'p5';
 import { drawMoon, drawStars, Moon, Stars } from '../../helpers/skyHelpers.tsx';
-import { drawGradientCircle } from '../../helpers/shapes.ts';
+import { circle_gradient } from '../../helpers/shapes.ts';
 
 const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
   console.log("Vermont", _cw, _ch)
@@ -278,7 +278,7 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
       s.colorMode(s.HSL)
       s.noStroke()
       // s.fill(60, 100, 100)
-      drawGradientCircle(s, sunCenter.x, sunCenter.y, s.random(600, 800), false, s.color(60, 100, 100))
+      circle_gradient(s, sunCenter.x, sunCenter.y, s.random(600, 800), false, s.color(60, 100, 100))
       // s.filter(s.BLUR, 2);
       s.pop()
       p.image(s, 0, 0, cw, ch)

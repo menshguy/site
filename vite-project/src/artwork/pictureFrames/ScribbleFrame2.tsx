@@ -2,6 +2,7 @@ import React, { CSSProperties } from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 import { ScribbleFrameProps } from './types';
+import { rect_wobbly } from '../../helpers/shapes';
 
 type Direction = "NORTH" | "NORTHEAST" | "EAST" | "SOUTHEAST" | "SOUTH" | "SOUTHWEST" | "WEST" | "NORTHWEST";
 
@@ -15,14 +16,13 @@ type Color = {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[],
 type ColorType = "base" | "shadowLight" | "shadowDark" | "highlight"
 
 type PatternFunction = (
+  p: p5.Graphics,
   x: number,
   y: number,
   w: number,
   h: number,
   strokeColor: p5.Color
 ) => void;
-
-
 
 const DEBUG_SHADOWS = false;
 const DEBUG_SHADOWS_SMALL = false;
@@ -36,9 +36,11 @@ const mySketch = (
 
   /** CANVAS SETTINGS */
   const padding = 50; // Add padding around the drawing
-  let cw = innerWidth + (frameSideWidth * 2) + (padding * 2);
-  let ch = innerHeight + (frameTopWidth * 2) + (padding * 2);
-  let textureImg: p5.Image;
+  let frameWidth = innerWidth + (frameSideWidth * 2)
+  let frameHeight = innerHeight + (frameTopWidth * 2)
+  let cw = frameWidth + (padding * 2);
+  let ch = frameHeight + (padding * 2);
+  // let textureImg: p5.Image;
   const innerCoords = {
     top_left: {x: frameSideWidth + padding, y: frameTopWidth + padding},
     top_right: {x: frameSideWidth + innerWidth + padding, y: frameTopWidth + padding},
@@ -68,7 +70,7 @@ const mySketch = (
   let lightSourceCoords: {x: number, y: number}
   
   p.preload = () => {
-    textureImg = p.loadImage('/textures/watercolor_1.jpg');
+    // textureImg = p.loadImage('/textures/watercolor_1.jpg');
   }
 
   p.setup = () => {
@@ -80,14 +82,16 @@ const mySketch = (
       base: [p.color(34, 82.3, 73.6)],
       shadowLight: [p.color(34, 82.3, 67.6)],
       shadowDark: [p.color(34, 48.7, 44)],
-      highlight: [p.color(34, 95.3, 87.6)],
+      highlight: [p.color(34, 82.3, 78.6)],
+      // highlight: [p.color(34, 95.3, 87.6)],
     }
     
     goldDark = {
       base: [p.color(34, 60.3, 55.6)],
       shadowLight: [p.color(34, 60.3, 50.6)],
       shadowDark: [p.color(34, 42.7, 36)],
-      highlight: [p.color(34, 95.3, 87.6)],
+      highlight: [p.color(34, 82.3, 78.6)],
+      // highlight: [p.color(34, 95.3, 87.6)],
     }
     
     // goldDark = {
@@ -102,7 +106,7 @@ const mySketch = (
     secondaryColor = goldDark // Add more colors later
     
     /** CREATE SUBDIVISIONS FOR EACH FRAME SHAPE/SIDE */
-    subdivisions = generateSubdivisions(p.random(1, 5)) // Divide frame into subdivisions
+    subdivisions = generateSubdivisions(p.random(1, 3)) // Divide frame into subdivisions
     sideSubdivisions = normalizeSubdivisions(subdivisions, frameSideWidth) // Normalize subdivisions to fit side widths
     topSubdivisions = normalizeSubdivisions(subdivisions, frameTopWidth) // Normalize subdivisions  to fit top & bottom widths
   }
@@ -144,20 +148,20 @@ const mySketch = (
 
 
     /** DRAW GRADIENTS IN EACH FRAME SHAPE */
-    drawSubdivision(drawSloppyRect, "top", true) // Top
-    drawSubdivision(drawSloppyRect, "right", true) // Right 
-    drawSubdivision(drawSloppyRect, "bottom", false) // Bottom
-    drawSubdivision(drawSloppyRect, "left", false) // Left
+    drawSubdivision(rect_wobbly, "top", true)
+    drawSubdivision(rect_wobbly, "right", true)
+    drawSubdivision(rect_wobbly, "bottom", false)
+    drawSubdivision(rect_wobbly, "left", false)
     
     /** DRAW CIRCLES */
-    // drawFlourishes(primaryColor) // Top
-    // drawFlourishes(primaryColor) // Right 
-    // drawFlourishes(primaryColor) // Bottom
-    // drawFlourishes(primaryColor) // Left
-    
-
-    
- 
+    drawFlourishes("top", false)
+    drawFlourishes("top_right", false)
+    // drawFlourishes("right", false)
+    drawFlourishes("bottom_right", false)
+    // drawFlourishes("bottom", false)
+    drawFlourishes("bottom_left", false)
+    // drawFlourishes("left", false) 
+    drawFlourishes("top_left", false)
     
     // p.push();
     // p.clip(fullframeMask);
@@ -169,12 +173,8 @@ const mySketch = (
   /**
    * Draws patterns on a specific side of the frame
    * @param patternFunction - The function that draws the actual pattern
-   * @param originX - X coordinate of the origin point
-   * @param startY - Y coordinate of the origin point
-   * @param subdivisions - Array of subdivision configurations
-   * @param maskFunction - Function that defines the clipping mask
    * @param side - Which side of the frame ("top", "right", "bottom", "left")
-   * @param color - Color to use for the pattern
+   * @param isInShadow - Boolean used to determine which side of the frame we are drawing
    */
   function drawSubdivision(
     patternFunction: PatternFunction,
@@ -214,7 +214,7 @@ const mySketch = (
       const color = isInShadow ? secondaryColor[colorType][0] : primaryColor[colorType][0];
 
       // Apply the pattern function
-      patternFunction(0, currentY, subDivisionWidth, subdivisionHeight, color );
+      patternFunction(p, 0, currentY, subDivisionWidth, subdivisionHeight, color );
       
       // Move to next subdivision
       currentY += subdivisionHeight;
@@ -263,127 +263,247 @@ const mySketch = (
   }
   
   /**
-   * Draws a sloppy rectangle with a wobble effect
-   * @param {number} startX The x-coordinate of the top-left corner of the rectangle
-   * @param {number} startY The y-coordinate of the top-left corner of the rectangle
-   * @param {number} w The width of the rectangle
-   * @param {number} h The height of the rectangle
-   * @param {p5.Color} shadowColor The color of the shadow rectangle
+   * Draws the corner and center segement flourishes that are common in picture frames
+   * @param side - Which side of the frame ("top", "right", "bottom", "left")
+   * @param isInShadow - Boolean used to determine which side of the frame we are drawing
    */
   function drawFlourishes (
-    color: p5.Color
+    side: 'top' | 'top_right' | 'right' | 'bottom_right' | 'bottom' | 'bottom_left' | 'left' | 'top_left',
+    isInShadow: boolean,
   ) {
-    p.push();
-    p.fill(color);
-    // p.strokeWeight(2);
-    p.noStroke();
-    // p.beginShape();
+
+    // Set startX and startY based on side as well
+    let sw = frameSideWidth/2
+    let w = frameWidth/2
+    let tw = frameTopWidth/6
+    let h = frameHeight/2
+    const startingRotations = {
+      top: 0,
+      top_right: 45,
+      right: 90,
+      bottom_right: 135,
+      bottom: 180,
+      bottom_left: 225,
+      left: 270,
+      top_left: 315
+    }
+    const startingCoordinates = {
+      top: {x: cw/2, y: outerCoords.top_left.y + tw},
+      top_right: {x: outerCoords.top_right.x - sw, y: outerCoords.top_right.y + tw},
+      right: {x: outerCoords.top_right.x - sw, y: outerCoords.top_right.y + h},
+      bottom_right: {x: outerCoords.bottom_right.x - sw, y: outerCoords.bottom_right.y - tw},
+      bottom: {x: outerCoords.bottom_right.x - w, y: outerCoords.bottom_right.y - tw},
+      bottom_left: {x: outerCoords.bottom_left.x + sw, y: outerCoords.bottom_left.y - tw},
+      left: {x: outerCoords.bottom_left.x + sw, y: outerCoords.bottom_left.y - h},
+      top_left: {x: outerCoords.top_left.x + sw, y: outerCoords.top_left.y + tw}
+    }
+
+    // Set the translation settings
+    const startX = startingCoordinates[side].x
+    const startY = startingCoordinates[side].y
+    const startingRotation = startingRotations[side]
+
+    if (false) {
+      //debug
+      Object.keys(startingCoordinates).forEach(key => {
+        // Type assertion to tell TypeScript that key is a valid key of startingCoordinates
+        const typedKey = key as keyof typeof startingCoordinates;
+        drawPoint(startingCoordinates[typedKey], "red");
+      });
+    }
+
+    // Set Color
+    const color = isInShadow ? secondaryColor : primaryColor;
+
+    // Translate to starting position & rotate
+    p.translate(startX, startY);
+    p.rotate(startingRotation * p.PI / 180);
+
+    const shapeWidth = 300
+    const shapeHeight = 100
+    const shadowDepth = 10
+    const wobble = 2
+    const segments = 2
+    rect_wobbly(p, 0 - (shapeWidth/2) - shadowDepth, 0 - (shapeHeight/2) + shadowDepth, shapeWidth, shapeHeight, color.shadowDark[0], wobble, segments)
+    rect_wobbly(p, 0 - (shapeWidth/2), 0 - (shapeHeight/2), shapeWidth, shapeHeight, color.highlight[0], wobble, segments)
     
-    let width = 80
-    let height = 40
-    p.ellipse(w/2, h/2, width, height);
-    
-    // p.endShape(p.CLOSE);
-    p.pop();
+    const sphereWidth = 150
+    p.circle(startX , startY , sphereWidth/2)
   }
+
+  // function _drawFlourishes_Old_UsingBeziers (
+  //   side: 'top' | 'top_right' | 'right' | 'bottom_right' | 'bottom' | 'bottom_left' | 'left' | 'top_left',
+  //   isInShadow: boolean,
+  // ) {
+
+  //   // Set startX and startY based on side as well
+  //   let sw = frameSideWidth/2
+  //   let w = frameWidth/2
+  //   let tw = frameTopWidth/6
+  //   let h = frameHeight/2
+  //   const startingRotations = {
+  //     top: 0,
+  //     top_right: 45,
+  //     right: 90,
+  //     bottom_right: 135,
+  //     bottom: 180,
+  //     bottom_left: 225,
+  //     left: 270,
+  //     top_left: 315
+  //   }
+  //   const startingCoordinates = {
+  //     top: {x: cw/2, y: outerCoords.top_left.y + tw},
+  //     top_right: {x: outerCoords.top_right.x - sw, y: outerCoords.top_right.y + tw},
+  //     right: {x: outerCoords.top_right.x - sw, y: outerCoords.top_right.y + h},
+  //     bottom_right: {x: outerCoords.bottom_right.x - sw, y: outerCoords.bottom_right.y - tw},
+  //     bottom: {x: outerCoords.bottom_right.x - w, y: outerCoords.bottom_right.y - tw},
+  //     bottom_left: {x: outerCoords.bottom_left.x + sw, y: outerCoords.bottom_left.y - tw},
+  //     left: {x: outerCoords.bottom_left.x + sw, y: outerCoords.bottom_left.y - h},
+  //     top_left: {x: outerCoords.top_left.x + sw, y: outerCoords.top_left.y + tw}
+  //   }
+
+  //   // Set the translation settings
+  //   const startX = startingCoordinates[side].x
+  //   const startY = startingCoordinates[side].y
+  //   const startingRotation = startingRotations[side]
+
+  //   if (false) {
+  //     //debug
+  //     Object.keys(startingCoordinates).forEach(key => {
+  //       // Type assertion to tell TypeScript that key is a valid key of startingCoordinates
+  //       const typedKey = key as keyof typeof startingCoordinates;
+  //       drawPoint(startingCoordinates[typedKey], "red");
+  //     });
+  //   }
+
+  //   // Set Color
+  //   const color = isInShadow ? secondaryColor : primaryColor;
+
+  //   let debug = true
+
+  //   // TODO: make these arguments
+  //   let shapeWidth = 300
+  //   let shapeHeight = 200
+  //   let shapeInnerWidth = 100
+  //   let shapeInnerHeight = 150
+    
+  //   p.push();
+
+  //   // Translate to starting position & rotate
+  //   p.translate(startX, startY);
+  //   p.rotate(startingRotation * p.PI / 180);
+
+  //   p.fill(color.highlight[0]);
+  //   p.noStroke();
+
+  //   p.beginShape()
+
+  //   let pointa = {x: 0, y: 0}
+  //   p.vertex(pointa.x, pointa.y); // (172, 81.94)
+  //   if (debug) {
+  //     p.push()
+  //     // p.stroke("yellow")
+  //     // p.strokeWeight(10)
+  //     p.point(pointa.x, pointa.y)
+  //     p.pop()
+  //   }
+    
+  //   let controlb1 = {x: 50, y: -10}
+  //   let controlb2 = {x: 40, y: 0}
+  //   let pointb = {x: 50, y: 0}
+  //   p.bezierVertex(controlb1.x, controlb1.y, controlb2.x, controlb2.y, pointb.x, pointb.y);
+  //   if (debug) {
+  //     p.push()
+  //     // p.stroke("red")
+  //     p.strokeWeight(10)
+  //     p.point(pointb.x, pointb.y)
+  //     p.stroke("darkred")
+  //     p.point(controlb1.x, controlb1.y)
+  //     p.point(controlb2.x, controlb2.y)
+  //     p.pop()
+  //   }
+    
+  //   let controlc1 = {x: 50, y: -20}
+  //   let controlc2 = {x: 60, y: -30}
+  //   let pointc = {x: 50, y: -30}
+  //   p.bezierVertex(controlc1.x, controlc1.y, controlc2.x, controlc2.y, pointc.x, pointc.y);
+  //   if (debug) {
+  //     p.push()
+  //     // p.stroke("green")
+  //     p.strokeWeight(10)
+  //     p.point(pointc.x, pointc.y)
+  //     p.stroke("darkgreen")
+  //     p.point(controlc1.x, controlc1.y)
+  //     p.point(controlc2.x, controlc2.y)
+  //     p.pop()
+  //   }
+    
+  //   let controld1 = {x: 90, y: -30}
+  //   let controld2 = {x: 100, y: -20}
+  //   let pointd = {x: 100, y: -30}
+  //   p.bezierVertex(controld1.x, controld1.y, controld2.x, controld2.y, pointd.x, pointd.y);
+  //   if (debug) {
+  //     p.push()
+  //     // p.stroke("red")
+  //     p.strokeWeight(10)
+  //     p.point(pointd.x, pointd.y)
+  //     p.stroke("pink")
+  //     p.point(controld1.x, controld1.y)
+  //     p.stroke("orange")
+  //     p.point(controld2.x, controld2.y)
+  //     p.pop()
+  //   }
+    
+  //   let controle1 = {x: 100, y: -10}
+  //   let controle2 = {x: 110, y: 0}
+  //   let pointe = {x: 100, y: 0}
+  //   p.bezierVertex(controle1.x, controle1.y, controle2.x, controle2.y, pointe.x, pointe.y);
+  //   if (debug) {
+  //     p.push()
+  //     // p.stroke("green")
+  //     p.strokeWeight(10)
+  //     p.point(pointe.x, pointe.y)
+  //     p.stroke("yellow")
+  //     p.point(controle1.x, controle1.y)
+  //     p.stroke("orange")
+  //     p.point(controle2.x, controle2.y)
+  //     p.pop()
+  //   }
+    
+  //   let pointf = {x: 150, y: 0}
+  //   p.vertex(pointf.x, pointf.y);
+  //   if (debug) {
+  //     p.push()
+  //     // p.stroke("blue")
+  //     // p.strokeWeight(10)
+  //     p.point(pointf.x, pointf.y)
+  //     p.pop()
+  //   }
+    
+  //   let pointg = {x: 150, y: 30}
+  //   p.vertex(pointg.x, pointg.y);
+  //   if (debug) {
+  //     p.push()
+  //     // p.stroke("blue")
+  //     // p.strokeWeight(10)
+  //     p.point(pointg.x, pointg.y)
+  //     p.pop()
+  //   }
+    
+  //   let pointh = {x: 0, y: 30}
+  //   p.vertex(pointh.x, pointh.y);
+  //   if (debug) {
+  //     p.push()
+  //     // p.stroke("blue")
+  //     // p.strokeWeight(10)
+  //     p.point(pointh.x, pointh.y)
+  //     p.pop()
+  //   }
+    
+  //   p.endShape(p.CLOSE)
+  //   p.pop();
+  // }
   
-  /**
-   * Draws a sloppy rectangle with a wobble effect
-   * @param {number} startX The x-coordinate of the top-left corner of the rectangle
-   * @param {number} startY The y-coordinate of the top-left corner of the rectangle
-   * @param {number} w The width of the rectangle
-   * @param {number} h The height of the rectangle
-   * @param {p5.Color} shadowColor The color of the shadow rectangle
-   */
-  function drawSloppyRect (
-    startX: number,
-    startY: number,
-    w: number,
-    h: number,
-    color: p5.Color
-  ) {
-    p.push();
-    p.fill(color);
-    p.noStroke();
-    p.beginShape();
-
-    // Add slight variations to create wobble effect
-    const wobble = 5;
-    const segments = 3; // Number of segments per side
-    
-    // Draw each side of the rectangle with a wobbly line
-    // Left side
-    let prevX = startX;
-    let prevY = startY;
-    p.vertex(prevX, prevY)
-    for (let i = 0; i <= segments; i++) {
-      const t = i / segments;
-      const nextY = startY + h * t;
-      const offsetX = p.random(-wobble, wobble);
-      const currX = startX + offsetX;
-      p.bezierVertex(
-        // prevX, prevY,
-        currX + p.random(-wobble, wobble), prevY + (nextY - prevY)/3,
-        currX + p.random(-wobble, wobble), prevY + 2*(nextY - prevY)/3,
-        currX, nextY
-      );
-      prevX = currX;
-      prevY = nextY;
-    }
-
-    // Bottom side
-    for (let i = 0; i <= segments; i++) {
-      const t = i / segments;
-      const nextX = startX + w * t;
-      const offsetY = p.random(-wobble, wobble);
-      const currY = startY + h + offsetY;
-      p.bezierVertex(
-        // prevX, prevY,
-        prevX + (nextX - prevX)/3, currY + p.random(-wobble, wobble),
-        prevX + 2*(nextX - prevX)/3, currY + p.random(-wobble, wobble),
-        nextX, currY
-      );
-      prevX = nextX;
-      prevY = currY;
-    }
-
-    // Right side
-    for (let i = segments; i >= 0; i--) {
-      const t = i / segments;
-      const nextY = startY + h * t;
-      const offsetX = p.random(-wobble, wobble);
-      const currX = startX + w + offsetX;
-      p.bezierVertex(
-        // prevX, prevY,
-        currX + p.random(-wobble, wobble), prevY + (nextY - prevY)/3,
-        currX + p.random(-wobble, wobble), prevY + 2*(nextY - prevY)/3,
-        currX, nextY
-      );
-      prevX = currX;
-      prevY = nextY;
-    }
-
-    // Top side
-    for (let i = segments; i >= 0; i--) {
-      const t = i / segments;
-      const nextX = startX + w * t;
-      const offsetY = p.random(-wobble, wobble);
-      const currY = startY + offsetY;
-      p.bezierVertex(
-        // prevX, prevY,
-        prevX + (nextX - prevX)/3, currY + p.random(-wobble, wobble),
-        prevX + 2*(nextX - prevX)/3, currY + p.random(-wobble, wobble),
-        nextX, currY
-      );
-      prevX = nextX;
-      prevY = currY;
-    }
-
-    p.vertex(prevX, prevY)
-    p.endShape(p.CLOSE);
-    p.pop();
-  }
-
   function drawInnerShadowShapeSmall(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, _shadowHeight: number, startX: number, startY: number, debug: boolean) {
     p.push();
     p.translate(startX, startY)
@@ -420,6 +540,8 @@ const mySketch = (
 
   }
 
+  
+
   function drawInnerShadowShapeLarge(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, shadowHeight: number, startX: number, startY: number, debug: boolean) {
     
     p.push()
@@ -427,7 +549,7 @@ const mySketch = (
       topFrame()
       rightFrame()
     })
-    p.fill(shadowColor)
+    p.fill("lightgray")
     p.rect(0, 0, cw, ch)
     p.pop()
     
@@ -556,12 +678,9 @@ const mySketch = (
     p.pop()
   }
   
-  p.mousePressed = () => {
-    // Check if mouse is inside canvas
-    if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-    }
-  }
 };
+
+
 
 const ScribbleFrame2: React.FC<ScribbleFrameProps> = ({
   innerWidth, 
@@ -658,7 +777,8 @@ const ScribbleFrame2: React.FC<ScribbleFrameProps> = ({
       <div style={childFrame}>
         <P5Wrapper
           disableClickToSetup
-          // disableClickToClear
+          disableClickToClear
+          disableClickToRedraw
           includeSaveButton={false} 
           sketch={_outerSketch} 
         />

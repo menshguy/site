@@ -5,7 +5,7 @@ import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import {shuffleArray} from '../../helpers/arrays.ts';
 import {drawMoon, drawStars, drawReflection, drawCirclesToBuffer, Moon, Stars, TimeOfDay} from '../../helpers/skyHelpers.tsx';
 import p5 from 'p5';
-import { drawGradientRect } from '../../helpers/shapes.ts';
+import { rect_gradient } from '../../helpers/shapes.ts';
 
 const mySketch = (p: p5) => {
 
@@ -225,7 +225,7 @@ const mySketch = (p: p5) => {
     m.noStroke()
     m.fill(shadowColor)
     m.rect(0, p.height-bottom-30, p.width, 30)
-    drawGradientRect(m, 0, p.height-bottom-60, p.width, 30, true, shadowColor)
+    rect_gradient(m, 0, p.height-bottom-60, p.width, 30, true, shadowColor)
     m.pop()
 
     // Sky Reflection

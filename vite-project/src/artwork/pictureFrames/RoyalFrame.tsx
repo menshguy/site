@@ -2,7 +2,7 @@ import React, { CSSProperties } from 'react';
 import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 import { RoyalFrameProps, Subdivision, PatternFunction } from './types';
-import { drawGradientRect } from '../../helpers/shapes';
+import { rect_gradient } from '../../helpers/shapes';
 
 const mySketch = (
   innerWidth: number, 
@@ -71,10 +71,10 @@ const mySketch = (
     /** DRAW GRADIENTS IN EACH FRAME SHAPE */
     // let patternColor = p.color(30, 60, 30)
     let gradientColor = p.color(p.hue(mainColor), p.saturation(mainColor), p.lightness(mainColor)/2.5)
-    drawPattern(drawGradientRect, 0, 0, 0, topAndBottomSubdivisions, topFrame, "top", gradientColor) // Top
-    drawPattern(drawGradientRect, cw, ch, 180, topAndBottomSubdivisions, bottomFrame, "bottom", gradientColor) // Bottom
-    drawPattern(drawGradientRect, 0, ch, -90, sideSubdivisions, leftFrame, "left", gradientColor) // Left
-    drawPattern(drawGradientRect, cw, 0, 90, sideSubdivisions, rightFrame, "right", gradientColor) // Right 
+    drawPattern(rect_gradient, 0, 0, 0, topAndBottomSubdivisions, topFrame, "top", gradientColor) // Top
+    drawPattern(rect_gradient, cw, ch, 180, topAndBottomSubdivisions, bottomFrame, "bottom", gradientColor) // Bottom
+    drawPattern(rect_gradient, 0, ch, -90, sideSubdivisions, leftFrame, "left", gradientColor) // Left
+    drawPattern(rect_gradient, cw, 0, 90, sideSubdivisions, rightFrame, "right", gradientColor) // Right 
     
     /** DRAW FLORAL PATTERNS IN EACH FRAME SHAPE */
     // p.push();
