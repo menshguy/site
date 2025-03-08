@@ -1,11 +1,9 @@
 import p5 from 'p5';
-import P5Wrapper from '../../components/P5Wrapper';
-
 
 type ShapePoint = {
   x: number;
   y: number;
-  type: 'vertex' | 'control';
+  type: 'vertex' | 'control' | 'bezierVertex';
 }
 const mySketch = (p: p5) => {
     // State variables
@@ -40,8 +38,8 @@ const mySketch = (p: p5) => {
     };
     
     p.draw = () => {
-      p.background("red");
       p.colorMode(p.HSL);
+      p.background("antiquewhite");
 
       // Draw all completed shapes
       for (let i = 0; i < shapes.length; i++) {
@@ -74,7 +72,7 @@ const mySketch = (p: p5) => {
     
     const drawInstructions = () => {
       p.push();
-      p.fill(255);
+      p.fill(208, 100, 95);
       p.noStroke();
       p.rect(590, 50, 200, 130);
       
@@ -86,8 +84,9 @@ const mySketch = (p: p5) => {
       p.textSize(12);
       p.text("- Click: add vertex", 600, 100);
       p.text("- Shift+Click: add bezierVertex ", 600, 115);
-      p.text("- Double-Click: to close the shapee", 600, 130);
-      p.text("- X: remove last vertex from the shape", 600, 145);
+      p.text("- Double-Click: close the shape", 600, 130);
+      p.text("- X: undo last vertex", 600, 145);
+      p.text("- C: clears all shapes", 600, 160);
       p.text("- C: clears all shapes", 600, 160);
     
       p.pop();
@@ -109,7 +108,7 @@ const mySketch = (p: p5) => {
         isCreatingBezier = true;
         bezierControlPoints = [
           { x: p.mouseX, y: p.mouseY, type: 'control' },
-          { x: p.mouseX + 50, y: p.mouseY - 50, type: 'control' }
+          { x: p.mouseX, y: p.mouseY, type: 'control' }
         ];
         return;
       }
@@ -123,8 +122,8 @@ const mySketch = (p: p5) => {
         if (isCreatingBezier) {
           // Add the bezier vertex and its control points
           currentShape.push(
-            bezierControlPoints[0],
-            bezierControlPoints[1],
+            {...bezierControlPoints[0], x: bezierControlPoints[0].x, y: bezierControlPoints[0].y},
+            {...bezierControlPoints[1], x: bezierControlPoints[1].x, y: bezierControlPoints[1].y},
             { x: p.mouseX, y: p.mouseY, type: 'bezierVertex' }
           );
           isCreatingBezier = false;
@@ -242,7 +241,7 @@ const mySketch = (p: p5) => {
       p.pop();
     };
     
-    const drawShape = (shape) => {
+    const drawShape = (shape: ShapePoint[]) => {
       p.push();
       p.noFill();
       p.stroke(0);
@@ -270,7 +269,7 @@ const mySketch = (p: p5) => {
       p.pop();
     };
     
-    const drawControlPoints = (points) => {
+    const drawControlPoints = (points: ShapePoint[]) => {
       p.push();
       
       for (let i = 0; i < points.length; i++) {
@@ -289,7 +288,7 @@ const mySketch = (p: p5) => {
           
           // Draw lines to control points
           if (i > 0 && i < points.length - 1) {
-            let connectedVertexIndex;
+            let connectedVertexIndex: number = -1; // Initialize with a default value
             
             // Find the vertex this control point is connected to
             if (i % 3 === 1) {
