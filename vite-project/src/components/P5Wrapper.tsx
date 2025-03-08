@@ -32,7 +32,6 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({
   const animationFrameIdRef = useRef<number | null>(null);
 
   useEffect(() => {
-    console.log('(P5Wrapper.tsx) useEffect sketch', sketch);
     if (sketch !== undefined) setupSketch(sketch)
     return () => clearSketch()
   }, [sketch]);
@@ -60,7 +59,6 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({
         const mouseX = p5InstanceRef.current?.mouseX || 0;
         const mouseY = p5InstanceRef.current?.mouseY || 0;
         const isWithinSketchBorder = mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height;
-        console.log('(P5Wrapper.tsx) mousePressed', p5InstanceRef.current, isWithinSketchBorder, p5InstanceRef.current?.mouseX, p5InstanceRef.current?.mouseY);
         
         if (!disableClickToClear && isWithinSketchBorder) p5InstanceRef.current?.clear();
         if (!disableClickToSetup && isWithinSketchBorder) p5InstanceRef.current?.setup();
@@ -72,7 +70,6 @@ const P5Wrapper: React.FC<P5WrapperProps> = ({
   }
 
   const clearSketch = () => {
-    console.log('(P5Wrapper.tsx) clearSketch', p5InstanceRef.current);
     if (p5InstanceRef.current) {
       p5InstanceRef.current.remove(); // Remove the p5 instance
       p5InstanceRef.current = null; // Clear the reference
