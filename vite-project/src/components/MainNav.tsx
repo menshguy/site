@@ -51,7 +51,7 @@ const MainNav: React.FC = () => {
     {
       label: 'Rowhomes (wip)', 
       img: '/nav/nav_rowhomes_temp_sm.png',
-      href: 'artwork/rowhomes/RowhomeRefactor',
+      href: '/artwork/rowhomes/RowhomeRefactor',
       description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums',
       hide: siteMode == "professional"
     }, 
