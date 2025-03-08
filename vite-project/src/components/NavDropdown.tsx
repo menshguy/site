@@ -13,6 +13,7 @@ interface NavDropdownItem {
   href: string;
   img?: string;
   description?: string;
+  hide?: boolean;
 }
 
 function NavDropdown({ title, items }: NavDropdownProps) {
@@ -65,46 +66,48 @@ function NavDropdown({ title, items }: NavDropdownProps) {
           className={styles.dropdownContent}
           style={{top: isMobile ? '40px' : '30px'}}
         >
-          {items.map((item, i) => (
-            <a 
-              key={i} 
-              href={`${item.href}`} 
-              className={styles.dropdownItem}
-              style={item.img ? {
-                backgroundImage: isMobile ? `linear-gradient(rgba(248, 249, 250, 0.2), rgba(248, 249, 250, 0.2)), url(${item.img})` : `linear-gradient(rgba(248, 249, 250, 0.8), rgba(248, 249, 250, 0.8)), url(${item.img})`,
-                color: isMobile ? 'white' : 'inherit',
-                textShadow: isMobile ? '0 0 4px rgba(0,0,0,0.9)' : 'inherit',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                transition: 'all 0.3s ease'
-              } : {
-                color: 'black'
-              }}
-              onMouseEnter={(e) => {
-                if (item.img) {
-                  e.currentTarget.style.backgroundImage = `linear-gradient(rgba(248, 249, 250, 0.2), rgba(248, 249, 250, 0.2)), url(${item.img})`;
-                  e.currentTarget.style.color = 'white';
-                  e.currentTarget.style.textShadow = '0 0 4px rgba(0,0,0,0.9)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (item.img) {
-                  e.currentTarget.style.backgroundImage = `linear-gradient(rgba(248, 249, 250, 0.8), rgba(248, 249, 250, 0.8)), url(${item.img})`;
-                  e.currentTarget.style.color = 'inherit';
-                  e.currentTarget.style.textShadow = '0 0 4px rgba(0,0,0,0.2)';
-                }
-              }}
-            >
-              <p className={styles.dropdownLabel}>
-                <strong>{item.label}</strong>
-              </p>
-              {item.description && (
-                <p className={styles.dropdownDescription}>
-                  {item.description}
+          {items.map((item, i) => {
+            if (item.hide) return null;
+            return (
+              <a 
+                key={i} 
+                href={`${item.href}`} 
+                className={styles.dropdownItem}
+                style={item.img ? {
+                  backgroundImage: isMobile ? `linear-gradient(rgba(248, 249, 250, 0.2), rgba(248, 249, 250, 0.2)), url(${item.img})` : `linear-gradient(rgba(248, 249, 250, 0.8), rgba(248, 249, 250, 0.8)), url(${item.img})`,
+                  color: isMobile ? 'white' : 'inherit',
+                  textShadow: isMobile ? '0 0 4px rgba(0,0,0,0.9)' : 'inherit',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  transition: 'all 0.3s ease'
+                } : {
+                  color: 'black'
+                }}
+                onMouseEnter={(e) => {
+                  if (item.img) {
+                    e.currentTarget.style.backgroundImage = `linear-gradient(rgba(248, 249, 250, 0.2), rgba(248, 249, 250, 0.2)), url(${item.img})`;
+                    e.currentTarget.style.color = 'white';
+                    e.currentTarget.style.textShadow = '0 0 4px rgba(0,0,0,0.9)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (item.img) {
+                    e.currentTarget.style.backgroundImage = `linear-gradient(rgba(248, 249, 250, 0.8), rgba(248, 249, 250, 0.8)), url(${item.img})`;
+                    e.currentTarget.style.color = 'inherit';
+                    e.currentTarget.style.textShadow = '0 0 4px rgba(0,0,0,0.2)';
+                  }
+                }}
+              >
+                <p className={styles.dropdownLabel}>
+                  <strong>{item.label}</strong>
                 </p>
-              )}
-            </a>
-          ))}
+                {item.description && (
+                  <p className={styles.dropdownDescription}>
+                    {item.description}
+                  </p>
+                )}
+              </a>
+          )})}
         </div>
       )}
 
