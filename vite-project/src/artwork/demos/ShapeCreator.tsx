@@ -25,7 +25,7 @@ const mySketch = (p: p5) => {
       canvas.doubleClicked(handleDoubleClick);
       
       // Create export button
-      const exportButton = p.createButton('Export Shape Code');
+      const exportButton = p.createButton('Console.log Shape Code');
       exportButton.position(0, 0, "relative");
       exportButton.mousePressed(exportShapeCode);
       
@@ -76,7 +76,7 @@ const mySketch = (p: p5) => {
       p.push();
       p.fill(255);
       p.noStroke();
-      p.rect(590, 50, 200, 110);
+      p.rect(590, 50, 200, 130);
       
       p.fill(0);
       p.textSize(16);
@@ -86,8 +86,9 @@ const mySketch = (p: p5) => {
       p.textSize(12);
       p.text("- Click: add vertex", 600, 100);
       p.text("- Shift+Click: add bezierVertex ", 600, 115);
-      p.text("- C: clears the shape", 600, 130);
-      p.text("- Double-Click: to close the shape", 600, 145);
+      p.text("- Double-Click: to close the shapee", 600, 130);
+      p.text("- X: remove last vertex from the shape", 600, 145);
+      p.text("- C: clears all shapes", 600, 160);
     
       p.pop();
     };
