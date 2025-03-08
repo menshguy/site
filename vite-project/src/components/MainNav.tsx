@@ -48,6 +48,13 @@ const MainNav: React.FC = () => {
       hide: siteMode == "professional"
     }, 
     {
+      label: 'Rowhomes', 
+      img: '/nav/nav_rowhomes_temp_sm.png',
+      href: 'artwork/rowhomes/RowhomeRefactor',
+      description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums',
+      hide: siteMode == "professional"
+    }, 
+    {
       label: 'All Artwork', 
       href: '/artwork',
       // description: 'View all artwork collections'
