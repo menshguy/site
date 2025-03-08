@@ -62,11 +62,15 @@ const rect_gradient = (
 
 /**
    * Draws a sloppy rectangle with a wobble effect
+   * @param {number} p The p5 instance
    * @param {number} startX The x-coordinate of the top-left corner of the rectangle
    * @param {number} startY The y-coordinate of the top-left corner of the rectangle
    * @param {number} w The width of the rectangle
    * @param {number} h The height of the rectangle
-   * @param {p5.Color} shadowColor The color of the shadow rectangle
+   * @param {number} wobble The amount of wobble (default 3)
+   * @param {number} segments The number of segments (default 5)
+   * @param {object} fill The fill color of the rectangle
+   * @param {object} stroke The stroke color and weight of the rectangle
    */
 function rect_wobbly (
   p: p5.Graphics | p5,
@@ -74,13 +78,15 @@ function rect_wobbly (
   startY: number,
   w: number,
   h: number,
-  color: p5.Color,
   wobble: number = 3, // Add slight variations to create wobble effect
-  segments: number = 5 // Number of segments per side
+  segments: number = 5, // Number of segments per side
+  fill: {color: p5.Color} = {color: p.color("white")},
+  stroke: {color: p5.Color, strokeWeight: number} = {color: p.color("black"), strokeWeight: 0},
 ) {
   p.push();
-  p.fill(color);
-  p.noStroke();
+  p.fill(fill.color);
+  p.stroke(stroke.color);
+  p.strokeWeight(stroke.strokeWeight)
   p.beginShape();
 
   // Draw each side of the rectangle with a wobbly line

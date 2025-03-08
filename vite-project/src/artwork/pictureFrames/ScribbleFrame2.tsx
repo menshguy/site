@@ -16,12 +16,15 @@ type Color = {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[],
 type ColorType = "base" | "shadowLight" | "shadowDark" | "highlight"
 
 type PatternFunction = (
-  p: p5.Graphics,
+  p: p5.Graphics | p5,
   x: number,
   y: number,
   w: number,
   h: number,
-  strokeColor: p5.Color
+  wobble?: number,
+  segments?: number,
+  fill?: {color: p5.Color},
+  stroke?: {color: p5.Color, strokeWeight: number},
 ) => void;
 
 const DEBUG_SHADOWS = false;
@@ -214,7 +217,9 @@ const mySketch = (
       const color = isInShadow ? secondaryColor[colorType][0] : primaryColor[colorType][0];
 
       // Apply the pattern function
-      patternFunction(p, 0, currentY, subDivisionWidth, subdivisionHeight, color );
+      let wobble = 3;
+      let segments = 5;
+      patternFunction(p, 0, currentY, subDivisionWidth, subdivisionHeight, wobble, segments, {color} );
       
       // Move to next subdivision
       currentY += subdivisionHeight;
@@ -324,8 +329,8 @@ const mySketch = (
     const shadowDepth = 10
     const wobble = 2
     const segments = 2
-    rect_wobbly(p, 0 - (shapeWidth/2) - shadowDepth, 0 - (shapeHeight/2) + shadowDepth, shapeWidth, shapeHeight, color.shadowDark[0], wobble, segments)
-    rect_wobbly(p, 0 - (shapeWidth/2), 0 - (shapeHeight/2), shapeWidth, shapeHeight, color.highlight[0], wobble, segments)
+    rect_wobbly(p, 0 - (shapeWidth/2) - shadowDepth, 0 - (shapeHeight/2) + shadowDepth, shapeWidth, shapeHeight, wobble, segments, {color: color.shadowDark[0]})
+    rect_wobbly(p, 0 - (shapeWidth/2), 0 - (shapeHeight/2), shapeWidth, shapeHeight, wobble, segments, {color: color.highlight[0]})
     
     const sphereWidth = 150
     p.circle(startX , startY , sphereWidth/2)
