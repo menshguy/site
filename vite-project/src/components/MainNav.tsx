@@ -32,6 +32,7 @@ const MainNav: React.FC = () => {
       img: '/nav/nav_frames_blk_sm.png',
       href: '/artwork/royalframes',
       description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums',
+      hide: siteMode == "professional"
     }, 
     {
       label: 'Scribble Frames 1 (wip)', 
@@ -48,7 +49,7 @@ const MainNav: React.FC = () => {
       hide: siteMode == "professional"
     }, 
     {
-      label: 'Rowhomes', 
+      label: 'Rowhomes (wip)', 
       img: '/nav/nav_rowhomes_temp_sm.png',
       href: 'artwork/rowhomes/RowhomeRefactor',
       description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums',

@@ -25,7 +25,6 @@ import SeriesPageCouch from './artwork/couch/SeriesPage.tsx';
 import SeriesPageRoyalFrames from './artwork/pictureFrames/SeriesPage.tsx';
 import SeriesPageScribbleFrames from './artwork/pictureFrames/SeriesPageScribble.tsx';
 import SeriesPageScribbleFrames2 from './artwork/pictureFrames/SeriesPageScribble2.tsx';
-import SeriesPageShapeCreator from './artwork/demos/SeriesPageShapeCreator.tsx';
 import RoyalFrame from './artwork/pictureFrames/RoyalFrame.tsx';
 import {mySketch as seasonalForestsSketch } from './artwork/seasons/SeasonalForests.tsx';
 import './index.css'
