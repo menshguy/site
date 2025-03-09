@@ -28,7 +28,7 @@ interface Subdivision {
 }
 
 type PatternFunction = (
-  p: p5,
+  p: p5.Graphics | p5,
   x: number,
   y: number,
   w: number,

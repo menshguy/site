@@ -205,7 +205,7 @@ const mySketch = (p: p5) => {
       
       // If creating a bezier, show the preview
       if (isCreatingBezier && currentShape.length > 0) {
-        const lastPoint = currentShape[currentShape.length - 1];
+        // const lastPoint = currentShape[currentShape.length - 1];
         p.bezierVertex(
           bezierControlPoints[0].x, bezierControlPoints[0].y,
           bezierControlPoints[1].x, bezierControlPoints[1].y,

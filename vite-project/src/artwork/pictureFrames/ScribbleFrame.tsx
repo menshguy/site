@@ -205,6 +205,42 @@ const mySketch = (
         drawControlPoint(b, "yellow")
         drawControlPoint(anchor1, "pink")
         drawControlPoint(control1, "blue")
+        drawControlPoint(control2, "lightblue")
+        drawControlPoint(anchor2, "green")
+      }
+    }
+
+    function addInvertedBezier(
+      a: {x: number, y: number}, 
+      b: {x: number, y: number}, 
+      min: number,
+      max: number,
+      mouse: number,
+      bottomShadowDepth: number,
+      sideShadowDepth: number
+    ) {
+      p.beginShape()
+      p.vertex(a.x, a.y) 
+      p.vertex(b.x, b.y) 
+      
+      // Invert the calculations to make the shadow point downward
+      const anchor1Clamp = b.y - bottomShadowDepth;
+      const anchor2Clamp = a.y - bottomShadowDepth;
+      const anchor1 = {x: b.x, y: Math.min(p.map(mouse, b.x, a.x/2 + frameSideWidth, max, min - bottomShadowDepth), anchor1Clamp)}
+      const anchor2 = {x: Math.min(a.x - sideShadowDepth, a.x), y: Math.min(p.map(mouse, b.x + innerWidth/2, a.x, min - bottomShadowDepth, max), anchor2Clamp)}
+      const control1 = {x: Math.max(mouse, b.x), y: b.y - bottomShadowDepth}
+      const control2 = {x: Math.min(mouse, a.x), y: b.y - bottomShadowDepth}
+      p.vertex(anchor1.x, anchor1.y) 
+      p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y); 
+    
+      p.vertex(a.x, a.y - bottomShadowDepth)
+      p.endShape(p.CLOSE)
+    
+      if (DEBUG_SHADOWS) {
+        drawControlPoint(a, "yellow")
+        drawControlPoint(b, "yellow")
+        drawControlPoint(anchor1, "pink")
+        drawControlPoint(control1, "blue")
         drawControlPoint(control2, "blue")
         drawControlPoint(anchor2, "green")
       }
@@ -246,21 +282,12 @@ const mySketch = (
       let topShadowDepth = _topShadowDepth
       let sideShadowDepth = _rightSideShadowDepth
 
-      addBezier(
-        innerCoords.bottom_right,
-        innerCoords.top_right,
-        frameSideWidth,
-        cw - frameSideWidth,
-        p.mouseY,
-        topShadowDepth,
-        sideShadowDepth 
-      )
-      // p.beginShape()
-      // p.vertex(innerCoords.top_right.x, innerCoords.top_right.y)
-      // p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
-      // p.vertex(innerCoords.bottom_right.x - sideShadowDepth, innerCoords.bottom_right.y)
-      // p.vertex(innerCoords.top_right.x - sideShadowDepth, innerCoords.top_right.y)
-      // p.endShape(p.CLOSE)
+      p.beginShape()
+      p.vertex(innerCoords.top_right.x, innerCoords.top_right.y)
+      p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
+      p.vertex(innerCoords.bottom_right.x - sideShadowDepth, innerCoords.bottom_right.y)
+      p.vertex(innerCoords.top_right.x - sideShadowDepth, innerCoords.top_right.y)
+      p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "SOUTHEAST"){
       let sideShadowDepth = _rightSideShadowDepth
@@ -282,7 +309,7 @@ const mySketch = (
       let bottomShadowDepth = _bottomShadowDepth
       let sideShadowDepth = _rightSideShadowDepth
       
-      addBezier(
+      addInvertedBezier(
         innerCoords.bottom_right,
         innerCoords.bottom_left,
         ch - frameTopWidth,
@@ -291,13 +318,6 @@ const mySketch = (
         bottomShadowDepth,
         sideShadowDepth 
       )
-      // let shadowDepth = _bottomShadowDepth
-      // p.beginShape()
-      // p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y)
-      // p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y)
-      // p.vertex(innerCoords.bottom_left.x, innerCoords.bottom_left.y - shadowDepth)
-      // p.vertex(innerCoords.bottom_right.x, innerCoords.bottom_right.y - shadowDepth)
-      // p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "SOUTHWEST"){
       let sideShadowDepth = _leftSideShadowDepth
@@ -361,7 +381,7 @@ const mySketch = (
    * @param color - Color to use for the pattern
    */
   function drawPattern(
-    patternFunction: PatternFunction,
+    patternFunction: (p: p5.Graphics | p5, x: number, y: number, w: number, h: number, isUpward: boolean, color: p5.Color) => void,
     subdivisions: Subdivision[],
     maskFunction: () => void,
     side: 'top' | 'right' | 'bottom' | 'left',
@@ -397,7 +417,7 @@ const mySketch = (
       const patternHeight = depth;
       
       // Apply the pattern function
-      patternFunction(0, patternY, patternWidth, patternHeight, isUpward, color);
+      patternFunction(p, 0, patternY, patternWidth, patternHeight, isUpward, color);
       
       // Add decorative trim if enabled
       if (allowTrim && hasTrim) {
@@ -440,6 +460,7 @@ const mySketch = (
    * @param {p5.Color} shadowColor The color of the shadow rectangle
    */
   function drawSloppyRect (
+    p: p5.Graphics | p5,
     startX: number,
     startY: number,
     w: number,
@@ -528,7 +549,7 @@ const mySketch = (
   }
 
   function drawFloralPattern(
-    p: p5, 
+    p: p5.Graphics | p5, 
     x: number,
     y: number,
     w: number,
