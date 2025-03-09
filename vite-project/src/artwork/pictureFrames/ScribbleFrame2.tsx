@@ -4,14 +4,10 @@ import p5 from 'p5';
 import { ScribbleFrameProps } from './types';
 import { rect_wobbly } from '../../helpers/shapes';
 
-type Direction = "NORTH" | "NORTHEAST" | "EAST" | "SOUTHEAST" | "SOUTH" | "SOUTHWEST" | "WEST" | "NORTHWEST";
-
 interface Subdivision {
   subdivisionHeight: number, 
   colorType: ColorType
 }
-
-type Color = {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[], highlight: p5.Color[]}
 
 type ColorType = "base" | "shadowLight" | "shadowDark" | "highlight"
 
@@ -28,7 +24,7 @@ type PatternFunction = (
 ) => void;
 
 const DEBUG_SHADOWS = false;
-const DEBUG_SHADOWS_SMALL = false;
+// const DEBUG_SHADOWS_SMALL = false;
 
 const mySketch = (
   innerWidth: number, 
@@ -70,7 +66,7 @@ const mySketch = (
   let shadowHeight : number
   let shadowDepth : number
   let shadowColor : p5.Color
-  let lightSourceCoords: {x: number, y: number}
+  // let lightSourceCoords: {x: number, y: number}
   
   p.preload = () => {
     // textureImg = p.loadImage('/textures/watercolor_1.jpg');
@@ -336,6 +332,94 @@ const mySketch = (
     p.circle(startX , startY , sphereWidth/2)
   }
 
+  function drawInnerShadowShapeLarge(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, _shadowHeight: number, startX: number, startY: number, _debug: boolean) {
+    
+    p.push()
+    p.clip(() => {
+      topFrame()
+      rightFrame()
+    })
+    p.fill("lightgray")
+    p.rect(0, 0, cw, ch)
+    p.pop()
+    
+    p.push();
+    p.translate(startX, startY)
+    p.fill(shadowColor)
+    p.noStroke()
+    p.beginShape();
+
+    // BOTTOM RIGHT
+    if (DEBUG_SHADOWS) {
+      p.push()
+      p.stroke("red")
+      p.strokeWeight(10)
+      p.point(shadowWidth, innerHeight)
+      p.point(shadowWidth - shadowDepth, innerHeight)
+      p.pop()
+    }
+    p.vertex(shadowWidth, innerHeight);
+    
+    // BOTTOM LEFT
+    let anchor1 = {x: shadowWidth - shadowDepth, y: innerHeight}
+    let anchor2 = {x: 0, y: shadowDepth}
+    let control1 = {x: anchor1.x + (innerCoords.top_right.x - anchor1.x)/3, y: 23.54}
+    let control2 = {x: anchor1.x, y: shadowDepth/2}
+    p.vertex(anchor1.x, anchor1.y);
+    p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y);
+    if (DEBUG_SHADOWS) {
+      p.push()
+      p.strokeWeight(20)
+      p.stroke("yellow")
+      p.point(anchor1.x, anchor1.y)
+      p.stroke("green")
+      p.point(anchor2.x, anchor2.y)
+      p.stroke("pink")
+      p.point(control1.x, control1.y)
+      p.stroke("orange")
+      p.point(control2.x, control2.y)
+      p.pop()
+    }
+    
+    // TOP LEFT
+    if (DEBUG_SHADOWS) {
+      p.push()
+      p.stroke("blue")
+      p.strokeWeight(10)
+      p.point(0, 0)
+      p.pop()
+    }
+    p.vertex(0, 0);
+    
+    // TOP RIGHT
+    if (DEBUG_SHADOWS) {
+      p.push()
+      p.stroke("green")
+      p.strokeWeight(10)
+      p.point(shadowWidth, 0)
+      p.pop()
+    }
+    p.vertex(shadowWidth, 0);
+    p.endShape(p.CLOSE);
+    p.pop()
+  }
+ 
+  function drawOuterShadowShape(shadowDepth: number, shadowColor: p5.Color, pointA: {x:number, y:number}, pointB: {x:number, y:number}, pointC: {x:number, y:number}, _debug: boolean) {
+    // (shadowDepth + 10, shadowColor, shadowWidth, shadowHeight, outerCoords.top_left.x, outerCoords.bottom_left, outerCoords.bottom_right, false)
+    p.push();
+    p.fill(shadowColor)
+    p.noStroke()
+    p.beginShape()
+    p.vertex(pointA.x, pointA.y);
+    p.vertex(pointB.x, pointB.y);
+    p.vertex(pointC.x, pointC.y);
+    p.vertex(pointC.x - shadowDepth, pointC.y + shadowDepth);
+    p.vertex(pointB.x - shadowDepth, pointB.y + shadowDepth);
+    p.vertex(pointA.x - shadowDepth, pointA.y + shadowDepth);
+    p.endShape(p.CLOSE)
+    p.pop();
+  }
+
   // function _drawFlourishes_Old_UsingBeziers (
   //   side: 'top' | 'top_right' | 'right' | 'bottom_right' | 'bottom' | 'bottom_left' | 'left' | 'top_left',
   //   isInShadow: boolean,
@@ -509,131 +593,41 @@ const mySketch = (
   //   p.pop();
   // }
   
-  function drawInnerShadowShapeSmall(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, _shadowHeight: number, startX: number, startY: number, debug: boolean) {
-    p.push();
-    p.translate(startX, startY)
-    p.fill(shadowColor)
-    p.noStroke()
-    p.beginShape();
+  // function drawInnerShadowShapeSmall(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, _shadowHeight: number, startX: number, startY: number, debug: boolean) {
+  //   p.push();
+  //   p.translate(startX, startY)
+  //   p.fill(shadowColor)
+  //   p.noStroke()
+  //   p.beginShape();
 
-    // BOTTOM RIGHT, LEFT
-    let anchor1 = {x: shadowWidth, y: 150}
-    let anchor2 = {x: shadowWidth/2.43, y: 0}
-    let control1 = {x: shadowWidth/1.27 + 112, y: 23.54}
-    let control2 = {x: shadowWidth - 80 , y: 0}
-    p.vertex(anchor1.x, anchor1.y); // (172, 81.94)
-    p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y);
+  //   // BOTTOM RIGHT, LEFT
+  //   let anchor1 = {x: shadowWidth, y: 150}
+  //   let anchor2 = {x: shadowWidth/2.43, y: 0}
+  //   let control1 = {x: shadowWidth/1.27 + 112, y: 23.54}
+  //   let control2 = {x: shadowWidth - 80 , y: 0}
+  //   p.vertex(anchor1.x, anchor1.y); // (172, 81.94)
+  //   p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y);
 
-    if (DEBUG_SHADOWS_SMALL) {
-      p.push()
-      p.strokeWeight(10)
-      p.stroke("green")
-      p.point(anchor1.x, anchor1.y)
-      p.stroke("yellow")
-      p.point(anchor2.x, anchor2.y)
-      p.stroke("pink")
-      p.point(control1.x, control1.y)
-      p.stroke("orange")
-      p.point(control2.x, control2.y)
-      p.pop()
-    }
+  //   if (DEBUG_SHADOWS_SMALL) {
+  //     p.push()
+  //     p.strokeWeight(10)
+  //     p.stroke("green")
+  //     p.point(anchor1.x, anchor1.y)
+  //     p.stroke("yellow")
+  //     p.point(anchor2.x, anchor2.y)
+  //     p.stroke("pink")
+  //     p.point(control1.x, control1.y)
+  //     p.stroke("orange")
+  //     p.point(control2.x, control2.y)
+  //     p.pop()
+  //   }
     
-    // TOP RIGHT
-    p.vertex(shadowWidth, 0);
-    p.endShape(p.CLOSE);
-    p.pop()
+  //   // TOP RIGHT
+  //   p.vertex(shadowWidth, 0);
+  //   p.endShape(p.CLOSE);
+  //   p.pop()
 
-  }
-
-  
-
-  function drawInnerShadowShapeLarge(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, shadowHeight: number, startX: number, startY: number, debug: boolean) {
-    
-    p.push()
-    p.clip(() => {
-      topFrame()
-      rightFrame()
-    })
-    p.fill("lightgray")
-    p.rect(0, 0, cw, ch)
-    p.pop()
-    
-    p.push();
-    p.translate(startX, startY)
-    p.fill(shadowColor)
-    p.noStroke()
-    p.beginShape();
-
-    // BOTTOM RIGHT
-    if (DEBUG_SHADOWS) {
-      p.push()
-      p.stroke("red")
-      p.strokeWeight(10)
-      p.point(shadowWidth, innerHeight)
-      p.point(shadowWidth - shadowDepth, innerHeight)
-      p.pop()
-    }
-    p.vertex(shadowWidth, innerHeight);
-    
-    // BOTTOM LEFT
-    let anchor1 = {x: shadowWidth - shadowDepth, y: innerHeight}
-    let anchor2 = {x: 0, y: shadowDepth}
-    let control1 = {x: anchor1.x + (innerCoords.top_right.x - anchor1.x)/3, y: 23.54}
-    let control2 = {x: anchor1.x, y: shadowDepth/2}
-    p.vertex(anchor1.x, anchor1.y);
-    p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor2.x, anchor2.y);
-    if (DEBUG_SHADOWS) {
-      p.push()
-      p.strokeWeight(20)
-      p.stroke("yellow")
-      p.point(anchor1.x, anchor1.y)
-      p.stroke("green")
-      p.point(anchor2.x, anchor2.y)
-      p.stroke("pink")
-      p.point(control1.x, control1.y)
-      p.stroke("orange")
-      p.point(control2.x, control2.y)
-      p.pop()
-    }
-    
-    // TOP LEFT
-    if (DEBUG_SHADOWS) {
-      p.push()
-      p.stroke("blue")
-      p.strokeWeight(10)
-      p.point(0, 0)
-      p.pop()
-    }
-    p.vertex(0, 0);
-    
-    // TOP RIGHT
-    if (DEBUG_SHADOWS) {
-      p.push()
-      p.stroke("green")
-      p.strokeWeight(10)
-      p.point(shadowWidth, 0)
-      p.pop()
-    }
-    p.vertex(shadowWidth, 0);
-    p.endShape(p.CLOSE);
-    p.pop()
-  }
- 
-  function drawOuterShadowShape(shadowDepth: number, shadowColor: p5.Color, pointA: {x:number, y:number}, pointB: {x:number, y:number}, pointC: {x:number, y:number}, debug: boolean) {
-    // (shadowDepth + 10, shadowColor, shadowWidth, shadowHeight, outerCoords.top_left.x, outerCoords.bottom_left, outerCoords.bottom_right, false)
-    p.push();
-    p.fill(shadowColor)
-    p.noStroke()
-    p.beginShape()
-    p.vertex(pointA.x, pointA.y);
-    p.vertex(pointB.x, pointB.y);
-    p.vertex(pointC.x, pointC.y);
-    p.vertex(pointC.x - shadowDepth, pointC.y + shadowDepth);
-    p.vertex(pointB.x - shadowDepth, pointB.y + shadowDepth);
-    p.vertex(pointA.x - shadowDepth, pointA.y + shadowDepth);
-    p.endShape(p.CLOSE)
-    p.pop();
-  }
+  // }
 
   /** FRAME SHAPES */
   function topFrame() {
@@ -668,12 +662,12 @@ const mySketch = (
     p.vertex(frameSideWidth + padding, ch - frameTopWidth - padding);
     p.endShape(p.CLOSE);
   }
-  function fullframeMask () {
-    leftFrame()
-    rightFrame()
-    bottomFrame()
-    topFrame()
-  }
+  // function fullframeMask () {
+  //   leftFrame()
+  //   rightFrame()
+  //   bottomFrame()
+  //   topFrame()
+  // }
 
   function drawPoint(point1: {x: number, y: number}, color: string) {
     p.push()

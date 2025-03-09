@@ -40,10 +40,10 @@ const mySketch = (
   let subdivisions: Subdivision[]
   let sideSubdivisions: Subdivision[]
   let topSubdivisions: Subdivision[]
-  let shadowWidth : number
-  let shadowHeight : number
-  let _shadowDepth : number
-  let shadowColor : p5.Color
+  // let _shadowWidth: number
+  // let _shadowHeight: number
+  // let _shadowDepth: number
+  let shadowColor: p5.Color
   let lightSourceCoords: {x: number, y: number}
   let lightSourceDirection: Direction
   let lightSourceDirections: Record<Direction, boolean>
@@ -93,9 +93,9 @@ const mySketch = (
     console.log("Directions", lightSourceDirections, "Direction", lightSourceDirection)
 
     /** SHADOW SETTINGS */
-    shadowWidth = innerWidth;
-    shadowHeight = innerCoords.top_left.y - lightSourceCoords.y;
-    _shadowDepth = p.random(1, 100);
+    // _shadowWidth = innerWidth;
+    // _shadowHeight = innerCoords.top_left.y - lightSourceCoords.y;
+    // _shadowDepth = p.random(1, 100);
     shadowColor = p.color(3, 56, 17, 0.25)
     
     /** CREATE SUBDIVISIONS FOR EACH FRAME SHAPE/SIDE */
@@ -188,8 +188,8 @@ const mySketch = (
       p.vertex(a.x, a.y) 
       p.vertex(b.x, b.y) 
       
-      const anchor1Clamp = b.y + topShadowDepth;
-      const anchor2Clamp = a.y + topShadowDepth;
+      const anchor1Clamp = b.y + _topShadowDepth;
+      const anchor2Clamp = a.y + _topShadowDepth;
       const anchor1 = {x: b.x, y: Math.max(p.map(mouse, b.x, a.x/2 + frameSideWidth, max, min + topShadowDepth), anchor1Clamp)}
       const anchor2 = {x: Math.min(a.x - sideShadowDepth, a.x), y: Math.max(p.map(mouse, b.x + innerWidth/2, a.x, min + topShadowDepth, max), anchor2Clamp)}
       const control1 = {x: Math.max(mouse, b.x), y: b.y + topShadowDepth}
@@ -279,7 +279,6 @@ const mySketch = (
       p.endShape(p.CLOSE)
     }
     if (lightSourceDirection === "EAST"){
-      let topShadowDepth = _topShadowDepth
       let sideShadowDepth = _rightSideShadowDepth
 
       p.beginShape()
@@ -362,12 +361,53 @@ const mySketch = (
     }
     
     p.pop()
-    // drawInnerShadowShapeSmall(shadowDepth, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
-    // drawInnerShadowShapeLarge(shadowDepth + 10, shadowColor, shadowWidth, shadowHeight, innerCoords.top_left.x, innerCoords.top_left.y, false)
 
     /** APPLY TEXTURE */
     // applyNoiseTexture(p, fullframeMask)
     // applyTexture(p, textureImg, fullframeMask)
+  }
+
+  function generateSubdivisions(numSubdivisions: number) {
+    let subdivisions: Subdivision[] = [];
+
+    // Generate random length and depth values for each subdivision.
+    for (let i = 0; i < numSubdivisions; i++) {
+      let length = p.random(2, 50);
+      let depth = length / p.random(2, 5);
+      let direction = p.random(0, 1) > 0.5 ? "upward" : "downward";
+      let hasTrim = p.random(0, 1) > 0.5 ? true : false;
+      subdivisions.push({length, depth, direction, hasTrim});
+    }
+
+    // Add outer and inner subdivisions to represent the inside and outside borders of the frame
+    let outerSubdivisionLength = p.random(2, 3);
+    let innerSubdivisionLength = p.random(2, 3);
+    subdivisions.unshift({
+      length: outerSubdivisionLength, 
+      depth: outerSubdivisionLength, 
+      direction: "downward",
+      hasTrim: p.random(0, 1) > 0.5 ? true : false
+    });
+    subdivisions.push({
+      length: innerSubdivisionLength, 
+      depth: innerSubdivisionLength, 
+      direction: "upward",
+      hasTrim: p.random(0, 1) > 0.5 ? true : false
+    });
+    
+    return subdivisions;
+  }
+
+  function normalizeSubdivisions(subdivisions: Subdivision[], h: number) {
+    // Calculate the total length of all subdivisions
+    let total = subdivisions.reduce((acc, subdivision) => acc + subdivision.length, 0);
+    
+    // Normalize the subdivisions and depth values to sum up to h
+    return subdivisions.map(subdivision => ({
+      ...subdivision,
+      length: subdivision.length / total * h,
+      depth: subdivision.depth / total * h,
+    }));
   }
 
   /**
@@ -381,7 +421,7 @@ const mySketch = (
    * @param color - Color to use for the pattern
    */
   function drawPattern(
-    patternFunction: (p: p5.Graphics | p5, x: number, y: number, w: number, h: number, isUpward: boolean, color: p5.Color) => void,
+    patternFunction: PatternFunction,
     subdivisions: Subdivision[],
     maskFunction: () => void,
     side: 'top' | 'right' | 'bottom' | 'left',
@@ -456,7 +496,7 @@ const mySketch = (
    * @param {number} startY The y-coordinate of the top-left corner of the rectangle
    * @param {number} w The width of the rectangle
    * @param {number} h The height of the rectangle
-   * @param {boolean} isUpward Whether the rectangle is oriented upward (true) or downward (false)
+   * @param {boolean} reverse Whether the rectangle is oriented upward (true) or downward (false)
    * @param {p5.Color} shadowColor The color of the shadow rectangle
    */
   function drawSloppyRect (
@@ -465,11 +505,11 @@ const mySketch = (
     startY: number,
     w: number,
     h: number,
-    isUpward: boolean,
-    shadowColor: p5.Color
+    _reverse: boolean,
+    color: p5.Color
   ) {
     p.push();
-    p.fill(shadowColor);
+    p.fill(color);
     p.rect(startX, startY, w, h);
     p.noFill();
     p.strokeWeight(1);
@@ -548,266 +588,173 @@ const mySketch = (
     p.pop();
   }
 
-  function drawFloralPattern(
-    p: p5.Graphics | p5, 
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    _reverse: boolean,
-    strokeColor: p5.Color
-  ) {
-    const flowerSize = h / 4; // Size of each flower
-    const petalCount = 8; // Increased number of petals for more detail
-    const petalSize = flowerSize / 2; // Size of each petal
-    const innerPetalSize = petalSize / 1.5; // Smaller inner petals for added detail
+  // function drawFloralPattern(
+  //   p: p5.Graphics | p5, 
+  //   x: number,
+  //   y: number,
+  //   w: number,
+  //   h: number,
+  //   _reverse: boolean,
+  //   strokeColor: p5.Color
+  // ) {
+  //   const flowerSize = h / 4; // Size of each flower
+  //   const petalCount = 8; // Increased number of petals for more detail
+  //   const petalSize = flowerSize / 2; // Size of each petal
+  //   const innerPetalSize = petalSize / 1.5; // Smaller inner petals for added detail
 
-    for (let i = x; i < x + w; i += flowerSize * 2) {
-      for (let j = y; j < y + h; j += flowerSize * 2) {
-        p.push();
-        p.fill(strokeColor); // Yellow color for the center
-        p.stroke(strokeColor);
-        p.translate(i, j - h );
-        // p.noStroke();
-        for (let k = 0; k < petalCount; k++) {
-          p.ellipse(0, petalSize, petalSize, petalSize * 2);
-          p.rotate(p.TWO_PI / petalCount);
-        }
+  //   for (let i = x; i < x + w; i += flowerSize * 2) {
+  //     for (let j = y; j < y + h; j += flowerSize * 2) {
+  //       p.push();
+  //       p.fill(strokeColor); // Yellow color for the center
+  //       p.stroke(strokeColor);
+  //       p.translate(i, j - h );
+  //       // p.noStroke();
+  //       for (let k = 0; k < petalCount; k++) {
+  //         p.ellipse(0, petalSize, petalSize, petalSize * 2);
+  //         p.rotate(p.TWO_PI / petalCount);
+  //       }
         
-        // Add inner petals for more detail
-        for (let k = 0; k < petalCount; k++) {
-          p.ellipse(0, innerPetalSize, innerPetalSize, innerPetalSize * 2);
-          p.rotate(p.TWO_PI / petalCount);
-        }
+  //       // Add inner petals for more detail
+  //       for (let k = 0; k < petalCount; k++) {
+  //         p.ellipse(0, innerPetalSize, innerPetalSize, innerPetalSize * 2);
+  //         p.rotate(p.TWO_PI / petalCount);
+  //       }
 
-        // Add a central circle for the flower center
-        p.ellipse(0, 0, petalSize, petalSize);
+  //       // Add a central circle for the flower center
+  //       p.ellipse(0, 0, petalSize, petalSize);
 
-        // Add decorative lines radiating from the center
-        p.strokeWeight(1);
-        for (let k = 0; k < petalCount; k++) {
-          p.line(0, 0, petalSize, 0);
-          p.rotate(p.TWO_PI / petalCount);
-        }
+  //       // Add decorative lines radiating from the center
+  //       p.strokeWeight(1);
+  //       for (let k = 0; k < petalCount; k++) {
+  //         p.line(0, 0, petalSize, 0);
+  //         p.rotate(p.TWO_PI / petalCount);
+  //       }
 
-        p.pop();
-      }
-    }
-  }
-
-  function drawInnerShadowShapeSmall(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, _shadowHeight: number, startX: number, startY: number, debug: boolean) {
-    p.push();
-    p.translate(startX, startY)
-    p.fill(shadowColor)
-    p.noStroke()
-    p.beginShape();
-
-    // BOTTOM RIGHT
-    if (debug) {
-      p.push()
-      p.stroke("red")
-      p.strokeWeight(10)
-      p.point(shadowWidth, 150)
-      p.pop()
-    }
-    p.vertex(shadowWidth, 150); // (172, 81.94)
-    
-    // BOTTOM LEFT
-    let control1 = {x: shadowWidth/1.27 + 112, y: 23.54}
-    let control2 = {x: (shadowWidth/2.43) + 61.73, y: 0}
-    let anchor = {x: shadowWidth/2.43, y: 0}
-
-    if (debug) {
-      p.push()
-      p.strokeWeight(10)
-      p.stroke("yellow")
-      p.point(anchor.x, anchor.y)
-      p.stroke("pink")
-      p.point(control1.x, control1.y)
-      p.stroke("orange")
-      p.point(control2.x, control2.y)
-      p.pop()
-    }
-    p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor.x, anchor.y);
-    
-    // TOP LEFT
-    if (debug) {
-      p.push()
-      p.stroke("blue")
-      p.strokeWeight(10)
-      p.point(0, 0)
-      p.pop()
-    }
-    // p.vertex(0, 0);
-    
-    // TOP RIGHT
-    if (debug) {
-      p.push()
-      p.stroke("green")
-      p.strokeWeight(10)
-      p.point(shadowWidth, 0)
-      p.pop()
-    }
-    p.vertex(shadowWidth, 0);
-    p.endShape(p.CLOSE);
-    p.pop()
-
-  }
-
-  function drawInnerShadowShapeLarge(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, shadowHeight: number, startX: number, startY: number, debug: boolean) {
-    
-    p.push();
-    p.translate(startX, startY)
-    p.fill(shadowColor)
-    p.noStroke()
-    p.beginShape();
-
-    // BOTTOM RIGHT
-    if (debug) {
-      p.push()
-      p.stroke("red")
-      p.strokeWeight(10)
-      p.point(shadowWidth, innerHeight)
-      p.point(shadowWidth - shadowDepth, innerHeight)
-      p.pop()
-    }
-    p.vertex(shadowWidth, innerHeight);
-    p.vertex(shadowWidth - shadowDepth, innerHeight);
-    
-    // BOTTOM LEFT
-    let control1 = {x: shadowWidth/1.27, y: 23.54}
-    let control2 = {x: 61.73, y: shadowDepth}
-    let anchor = {x: 0, y: shadowDepth}
-    if (debug) {
-      p.push()
-      p.strokeWeight(10)
-      p.stroke("yellow")
-      p.point(anchor.x, anchor.y)
-      p.stroke("pink")
-      p.point(control1.x, control1.y)
-      p.stroke("orange")
-      p.point(control2.x, control2.y)
-      p.pop()
-    }
-    p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor.x, anchor.y);
-    
-    // TOP LEFT
-    if (debug) {
-      p.push()
-      p.stroke("blue")
-      p.strokeWeight(10)
-      p.point(0, 0)
-      p.pop()
-    }
-    p.vertex(0, 0);
-    
-    // TOP RIGHT
-    if (debug) {
-      p.push()
-      p.stroke("green")
-      p.strokeWeight(10)
-      p.point(shadowWidth, 0)
-      p.pop()
-    }
-    p.vertex(shadowWidth, 0);
-    p.endShape(p.CLOSE);
-    p.pop()
-
-  }
-
-  function generateSubdivisions(numSubdivisions: number) {
-    let subdivisions: Subdivision[] = [];
-
-    // Generate random length and depth values for each subdivision.
-    for (let i = 0; i < numSubdivisions; i++) {
-      let length = p.random(2, 50);
-      let depth = length / p.random(2, 5);
-      let direction = p.random(0, 1) > 0.5 ? "upward" : "downward";
-      let hasTrim = p.random(0, 1) > 0.5 ? true : false;
-      subdivisions.push({length, depth, direction, hasTrim});
-    }
-
-    // Add outer and inner subdivisions to represent the inside and outside borders of the frame
-    let outerSubdivisionLength = p.random(2, 3);
-    let innerSubdivisionLength = p.random(2, 3);
-    subdivisions.unshift({
-      length: outerSubdivisionLength, 
-      depth: outerSubdivisionLength, 
-      direction: "downward",
-      hasTrim: p.random(0, 1) > 0.5 ? true : false
-    });
-    subdivisions.push({
-      length: innerSubdivisionLength, 
-      depth: innerSubdivisionLength, 
-      direction: "upward",
-      hasTrim: p.random(0, 1) > 0.5 ? true : false
-    });
-    
-    return subdivisions;
-  }
-
-  function normalizeSubdivisions(subdivisions: Subdivision[], h: number) {
-    // Calculate the total length of all subdivisions
-    let total = subdivisions.reduce((acc, subdivision) => acc + subdivision.length, 0);
-    
-    // Normalize the subdivisions and depth values to sum up to h
-    return subdivisions.map(subdivision => ({
-      ...subdivision,
-      length: subdivision.length / total * h,
-      depth: subdivision.depth / total * h,
-    }));
-  }
-
-  function calculateDistance(x1: number, y1: number, x2: number, y2: number): number {
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  /** APPLY TEXTURE */
-  // function applyTexture(p: p5, textureImg: p5.Image, mask: () => void) {
-  //   p.push();
-  //   p.clip(mask);
-  //   p.blendMode(p.SCREEN); // p.SCREEN
-  //   const tileWidth = 200; // Set the desired width for each tile
-  //   const tileHeight = 200; // Set the desired height for each tile
-
-  //   for (let x = 0; x < cw; x += tileWidth) {
-  //     for (let y = 0; y < ch; y += tileHeight) {
-  //       p.image(textureImg, x, y, tileWidth, tileHeight);
+  //       p.pop();
   //     }
   //   }
-  //   p.pop()
   // }
 
-  function applyNoiseTexture(p: p5, mask: () => void) {
-    p.push();
-    p.clip(mask);
-  
-    // Create a graphics buffer
-    const noiseBuffer = p.createGraphics(cw, ch);
-  
-    // Set noise detail
-    noiseBuffer.noiseDetail(8, 0.65);
-  
-    // Draw noise texture to the buffer
-    noiseBuffer.loadPixels();
-    for (let x = 0; x < cw; x++) {
-      for (let y = 0; y < ch; y++) {
-        let scale = p.random(0.95, 1);
-        let noiseValue = noiseBuffer.noise(x * scale, y * scale); // Adjust the scale for noise
-        let alpha = p.map(noiseValue, 0, 1, 0, 0.1); // Map noise value to alpha
-        noiseBuffer.set(x, y, p.color(255, alpha)); // White color with varying alpha
-      }
-    }
-    noiseBuffer.updatePixels();
-  
-    // Draw the noise buffer onto the main canvas
-    p.blendMode(p.SCREEN); // p.SCREEN, p.ADD, p.MULTIPLY
-    p.image(noiseBuffer, 0, 0);
-  
-    p.pop();
-  }
+  // function drawInnerShadowShapeSmall(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, __shadowHeight: number, startX: number, startY: number, debug: boolean) {
+  //   p.push();
+  //   p.translate(startX, startY)
+  //   p.fill(shadowColor)
+  //   p.noStroke()
+  //   p.beginShape();
+
+  //   // BOTTOM RIGHT
+  //   if (debug) {
+  //     p.push()
+  //     p.stroke("red")
+  //     p.strokeWeight(10)
+  //     p.point(shadowWidth, 150)
+  //     p.pop()
+  //   }
+  //   p.vertex(shadowWidth, 150); // (172, 81.94)
+    
+  //   // BOTTOM LEFT
+  //   let control1 = {x: shadowWidth/1.27 + 112, y: 23.54}
+  //   let control2 = {x: (shadowWidth/2.43) + 61.73, y: 0}
+  //   let anchor = {x: shadowWidth/2.43, y: 0}
+
+  //   if (debug) {
+  //     p.push()
+  //     p.strokeWeight(10)
+  //     p.stroke("yellow")
+  //     p.point(anchor.x, anchor.y)
+  //     p.stroke("pink")
+  //     p.point(control1.x, control1.y)
+  //     p.stroke("orange")
+  //     p.point(control2.x, control2.y)
+  //     p.pop()
+  //   }
+  //   p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor.x, anchor.y);
+    
+  //   // TOP LEFT
+  //   if (debug) {
+  //     p.push()
+  //     p.stroke("blue")
+  //     p.strokeWeight(10)
+  //     p.point(0, 0)
+  //     p.pop()
+  //   }
+  //   // p.vertex(0, 0);
+    
+  //   // TOP RIGHT
+  //   if (debug) {
+  //     p.push()
+  //     p.stroke("green")
+  //     p.strokeWeight(10)
+  //     p.point(shadowWidth, 0)
+  //     p.pop()
+  //   }
+  //   p.vertex(shadowWidth, 0);
+  //   p.endShape(p.CLOSE);
+  //   p.pop()
+
+  // }
+
+  // function drawInnerShadowShapeLarge(shadowDepth: number, shadowColor: p5.Color, shadowWidth: number, shadowHeight: number, startX: number, startY: number, debug: boolean) {
+    
+  //   p.push();
+  //   p.translate(startX, startY)
+  //   p.fill(shadowColor)
+  //   p.noStroke()
+  //   p.beginShape();
+
+  //   // BOTTOM RIGHT
+  //   if (debug) {
+  //     p.push()
+  //     p.stroke("red")
+  //     p.strokeWeight(10)
+  //     p.point(shadowWidth, innerHeight)
+  //     p.point(shadowWidth - shadowDepth, innerHeight)
+  //     p.pop()
+  //   }
+  //   p.vertex(shadowWidth, innerHeight);
+  //   p.vertex(shadowWidth - shadowDepth, innerHeight);
+    
+  //   // BOTTOM LEFT
+  //   let control1 = {x: shadowWidth/1.27, y: 23.54}
+  //   let control2 = {x: 61.73, y: shadowDepth}
+  //   let anchor = {x: 0, y: shadowDepth}
+  //   if (debug) {
+  //     p.push()
+  //     p.strokeWeight(10)
+  //     p.stroke("yellow")
+  //     p.point(anchor.x, anchor.y)
+  //     p.stroke("pink")
+  //     p.point(control1.x, control1.y)
+  //     p.stroke("orange")
+  //     p.point(control2.x, control2.y)
+  //     p.pop()
+  //   }
+  //   p.bezierVertex(control1.x, control1.y, control2.x, control2.y, anchor.x, anchor.y);
+    
+  //   // TOP LEFT
+  //   if (debug) {
+  //     p.push()
+  //     p.stroke("blue")
+  //     p.strokeWeight(10)
+  //     p.point(0, 0)
+  //     p.pop()
+  //   }
+  //   p.vertex(0, 0);
+    
+  //   // TOP RIGHT
+  //   if (debug) {
+  //     p.push()
+  //     p.stroke("green")
+  //     p.strokeWeight(10)
+  //     p.point(shadowWidth, 0)
+  //     p.pop()
+  //   }
+  //   p.vertex(shadowWidth, 0);
+  //   p.endShape(p.CLOSE);
+  //   p.pop()
+
+  // }
+
   
   /** FRAME SHAPES */
   function topFrame() {
@@ -842,12 +789,12 @@ const mySketch = (
     p.vertex(frameSideWidth, ch-frameTopWidth);
     p.endShape(p.CLOSE);
   }
-  function fullframeMask () {
-    leftFrame()
-    rightFrame()
-    bottomFrame()
-    topFrame()
-  }
+  // function fullframeMask () {
+  //   leftFrame()
+  //   rightFrame()
+  //   bottomFrame()
+  //   topFrame()
+  // }
 
   function drawControlPoint(point1: {x: number, y: number}, color: string) {
     p.push()

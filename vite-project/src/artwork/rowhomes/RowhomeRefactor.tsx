@@ -14,18 +14,18 @@ type Section = {
 }
 
 const mySketch = (p: p5) => {
-  let buffers: p5.Graphics[] = [];
+  // let buffers: p5.Graphics[] = [];
   let rowhomes: Rowhome[] = [];
   let bottom: number;
   let cw: number;
   let ch: number;
   // let drawControls = false;
   // let trees: VermontTree[] = [];
-  let textureImg: p5.Image;
-
-  p.preload = () => {
-    textureImg = p.loadImage('/textures/watercolor_1.jpg');
-  };
+  // let textureImg: p5.Image;
+  
+  // p.preload = () => {
+  //   textureImg = p.loadImage('/textures/watercolor_1.jpg');
+  // };
 
   p.setup = () => {
     cw = 600;
@@ -38,7 +38,7 @@ const mySketch = (p: p5) => {
 
     // Clear objects (for redraws)
     rowhomes = [];
-    buffers = [];
+    // _buffers = [];
     // trees = [];
 
     // Rowhome(s) - @TODO: These will all become PROPS
@@ -128,7 +128,6 @@ const mySketch = (p: p5) => {
         let numStories = p.random([1,2,3,4])
         const numSections = p.random([1,2,3,4])
         const content = ["window", "window", "window", "window"].slice(0, numSections)
-        const storyFill = this.baseFill
   
         while (numStories > 0) {
           let h = 100;
