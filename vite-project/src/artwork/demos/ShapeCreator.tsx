@@ -74,20 +74,19 @@ const mySketch = (p: p5) => {
       p.push();
       p.fill(208, 100, 95);
       p.noStroke();
-      p.rect(590, 50, 200, 130);
+      p.rect(590, 10, 200, 120);
       
       p.fill(0);
       p.textSize(16);
       p.textAlign(p.LEFT);
-      p.text("To Use this shape:", 600, 70);
+      p.text("To Use this shape:", 600, 30);
       
       p.textSize(12);
-      p.text("- Click: add vertex", 600, 100);
-      p.text("- Shift+Click: add bezierVertex ", 600, 115);
-      p.text("- Double-Click: close the shape", 600, 130);
-      p.text("- X: undo last vertex", 600, 145);
-      p.text("- C: clears all shapes", 600, 160);
-      p.text("- C: clears all shapes", 600, 160);
+      p.text("- Click: add vertex", 600, 60);
+      p.text("- Shift+Click: add bezierVertex ", 600, 75);
+      p.text("- Double-Click: close the shape", 600, 90);
+      p.text("- X: undo last vertex", 600, 105);
+      p.text("- C: clears all shapes", 600, 120);
     
       p.pop();
     };
