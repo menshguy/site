@@ -105,7 +105,7 @@ const MainNav: React.FC = () => {
       label: 'Shape Creator', 
       // img: '/nav/nav_n2i_sm.png',
       href: '/artwork/demos/shapecreator',
-      description: 'A tittle p5js tool that lets you create a shape and console log the code.'
+      description: 'A little p5js tool that lets you create a shape and console log the code.'
     },
   ];
 
