@@ -1,56 +1,21 @@
 import React from 'react';
-import p5 from 'p5';
 import { useDevice } from '../../context/DeviceContext.tsx';
 import { useNav } from '../../context/NavContext.tsx';
-import RoyalFrame from './RoyalFrame';
+import SeriesPage from '../../components/SeriesPage.tsx';
+import royalFrameSketch from './royalFrameSketch.tsx';
+import scribbleFrame from './scribbleFrameSketch.tsx';
+import scribbleFrame2 from './scribbleFrame2Sketch.tsx';
 
-const blankSketch = (
-    innerWidth: number, 
-    innerHeight: number,
-    promptA: string,
-    promptB: string
-) => (p: p5) => {
-  
-    /** CANVAS SETTINGS */
-    let cw = innerWidth;
-    let ch = innerHeight;
-    
-    p.preload = () => {
-        // font = p.loadFont('https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto-Mono/RobotoMono-Regular.ttf');
-    }
-  
-    p.setup = () => {
-      p.createCanvas(cw, ch)
-      p.colorMode(p.HSL)
-      p.textFont('Courier New')
-      p.textSize(12)
-      p.textAlign(p.CENTER, p.CENTER)
-    }
+const route = "artwork/pictureframes";
 
-    p.draw = () => {
-        p.noLoop()
-        p.background("antiquewhite")
-        p.fill(0)
-        p.text(promptA, cw/2, ch/2)
-        p.text(promptB, cw/2, (ch/2)+20)
-    }
-    
-    // p.mousePressed = () => {
-    //   // Check if mouse is inside canvas
-    //   if (p.mouseX >= 0 && p.mouseX <= cw && p.mouseY >= 0 && p.mouseY <= ch) {
-    //   }
-    // }
-};
-
-
-const SeriesPage: React.FC = () => {
+const SeriesPagePictureframes: React.FC = () => {
     const { isMobile, deviceWidth, deviceHeight } = useDevice();
     const {navHeight} = useNav();
     const userPrompt = isMobile ? 'Refresh page to redraw.' : 'Click to redraw. Refresh Page to resize.';
     const padding = isMobile ? 0 : 50;
     let innerWidth, innerHeight, frameTopWidth, frameSideWidth;
 
-
+    /** Configure Frame */
     if (isMobile) {
         // Mobile
         frameTopWidth = Math.floor(Math.random() * (100 - 20 + 1)) + 20
@@ -78,20 +43,23 @@ const SeriesPage: React.FC = () => {
     const PromptA = "This is a picture frame.";
     const PromptB = userPrompt;
 
+    const royalFrameSketchWithProps = royalFrameSketch(innerWidth, innerHeight, frameTopWidth, frameSideWidth, PromptA, PromptB)
+    const scribbleFrameWithProps = scribbleFrame(innerWidth, innerHeight, frameTopWidth, frameSideWidth)
+    const scribbleFrame2WithProps = scribbleFrame2(innerWidth, innerHeight, frameTopWidth, frameSideWidth)
+
+    const sketches = [
+        {sketch: royalFrameSketchWithProps, subroute: 'royalframe', label: 'Royal Frame'},
+        {sketch: scribbleFrameWithProps, subroute: 'scribbleframe', label: 'Scribble Frame'},
+        {sketch: scribbleFrame2WithProps, subroute: 'scribbleframe2', label: 'Scribble Frame 2'},
+    ];
+
     return (
-        <div style={{padding: padding}}>
-        {/* <h1>Royal Picture Frames</h1>
-        <p>{userPrompt}</p> */}
-        <RoyalFrame 
-            innerWidth={innerWidth} 
-            innerHeight={innerHeight} 
-            frameTopWidth={frameTopWidth}
-            frameSideWidth={frameSideWidth}
-            showPrompt={false}
-            innerSketch={blankSketch(innerWidth, innerHeight, PromptA, PromptB)} 
-        />
-        </div>
+      <SeriesPage
+        sketches={sketches}
+        route={route}
+        disable={isMobile}
+      />
     );
 };
 
-export default SeriesPage;
+export default SeriesPagePictureframes;

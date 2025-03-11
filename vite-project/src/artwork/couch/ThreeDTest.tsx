@@ -1,5 +1,5 @@
 import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper.tsx';
+// import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 
 const mySketch = (
@@ -87,96 +87,95 @@ const mySketch = (
   
 };
 
-const ThreeDTest: React.FC = () => {
-  const [xPos, setXPos] = React.useState(0);
-  const [yPos, setYPos] = React.useState(0);
-  const [zPos, setZPos] = React.useState(0);
+// const ThreeDTest: React.FC = () => {
+//   const [xPos, setXPos] = React.useState(0);
+//   const [yPos, setYPos] = React.useState(0);
+//   const [zPos, setZPos] = React.useState(0);
   
-  const [xRot, setXRot] = React.useState(0);
-  const [yRot, setYRot] = React.useState(0);
-  const [zRot, setZRot] = React.useState(0);
+//   const [xRot, setXRot] = React.useState(0);
+//   const [yRot, setYRot] = React.useState(0);
+//   const [zRot, setZRot] = React.useState(0);
   
-  const [scale, setScale] = React.useState(1);
+//   const [scale, setScale] = React.useState(1);
   
-  const [xLight, setXLight] = React.useState(0);
-  const [yLight, setYLight] = React.useState(0);
-  const [zLight, setZLight] = React.useState(0);
+//   const [xLight, setXLight] = React.useState(0);
+//   const [yLight, setYLight] = React.useState(0);
+//   const [zLight, setZLight] = React.useState(0);
   
-  const [lightColorR, setLightColorR] = React.useState(200);
-  const [lightColorG, setLightColorG] = React.useState(200);
-  const [lightColorB, setLightColorB] = React.useState(200);
+//   const [lightColorR, setLightColorR] = React.useState(200);
+//   const [lightColorG, setLightColorG] = React.useState(200);
+//   const [lightColorB, setLightColorB] = React.useState(200);
 
-  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<number>>) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setter(Number(event.target.value));
-  };
+//   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<number>>) => (event: React.ChangeEvent<HTMLInputElement>) => {
+//     setter(Number(event.target.value));
+//   };
 
-  let sketchWrapper = mySketch([setXPos, setYPos, setZPos, setXRot, setYRot, setZRot, setScale, setXLight, setYLight, setZLight, setLightColorR, setLightColorG, setLightColorB], () => [xPos, yPos, zPos, xRot, yRot, zRot, scale, xLight, yLight, zLight, lightColorR, lightColorG, lightColorB]);
+//   let sketchWrapper = mySketch([setXPos, setYPos, setZPos, setXRot, setYRot, setZRot, setScale, setXLight, setYLight, setZLight, setLightColorR, setLightColorG, setLightColorB], () => [xPos, yPos, zPos, xRot, yRot, zRot, scale, xLight, yLight, zLight, lightColorR, lightColorG, lightColorB]);
 
-  return (
-    <div>
-      {/* <h1>3D</h1>
-      <p>Click to redraw.</p> */}
-      <label>
-        Model X Position:
-        <input type="number" value={xPos} onChange={handleInputChange(setXPos)} />
-      </label>
-      <label>
-        Model Y Position:
-        <input type="number" value={yPos} onChange={handleInputChange(setYPos)} />
-      </label>
-      <label>
-        Model Z Position:
-        <input type="number" value={zPos} onChange={handleInputChange(setZPos)} />
-      </label>
+//   return (
+//     <div>
+//       {/* <h1>3D</h1>
+//       <p>Click to redraw.</p> */}
+//       <label>
+//         Model X Position:
+//         <input type="number" value={xPos} onChange={handleInputChange(setXPos)} />
+//       </label>
+//       <label>
+//         Model Y Position:
+//         <input type="number" value={yPos} onChange={handleInputChange(setYPos)} />
+//       </label>
+//       <label>
+//         Model Z Position:
+//         <input type="number" value={zPos} onChange={handleInputChange(setZPos)} />
+//       </label>
 
-      <label>
-        Model X Rotation:
-        <input type="number" value={xRot} onChange={handleInputChange(setXRot)} />
-      </label>
-      <label>
-        Model Y Rotation:
-        <input type="number" value={yRot} onChange={handleInputChange(setYRot)} />
-      </label>
-      <label>
-        Model Z Rotation:
-        <input type="number" value={zRot} onChange={handleInputChange(setZRot)} />
-      </label>
+//       <label>
+//         Model X Rotation:
+//         <input type="number" value={xRot} onChange={handleInputChange(setXRot)} />
+//       </label>
+//       <label>
+//         Model Y Rotation:
+//         <input type="number" value={yRot} onChange={handleInputChange(setYRot)} />
+//       </label>
+//       <label>
+//         Model Z Rotation:
+//         <input type="number" value={zRot} onChange={handleInputChange(setZRot)} />
+//       </label>
 
-      <label>
-        Model Scale:
-        <input type="number" value={scale} onChange={handleInputChange(setScale)} />
-      </label>
+//       <label>
+//         Model Scale:
+//         <input type="number" value={scale} onChange={handleInputChange(setScale)} />
+//       </label>
 
-      <label>
-        Light X Position:
-        <input type="number" value={xLight} onChange={handleInputChange(setXLight)} />
-      </label>
-      <label>
-        Light Y Position:
-        <input type="number" value={yLight} onChange={handleInputChange(setYLight)} />
-      </label>
-      <label>
-        Light Z Position:
-        <input type="number" value={zLight} onChange={handleInputChange(setZLight)} />
-      </label>
+//       <label>
+//         Light X Position:
+//         <input type="number" value={xLight} onChange={handleInputChange(setXLight)} />
+//       </label>
+//       <label>
+//         Light Y Position:
+//         <input type="number" value={yLight} onChange={handleInputChange(setYLight)} />
+//       </label>
+//       <label>
+//         Light Z Position:
+//         <input type="number" value={zLight} onChange={handleInputChange(setZLight)} />
+//       </label>
       
-      <label>
-        Light R Value:
-        <input type="number" value={lightColorR} onChange={handleInputChange(setLightColorR)} />
-      </label>
-      <label>
-        Light G Value:
-        <input type="number" value={lightColorG} onChange={handleInputChange(setLightColorG)} />
-      </label>
-      <label>
-        Light B Value:
-        <input type="number" value={lightColorB} onChange={handleInputChange(setLightColorB)} />
-      </label>
+//       <label>
+//         Light R Value:
+//         <input type="number" value={lightColorR} onChange={handleInputChange(setLightColorR)} />
+//       </label>
+//       <label>
+//         Light G Value:
+//         <input type="number" value={lightColorG} onChange={handleInputChange(setLightColorG)} />
+//       </label>
+//       <label>
+//         Light B Value:
+//         <input type="number" value={lightColorB} onChange={handleInputChange(setLightColorB)} />
+//       </label>
 
-      <P5Wrapper sketch={sketchWrapper} />
-    </div>
-  );
-};
+//       <P5Wrapper sketch={sketchWrapper} />
+//     </div>
+//   );
+// };
 
-export {mySketch};
-export default ThreeDTest;
+export default mySketch;

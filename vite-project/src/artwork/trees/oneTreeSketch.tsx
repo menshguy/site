@@ -1,8 +1,6 @@
-import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper.tsx';
-import {Season} from './types.ts';
-import {VermontTree} from '../../helpers/treeHelpers.tsx';
 import p5 from 'p5';
+import { Season } from './types';
+import { VermontTree } from '../../helpers/treeHelpers.tsx'
 
 const mySketch = (p: p5) => {
 
@@ -155,16 +153,4 @@ const mySketch = (p: p5) => {
   
 };
 
-const OneTree: React.FC = () => {
-  return (
-    <div>
-      <h1>One Tree Debugger</h1>
-      {/* <p>11/14/24</p> */}
-      <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch} />
-    </div>
-  );
-};
-
-export {mySketch}
-export default OneTree;
+export default mySketch;

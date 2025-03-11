@@ -1,16 +1,18 @@
-import React, { CSSProperties } from 'react';
-import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { RoyalFrameProps, Subdivision, PatternFunction } from './types';
+import { Subdivision, PatternFunction } from './types';
 import { rect_gradient } from '../../helpers/shapes';
+import blankSketch from './blankSketch';
 
 const mySketch = (
   innerWidth: number, 
   innerHeight: number, 
   frameTopWidth: number, 
-  frameSideWidth: number
+  frameSideWidth: number,
+  PromptA: string,
+  PromptB: string
 ) => (p: p5) => {
 
+  
   /** CANVAS SETTINGS */
   let cw = innerWidth + (frameSideWidth * 2);
   let ch = innerHeight + (frameTopWidth * 2);
@@ -21,12 +23,19 @@ const mySketch = (
   let goldColor: p5.Color
   let blackColor: p5.Color
   let deepRedColor: p5.Color
+ 
+  /** INNER SKETCH (The actual "painitng" inside the frame) */
+  const innerSketch = blankSketch(frameSideWidth, frameTopWidth, innerWidth, innerHeight, PromptA, PromptB)(p);
   
   p.preload = () => {
     // textureImg = p.loadImage('/textures/gold7.png');
   }
 
   p.setup = () => {
+    /** INNER SKETCH */
+    innerSketch.setup();
+
+    /** FRAME SKETCH */
     p.createCanvas(cw, ch)
     p.colorMode(p.HSL)
 
@@ -51,8 +60,11 @@ const mySketch = (
   }
   
   p.draw = () => {
+    /** INNER SKETCH */
+    innerSketch.draw();
+
+    /** FRAME SKETCH */
     p.noLoop()
-    
     /** DRAW FRAME SHAPES */
     p.push()
     p.fill(mainColor)
@@ -323,105 +335,4 @@ const mySketch = (
   }
 };
 
-const RoyalFrame: React.FC<RoyalFrameProps> = ({
-  innerWidth, 
-  innerHeight,
-  frameTopWidth,
-  frameSideWidth,
-  innerSketch,
-  includeBoxShadow,
-  showPrompt = true
-}) => {
-
-  const min = 25
-  const max = 150
-  const _frameTopWidth = frameTopWidth ? frameTopWidth : Math.floor(Math.random() * (max - min) + min)
-  const _frameSideWidth = frameSideWidth ? frameSideWidth : _frameTopWidth
-  const totalHeight = innerHeight + (_frameTopWidth * 2)
-  // const totalWidth = innerWidth +  + (_frameSideWidth * 2)
-
-  const _outerSketch = mySketch(innerWidth, innerHeight, _frameTopWidth, _frameSideWidth);
-  const _innerSketch = innerSketch;
-  
-  // const InnerSketchMemo = useMemo(() => <P5Wrapper includeSaveButton={false} sketch={_innerSketch} />, [_innerSketch]);
-  // const OuterSketchMemo = useMemo(() => <P5Wrapper includeSaveButton={false} sketch={_outerSketch} />, [_outerSketch]);
-
-  /** STYLES */
-  const containerStyles: CSSProperties = {
-    position: 'relative',
-    boxShadow: includeBoxShadow ? '0px 10px 20px rgba(0, 0, 0, 0.2)' : 'none',
-    height: `${innerHeight + _frameTopWidth + _frameSideWidth}px`,
-    width: `${innerWidth + _frameSideWidth + _frameSideWidth}px`,
-  }
-
-  const childFrame: CSSProperties = {
-    position: 'relative',
-    top: `0px`,
-    left: `0px`,
-  }
-  const childSketch: CSSProperties = {
-    position: 'absolute',
-    top: `${_frameTopWidth}px`,
-    left: `${_frameSideWidth}px`,
-  }
-  
-  const fancyFonts = [
-    'Brush Script MT, cursive',
-    'Lucida Handwriting, cursive',
-    'Palatino Linotype, serif',
-    'Garamond, serif',
-    // 'Copperplate, fantasy',
-    // 'Papyrus, fantasy'
-  ];
-  const labelContainerStyles: CSSProperties = {
-    position: 'absolute',
-    top: `${totalHeight - (_frameTopWidth)}px`,
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    zIndex: 1000,
-  }
-  const labelStyles: CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    marginTop: `${Math.floor(Math.random() * (_frameTopWidth/2))}px`,
-    width: '200px',
-    textAlign: 'center',
-    fontFamily: fancyFonts[Math.floor(Math.random() * fancyFonts.length)],
-    fontSize: `${Math.floor(Math.random() * (18 - 24 + 1)) + 18}px`,
-    color: 'white',
-    backgroundColor: '#e7c59a',
-    border: '1px solid #855e2e',
-    borderRadius: '6px',
-    boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.3)',
-    zIndex: 1000,
-    padding: '4px 0px',
-  }
-
-  return (
-    <div style={containerStyles}>
-      {showPrompt && <div style={labelContainerStyles}>
-        <div style={labelStyles} title="Some drawings take longer than others!">
-          Click to Redraw 
-        </div>
-      </div>}
-      <div style={childSketch}>
-        <P5Wrapper 
-          includeSaveButton={false} 
-          sketch={_innerSketch}
-        />
-      </div>
-      <div style={childFrame}>
-        <P5Wrapper 
-          includeSaveButton={false} 
-          sketch={_outerSketch} 
-        />
-      </div>
-    </div>
-  );
-};
-
-export {mySketch};
-export default RoyalFrame;
+export default mySketch;

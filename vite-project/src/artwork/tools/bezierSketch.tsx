@@ -1,5 +1,3 @@
-import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5'
 
 interface Line {
@@ -123,15 +121,4 @@ const mySketch = (_cw: number = 600, _ch: number = 600) => (p: p5) => {
   }
 };
 
-const BezierDemo: React.FC = () => {
-  return (
-    <div>
-      <h1>Bezier Demo</h1>
-      <p>I found this visualization of the control points helpful in understanding bezier curves. Click to drag handles.</p>
-      <P5Wrapper sketch={mySketch()} />
-    </div>
-  );
-};
-
-export {mySketch};
-export default BezierDemo;
+export default mySketch;

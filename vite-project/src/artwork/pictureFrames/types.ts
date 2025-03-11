@@ -37,4 +37,13 @@ type PatternFunction = (
   strokeColor: p5.Color
 ) => void;
 
-export type { RoyalFrameProps, ScribbleFrameProps, Subdivision, PatternFunction };
+type ColorType = "base" | "shadowDark" | "highlight"
+
+type ColorSettings = {
+  base: p5.Color[], 
+  shadowLight?: p5.Color[], 
+  shadowDark: p5.Color[], 
+  highlight: p5.Color[]
+}
+
+export type { RoyalFrameProps, ScribbleFrameProps, Subdivision, PatternFunction, ColorType, ColorSettings };

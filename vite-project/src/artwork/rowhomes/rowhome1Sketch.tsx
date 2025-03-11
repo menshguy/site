@@ -1,5 +1,3 @@
-import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper.tsx';
 import p5 from 'p5';
 import { RowhomeConstructor, FloorSectionConstructor, FloorSectionGenerator } from './types.ts';
 
@@ -400,16 +398,4 @@ const mySketch = (p: p5) => {
   }
 };
 
-const Rowhome2: React.FC = () => {
-  return (
-    <div>
-      <h1>Rowhome 2</h1>
-      <p>10/31/24</p>
-      <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch} />
-    </div>
-  );
-};
-
-export {mySketch};
-export default Rowhome2;
+export default mySketch;

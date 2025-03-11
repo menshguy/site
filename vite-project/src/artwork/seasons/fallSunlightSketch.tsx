@@ -1,5 +1,3 @@
-import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 import { Season, Leaf, Point, BoundaryPoint, Trunk, TrunkLine} from '../trees/types';
 
@@ -567,16 +565,4 @@ const mySketch = (_cw: number = 600, _ch: number = 600) => (p: p5) => {
   }
 };
 
-const FallSunlight: React.FC = () => {
-  return (
-    <div>
-      <h1>Fall Sunlight</h1>
-      {/* <p>11/7/24</p> */}
-      <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch()} />
-    </div>
-  );
-};
-
-export {mySketch}
-export default FallSunlight;
+export default mySketch;

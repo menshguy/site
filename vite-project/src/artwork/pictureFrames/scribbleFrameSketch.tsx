@@ -1,7 +1,7 @@
-import React, { CSSProperties } from 'react';
-import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
-import { ScribbleFrameProps, Subdivision, PatternFunction } from './types';
+import { Subdivision, PatternFunction } from './types';
+import blankSketch from './blankSketch';
+import { ColorSettings } from './types';
 
 type Direction = 'NORTH' | 'NORTHEAST' | 'EAST' | 'SOUTHEAST' | 'SOUTH' | 'SOUTHWEST' | 'WEST' | 'NORTHWEST';
 
@@ -29,11 +29,14 @@ const mySketch = (
     bottom_left: {x: 0, y: ch},
     bottom_right: {x: cw, y: ch}
   }
+
+  /** INNER SKETCH (The actual "painitng" inside the frame) */
+  const innerSketch = blankSketch(frameSideWidth, frameTopWidth, innerWidth, innerHeight)(p);
   
   
   /** FRAME SETTINGS */
-  let primaryColor: {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[], highlight: p5.Color[]}
-  let gold: {base: p5.Color[], shadowLight: p5.Color[], shadowDark: p5.Color[], highlight: p5.Color[]}
+  let primaryColor: ColorSettings
+  let gold: ColorSettings
   let allowTrim: boolean
   let trimWidth: number
   let trimColor: p5.Color
@@ -53,7 +56,10 @@ const mySketch = (
   }
 
   p.setup = () => {
-    console.log("RUNS")
+    /** INNER SKETCH */
+    innerSketch.setup();
+
+    /** FRAME SKETCH */
     p.createCanvas(cw, ch)
     p.colorMode(p.HSL)
 
@@ -88,7 +94,7 @@ const mySketch = (
       SOUTH: lightSourceCoords.x > innerCoords.bottom_left.x && lightSourceCoords.x < innerCoords.bottom_right.x && lightSourceCoords.y > innerCoords.bottom_left.y, 
       SOUTHWEST: lightSourceCoords.x < innerCoords.bottom_left.x && lightSourceCoords.y > innerCoords.bottom_left.y, 
       WEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y > innerCoords.top_left.y && lightSourceCoords.y < innerCoords.bottom_left.y, 
-      NORTHWEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y > innerCoords.top_left.y
+      NORTHWEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y < innerCoords.top_left.y
     } as const;
     console.log("Directions", lightSourceDirections, "Direction", lightSourceDirection)
 
@@ -117,8 +123,13 @@ const mySketch = (
   }
   
   p.draw = () => {
-    // p.noLoop()
     p.clear()
+
+    /** INNER SKETCH */
+    innerSketch.draw();
+
+    /** FRAME SKETCH */
+    // p.noLoop()
 
     /** LIGHT SOURCE UPDATE */
     lightSourceCoords = {x: p.mouseX || outerCoords.top_right.x, y: p.mouseY || outerCoords.top_right.y}
@@ -138,7 +149,8 @@ const mySketch = (
     p.push()
     
     p.noStroke()
-    p.fill(primaryColor.shadowLight[0])
+    const shadowLightColor = primaryColor.shadowLight?.[0] ?? primaryColor.base[0]
+    p.fill(shadowLightColor)
     topFrame()
     rightFrame()
 
@@ -149,7 +161,7 @@ const mySketch = (
     p.pop()
 
     /** DRAW GRADIENTS IN EACH FRAME SHAPE */
-    let shadowColorLight = primaryColor.shadowLight[0]
+    let shadowColorLight = primaryColor.shadowLight?.[0] ?? primaryColor.base[0]
     let shadowColorDark = primaryColor.shadowDark[0]
     drawPattern(drawSloppyRect, topSubdivisions, topFrame, "top", shadowColorDark) // Top
     drawPattern(drawSloppyRect, sideSubdivisions, rightFrame, "right", shadowColorDark) // Right 
@@ -811,108 +823,4 @@ const mySketch = (
   }
 };
 
-const ScribbleFrame: React.FC<ScribbleFrameProps> = ({
-  innerWidth, 
-  innerHeight,
-  frameTopWidth,
-  frameSideWidth,
-  innerSketch,
-  includeBoxShadow,
-  showPrompt = true
-}) => {
-
-  const min = 25
-  const max = 150
-  const _frameTopWidth = frameTopWidth ? frameTopWidth : Math.floor(Math.random() * (max - min) + min)
-  const _frameSideWidth = frameSideWidth ? frameSideWidth : _frameTopWidth
-  const totalHeight = innerHeight + (_frameTopWidth * 2)
-  // const totalWidth = innerWidth +  + (_frameSideWidth * 2)
-
-  const _outerSketch = mySketch(innerWidth, innerHeight, _frameTopWidth, _frameSideWidth);
-  const _innerSketch = innerSketch;
-  
-  // const InnerSketchMemo = useMemo(() => <P5Wrapper includeSaveButton={false} sketch={_innerSketch} />, [_innerSketch]);
-  // const OuterSketchMemo = useMemo(() => <P5Wrapper includeSaveButton={false} sketch={_outerSketch} />, [_outerSketch]);
-
-  /** STYLES */
-  const containerStyles: CSSProperties = {
-    position: 'relative',
-    boxShadow: includeBoxShadow ? '0px 10px 20px rgba(0, 0, 0, 0.2)' : 'none',
-    height: `${innerHeight + _frameTopWidth + _frameSideWidth}px`,
-    width: `${innerWidth + _frameSideWidth + _frameSideWidth}px`,
-    cursor: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"white\"><path d=\"M12 2C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm-3 19v-1h6v1c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1z\"/></svg>') 16 16, pointer",
-  };
-
-  const childFrame: CSSProperties = {
-    position: 'relative',
-    top: `0px`,
-    left: `0px`,
-  }
-  const childSketch: CSSProperties = {
-    position: 'absolute',
-    top: `${_frameTopWidth}px`,
-    left: `${_frameSideWidth}px`,
-  }
-  
-  const fancyFonts = [
-    'Brush Script MT, cursive',
-    'Lucida Handwriting, cursive',
-    'Palatino Linotype, serif',
-    'Garamond, serif',
-    // 'Copperplate, fantasy',
-    // 'Papyrus, fantasy'
-  ];
-  const labelContainerStyles: CSSProperties = {
-    position: 'absolute',
-    top: `${totalHeight - (_frameTopWidth)}px`,
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    zIndex: 1000,
-  }
-  const labelStyles: CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    marginTop: `${Math.floor(Math.random() * (_frameTopWidth/2))}px`,
-    width: '200px',
-    textAlign: 'center',
-    fontFamily: fancyFonts[Math.floor(Math.random() * fancyFonts.length)],
-    fontSize: `${Math.floor(Math.random() * (18 - 24 + 1)) + 18}px`,
-    color: 'white',
-    backgroundColor: '#e7c59a',
-    border: '1px solid #855e2e',
-    borderRadius: '6px',
-    boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.3)',
-    zIndex: 1000,
-    padding: '4px 0px',
-  }
-
-  return (
-    <div style={containerStyles}>
-      {showPrompt && <div style={labelContainerStyles}>
-        <div style={labelStyles} title="Some drawings take longer than others!">
-          Click to Redraw 
-        </div>
-      </div>}
-      <div style={childSketch}>
-        <P5Wrapper 
-          includeSaveButton={false} 
-          sketch={_innerSketch}
-        />
-      </div>
-      <div style={childFrame}>
-        <P5Wrapper
-          disableClickToSetup
-          // disableClickToClear
-          includeSaveButton={false} 
-          sketch={_outerSketch} 
-        />
-      </div>
-    </div>
-  );
-};
-
-export {mySketch};
-export default ScribbleFrame;
+export default mySketch;

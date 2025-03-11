@@ -15,18 +15,16 @@ import ProjectPageSnowFrame from './projects/ProjectPageSnowFrame.tsx';
 import ProjectPageAnniversary from './projects/ProjectPageAnniversary.tsx';
 
 // Artwork Imports
-import ArtworkPage from './artwork/ArtworkPage.tsx';
-import SeriesPageVermont from './artwork/vermont/SeriesPage.tsx';
-import SeriesPageTrees from './artwork/trees/SeriesPage.tsx';
+// import ArtworkPage from './artwork/ArtworkPage.tsx';
+import SeriesPageVermont from './artwork/vermont/SeriesPageVermont.tsx';
+import SeriesPageTrees from './artwork/trees/SeriesPageTrees.tsx';
 import SeriesPageSeasons from './artwork/seasons/SeriesPage.tsx';
-import SeriesPageRowhomes from './artwork/rowhomes/SeriesPage.tsx';
-import SeriesPageDemos from './artwork/demos/SeriesPage.tsx';
-import SeriesPageCouch from './artwork/couch/SeriesPage.tsx';
-import SeriesPageRoyalFrames from './artwork/pictureFrames/SeriesPage.tsx';
-import SeriesPageScribbleFrames from './artwork/pictureFrames/SeriesPageScribble.tsx';
-import SeriesPageScribbleFrames2 from './artwork/pictureFrames/SeriesPageScribble2.tsx';
-import RoyalFrame from './artwork/pictureFrames/RoyalFrame.tsx';
-import {mySketch as seasonalForestsSketch } from './artwork/seasons/SeasonalForests.tsx';
+import SeriesPageRowhomes from './artwork/rowhomes/SeriesPageRowhomes.tsx';
+import SeriesPageTools from './artwork/tools/SeriesPageTools.tsx';
+import SeriesPageCouch from './artwork/couch/SeriesPageCouch.tsx';
+import SeriesPageRoyalFrames from './artwork/pictureFrames/SeriesPagePictureframes.tsx';
+// import SeriesPageScribbleFrames from './artwork/pictureFrames/SeriesPageScribble.tsx';
+// import SeriesPageScribbleFrames2 from './artwork/pictureFrames/SeriesPageScribble2.tsx';
 import './index.css'
 
 function AppWithNav() {
@@ -48,33 +46,19 @@ function AppWithNav() {
             <Route path="anniversary" element={<ProjectPageAnniversary />} />
           </Route>
           
-          <Route path="artwork">
+          {/* <Route path="artwork">
             <Route index element={<ArtworkPage />} />
-            <Route path="vermont/*" element={<SeriesPageVermont />} />
-            <Route path="seasons/*" element={<SeriesPageSeasons />} />
-            <Route path="royalFrames/*" element={<SeriesPageRoyalFrames />} />
-            <Route path="scribbleFrames/*" element={<SeriesPageScribbleFrames />} />
-            <Route path="scribbleFrames2/*" element={<SeriesPageScribbleFrames2 />} />
-            <Route path="trees/*" element={<SeriesPageTrees />} />
-            <Route path="rowhomes/*" element={<SeriesPageRowhomes />} />
-            <Route path="demos/*" element={<SeriesPageDemos />} />
-            <Route path="couch/*" element={<SeriesPageCouch />} />
-          </Route>
-          
-          <Route 
-            path="/pictureframes/royalframe" 
-            element={
-              <div style={{ position: 'absolute', top: '64px' }}>
-                <RoyalFrame 
-                  innerWidth={800} 
-                  innerHeight={800} 
-                  // frameTopWidth={100}
-                  // frameSideWidth={100}
-                  innerSketch={seasonalForestsSketch()} 
-                />
-              </div>
-            } 
-          />
+          </Route> */}
+  
+          <Route path="artwork/vermont/*" element={<SeriesPageVermont />} />
+          <Route path="artwork/seasons/*" element={<SeriesPageSeasons />} />
+          <Route path="artwork/pictureframes/*" element={<SeriesPageRoyalFrames />} />
+          <Route path="artwork/trees/*" element={<SeriesPageTrees />} />
+          <Route path="artwork/rowhomes/*" element={<SeriesPageRowhomes />} />
+          <Route path="artwork/tools/*" element={<SeriesPageTools />} />
+          <Route path="artwork/couch/*" element={<SeriesPageCouch />} />
+          <Route path="artwork/trees/*" element={<SeriesPageTrees />} />
+
         </Routes>
       </div>
       

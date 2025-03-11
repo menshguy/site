@@ -1,5 +1,3 @@
-import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper';
 import p5 from 'p5';
 
 const mySketch = (p: p5) => {
@@ -182,16 +180,4 @@ const mySketch = (p: p5) => {
   
 };
 
-const Tree2: React.FC = () => {
-  return (
-    <div>
-      <h1>Winter Trees</h1>
-      <p>10/31/24</p>
-      <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch} />
-    </div>
-  );
-};
-
-export {mySketch}
-export default Tree2;
+export default mySketch;

@@ -5,6 +5,7 @@ type ShapePoint = {
   y: number;
   type: 'vertex' | 'control' | 'bezierVertex';
 }
+
 const mySketch = (p: p5) => {
     // State variables
     let currentShape:ShapePoint[] = []; // Stores vertices and bezier control points
@@ -406,4 +407,4 @@ const mySketch = (p: p5) => {
     };
 };
 
-export {mySketch}
+export default mySketch;

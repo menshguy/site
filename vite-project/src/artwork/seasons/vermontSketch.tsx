@@ -1,5 +1,3 @@
-import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from '../trees/types.ts';
 import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
 import p5 from 'p5';
@@ -374,16 +372,4 @@ const mySketch = (_cw: number = 1000, _ch: number = 600) => (p: p5) => {
   };
 };
 
-const Vermont: React.FC = () => {
-  return (
-    <div>
-      <h1>Vermont</h1>
-      {/* <p>11/14/24</p> */}
-      <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch()} />
-    </div>
-  );
-};
-
-export {mySketch}
-export default Vermont;
+export default mySketch;

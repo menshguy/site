@@ -28,31 +28,45 @@ const MainNav: React.FC = () => {
       description: 'A collection of generative p5js sketches exploring seasonal changes'
     }, 
     {
-      label: 'Royal Picture Frames (wip)', 
+      label: 'Royal Frames (wip)', 
       img: '/nav/nav_frames_blk_sm.png',
-      href: '/artwork/royalframes',
+      href: '/artwork/pictureframes/',
       description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums',
       hide: siteMode == "professional"
     }, 
+    // {
+    //   label: 'Scribble Frames 1 (wip)', 
+    //   img: '/nav/nav_frames_scribble_sm.png',
+    //   href: '/artwork/pictureframes/scribbleframe',
+    //   description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums',
+    //   hide: siteMode == "professional"
+    // }, 
+    // {
+    //   label: 'Scribble Frames 2 (wip)', 
+    //   img: '/nav/nav_frames_scribble2_sm.png',
+    //   href: '/artwork/pictureframes/scribbleframe2',
+    //   description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums',
+    //   hide: siteMode == "professional"
+    // }, 
     {
-      label: 'Scribble Frames 1 (wip)', 
-      img: '/nav/nav_frames_scribble_sm.png',
-      href: '/artwork/scribbleframes',
-      description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums',
-      hide: siteMode == "professional"
-    }, 
-    {
-      label: 'Scribble Frames 2 (wip)', 
-      img: '/nav/nav_frames_scribble2_sm.png',
-      href: '/artwork/scribbleframes2',
-      description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums',
-      hide: siteMode == "professional"
-    }, 
-    {
-      label: 'Rowhomes (wip)', 
+      label: 'Philly Rowhomes (wip)', 
       img: '/nav/nav_rowhomes_temp_sm.png',
       href: '/artwork/rowhomes/RowhomeRefactor',
-      description: 'A collection of generative p5js picture frames inspired by the elaborate picture frames used in Museums',
+      description: 'A p5js project that generates little drawings of Rowhomes, inspired by the rowhomes in Philadelphia where I live.',
+      hide: siteMode == "professional"
+    }, 
+    {
+      label: 'Trees', 
+      img: '/nav/nav_trees_temp_sm.png',
+      href: '/artwork/trees',
+      description: 'A p5js project that generates little drawings of Trees, inspired by the trees in Philadelphia where I live.',
+      hide: siteMode == "professional"
+    }, 
+    {
+      label: 'Couch', 
+      img: '/nav/nav_couch_temp_sm.png',
+      href: '/artwork/couch',
+      description: 'A p5js project that generates little drawings of Couches, inspired by the couches in Philadelphia where I live.',
       hide: siteMode == "professional"
     }, 
     {

@@ -1,5 +1,3 @@
-import React from 'react';
-import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season, Leaf, TrunkLine} from '../trees/types.ts';
 import p5 from 'p5';
 
@@ -454,16 +452,4 @@ const mySketch = (_cw: number = 600, _ch: number = 600) => (p: p5) => {
   }
 };
 
-const FallBreeze: React.FC = () => {
-  return (
-    <div>
-      <h1>Fall Breeze</h1>
-      <p>11/10/24</p>
-      <p>Click to redraw.</p>
-      <P5Wrapper sketch={mySketch()} />
-    </div>
-  );
-};
-
-export {mySketch}
-export default FallBreeze;
+export default mySketch
