@@ -18,7 +18,7 @@ import ProjectPageAnniversary from './projects/ProjectPageAnniversary.tsx';
 // import ArtworkPage from './artwork/ArtworkPage.tsx';
 import SeriesPageVermont from './artwork/vermont/SeriesPageVermont.tsx';
 import SeriesPageTrees from './artwork/trees/SeriesPageTrees.tsx';
-import SeriesPageSeasons from './artwork/seasons/SeriesPage.tsx';
+import SeriesPageSeasons from './artwork/seasons/SeriesPageSeasons.tsx';
 import SeriesPageRowhomes from './artwork/rowhomes/SeriesPageRowhomes.tsx';
 import SeriesPageTools from './artwork/tools/SeriesPageTools.tsx';
 import SeriesPageCouch from './artwork/couch/SeriesPageCouch.tsx';

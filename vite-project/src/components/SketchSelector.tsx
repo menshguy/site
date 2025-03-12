@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDevice } from '../context/DeviceContext.tsx';
+import styles from './SketchSelector.module.css';
 import p5 from 'p5';
 
 type Sketch = (p: p5) => void;
@@ -33,11 +34,9 @@ const SketchSelector: React.FC<SketchSelectorProps> = ({ sketches, route, handle
   }, [location.pathname]);
 
   return (
-    <div style={{padding: isMobile ? '5px' : '50px'}}>
-      
-      {/* Actions */}
-      <div style={{display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center'}} {...props}>
-        <select value={selectedSketchIndex} onChange={handleChange}>
+    <div className={isMobile ? styles.mobileContainer : styles.container}>
+      <div className={isMobile ? styles.mobileActionsContainer : styles.actionsContainer} {...props}>
+        <select className={styles.select} value={selectedSketchIndex} onChange={handleChange}>
           {sketches.map((sketch, index) => (
             <option key={index} value={index}>
               {sketch.label}

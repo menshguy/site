@@ -94,7 +94,7 @@ const mySketch = (
       SOUTH: lightSourceCoords.x > innerCoords.bottom_left.x && lightSourceCoords.x < innerCoords.bottom_right.x && lightSourceCoords.y > innerCoords.bottom_left.y, 
       SOUTHWEST: lightSourceCoords.x < innerCoords.bottom_left.x && lightSourceCoords.y > innerCoords.bottom_left.y, 
       WEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y > innerCoords.top_left.y && lightSourceCoords.y < innerCoords.bottom_left.y, 
-      NORTHWEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y < innerCoords.top_left.y
+      NORTHWEST: lightSourceCoords.x < innerCoords.top_left.x && lightSourceCoords.y > innerCoords.top_left.y
     } as const;
     console.log("Directions", lightSourceDirections, "Direction", lightSourceDirection)
 
