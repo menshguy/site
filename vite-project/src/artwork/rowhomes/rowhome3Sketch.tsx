@@ -8,7 +8,16 @@ type Section = {
   w: number,
   h: number,
   fill: {color: p5.Color},
+  stroke: {color: p5.Color, strokeWeight: number},
   drawContentFunc?: (x: number, y: number, w: number, h: number) => void
+}
+
+type Story = {
+  x: number, 
+  y: number, 
+  w: number, 
+  h: number, 
+  contents: string[]
 }
 
 const mySketch = (p: p5) => {
@@ -26,8 +35,8 @@ const mySketch = (p: p5) => {
   // };
 
   p.setup = () => {
-    cw = 600;
-    ch = 600;
+    cw = 800;
+    ch = 550;
     p.createCanvas(cw, ch);
 
     // General Settings
@@ -40,24 +49,27 @@ const mySketch = (p: p5) => {
     // trees = [];
 
     // Rowhome(s) - @TODO: These will all become PROPS
-    const h = p.random(ch / 3, ch);
+    // const h = p.random(ch / 3, ch);
+    const h = p.random(300, ch - bottom);
     const w = p.random(ch / 6, cw);
     const startX = (cw/2) - (w/2);
     const startY = ch - bottom;
-    const baseFill = {color: p.color(23, 30, 30)}
-    const rowhome = new Rowhome(startX, startY, w, h, baseFill);
+    const baseFill = {color: p.color("lightblue")}
+    const baseStroke = {color: p.color("black"), strokeWeight: 1};
+    const rowhome = new Rowhome(startX, startY, w, h, baseFill, baseStroke);
     rowhomes.push(rowhome);
   };
 
   p.draw = () => {
     p.background("antiquewhite");
-    p.noStroke();
     p.noLoop();
 
+    // Draw each rowhome
     rowhomes.forEach( rowhome => {
-      rowhome.stories.forEach(({sections}) => {
-        sections?.forEach((section) => {
-          rowhome.drawSection(section) // For each story, draw each section and the content within
+      // Draw each section
+      rowhome.sections.forEach( sections => {
+        sections.forEach(({x, y, w, h, fill, stroke, drawContentFunc}) => {
+          rowhome.drawSection({x, y, w, h, fill, stroke, drawContentFunc}) 
         })
       })
     })
@@ -68,29 +80,35 @@ const mySketch = (p: p5) => {
     startY: number
     w: number
     h: number
-    stories: {x: number, y: number, w: number, h: number, sections?:Section[]}[]
+    stories: Story[]
+    sections: Section[][]
     baseFill: {color: p5.Color}
+    baseStroke: {color: p5.Color, strokeWeight: number}
 
-    constructor(startX: number, startY: number, width: number, _height: number, baseFill: {color: p5.Color}) {
+    constructor(startX: number, startY: number, width: number, height: number, baseFill: {color: p5.Color}, baseStroke: {color: p5.Color, strokeWeight: number}) {
 
+      // baseFill
+      this.baseFill = baseFill;
+      this.baseStroke = baseStroke;
+      
       // Start Point
       this.startX = startX;
       this.startY = startY;
 
       // Dimensions
       this.w = width;
-      this.h = _height; // not used, height is dynamic
+      this.h = height; // not used, height is dynamic
 
-      // Stories - TODO: Make this a prop and configure it outside
-      this.stories = this.generateStories(startX, startY, width, _height)
-
-      // baseFill
-      this.baseFill = baseFill;
-
-      // Drawing Styles - TODO: Make the lines and textures a prop.
+      // Stories
+      this.stories = this.generateStories(startX, startY, width, height)
+      
+      // Sections
+      const fill = this.baseFill
+      const stroke = this.baseStroke
+      this.sections = this.stories.map(({x, y, w, h, contents}) => this.generateSections({x, y, w, h, contents, fill, stroke}))
     }
 
-    generateStories(x:number, y:number, w:number, _h:number) {
+    generateStories(x:number, y:number, w:number, h:number) {
       let stories = [];
       // let y = startY;
       // let x = startX;
@@ -102,10 +120,9 @@ const mySketch = (p: p5) => {
         y -= h;
 
         const numSections = p.random([1,2,3,4]) // Number of sections
-        const content = ["window", "window", "window", "window"].slice(0, numSections) // Take the first X elements up to numSections
-        const sections = this.generateSections({x, y, w, h, fill: this.baseFill, content})
+        const contents = ["window", "window", "window", "window"].slice(0, numSections) // Take the first X elements up to numSections
 
-        stories.push({x, y, w, h, sections})
+        stories.push({x, y, w, h, contents})
       }
 
       // Main Floor
@@ -115,25 +132,22 @@ const mySketch = (p: p5) => {
 
         // Configure Sections & Content within each section
         const numSections = p.random([1,2,3,4])
-        const content = ["door", "window", "window", "window"].slice(0, numSections) 
-        const sections = this.generateSections({x, y, w, h, fill: this.baseFill, content})
+        const contents = ["door", "window", "window", "window"].slice(0, numSections) 
 
-        stories.push({x, y, w, h, sections})
+        stories.push({x, y, w, h, contents})
       }
       
       // Stories
       if (true) {
         let numStories = p.random([1,2,3,4])
         const numSections = p.random([1,2,3,4])
-        const content = ["window", "window", "window", "window"].slice(0, numSections)
+        const contents = ["window", "window", "window", "window"].slice(0, numSections)
   
         while (numStories > 0) {
           let h = 100;
           y -= h;
           
-          const sections = this.generateSections({x, y, w, h, fill: this.baseFill, content})
-
-          stories.push({x, y, w, h, sections})
+          stories.push({x, y, w, h, contents})
           numStories--
         }
       }
@@ -144,42 +158,48 @@ const mySketch = (p: p5) => {
         y -= h
         
         const numSections = p.random([1,2,3,4])
-        const content = ["window", "window", "window", "window"].slice(0, numSections)
-        const sections = this.generateSections({x, y, w, h, fill: this.baseFill, content})
+        const contents = ["window", "window", "window", "window"].slice(0, numSections)
 
-        stories.push({x, y, w, h, sections})
+        stories.push({x, y, w, h, contents})
       }
 
-      return stories
+      // Calculate the total height of all stories
+      const totalHeight = stories.reduce((acc, story) => acc + story.h, 0);
+      
+      // Normalize the subdivisions and depth values to sum up to h
+      let acc = 0
+      const normalizedStories = stories.map(story => {
+        const normalizedHeight = story.h / totalHeight * h;
+        acc += (story.h - normalizedHeight)
+        return { ...story, h: normalizedHeight, y: story.y + acc }
+      })
+      
+      return normalizedStories;
     }
 
-    generateSections({x, y, w, h, fill, content}: {x: number, y: number, w: number, h: number, fill: {color: p5.Color}, content: string[]}) {
-
+    generateSections({x, y, w, h, fill, stroke, contents}: {x: number, y: number, w: number, h: number, fill: {color: p5.Color}, stroke: {color: p5.Color, strokeWeight: number}, contents: string[]}) {
       // Content Options
-      let drawContentFuncs: Record<string, (x: number, y: number, sw: number, sh: number) => void> = {
+      const drawContentFuncs: Record<string, (x: number, y: number, sw: number, sh: number) => void> = {
         door: this.drawDoor,
         window: this.drawWindow,
         blank: () => {}
       }
 
-      let sectionWidth = w / content.length; // Divide sections evenly
+      // Configure Sections
+      const sectionWidth = w / contents.length; // Divide sections evenly for now. TODO: Randomize? Pass as Argument?
       let sectionStartX = x
 
-      return content.map(shape => {
-        let drawContentFunc = drawContentFuncs[shape]
-        let section = {x: sectionStartX, y, w: sectionWidth, h, fill, drawContentFunc}
+      return contents.map(content => {
+        const drawContentFunc = drawContentFuncs[content]
+        const section = {x: sectionStartX, y, w: sectionWidth, h, fill, stroke, drawContentFunc}
         sectionStartX += sectionWidth;
         return section;
       })
     }
 
-    drawSection({x, y, w, h, fill, drawContentFunc}: {x: number, y: number, w: number, h: number, fill: {color: p5.Color}, drawContentFunc?: (x: number, y: number, w: number, h: number) => void}){
-      p.push()
-      p.fill(0, 0, 100, 0) // HSL with alpha: hue, saturation, lightness, alpha
-      p.stroke("pink")
-      rect_wobbly(p, x, y, w, h, 1, 3, fill)
+    drawSection({x, y, w, h, fill, stroke, drawContentFunc}: {x: number, y: number, w: number, h: number, fill: {color: p5.Color}, stroke: {color: p5.Color, strokeWeight: number}, drawContentFunc?: (x: number, y: number, w: number, h: number) => void}){
+      rect_wobbly(p, x, y, w, h, 1, 3, fill, stroke)
       if (drawContentFunc) drawContentFunc(x, y, w, h)
-      p.pop()
     }
 
     drawDoor(x: number, y: number, sw: number, sh: number){
@@ -188,7 +208,8 @@ const mySketch = (p: p5) => {
       const doorHeight = (100 > sh) ? sh : 100
 
       // Align Door within the section
-      const alignments = {left: x, center: x + (sw/2) - doorWidth, right: sw - doorWidth}
+      const padding = 10
+      const alignments = {left: x + padding, center: x + (sw/2) - doorWidth, right: x + sw - doorWidth - padding}
       const alignment = p.random(["left", "center", "right"]) as "left" | "center" | "right"
       const startX = alignments[alignment]
       const startY = y + (sh-doorHeight); // y represents the top of the section, so we have to nav to bottom and then up to the start of the door rect
@@ -196,7 +217,8 @@ const mySketch = (p: p5) => {
       // Draw Door
       p.push()
       const fill = {color: p.color("pink")}
-      rect_wobbly(p, startX, startY, doorWidth, doorHeight, 1, 3, fill)
+      const stroke = {color: p.color("black"), strokeWeight: 1}
+      rect_wobbly(p, startX, startY, doorWidth, doorHeight, 1, 3, fill, stroke)
       p.pop()
     }
 
