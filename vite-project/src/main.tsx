@@ -15,7 +15,7 @@ import ProjectPageSnowFrame from './projects/ProjectPageSnowFrame.tsx';
 import ProjectPageAnniversary from './projects/ProjectPageAnniversary.tsx';
 
 // Artwork Imports
-// import ArtworkPage from './artwork/ArtworkPage.tsx';
+import ArtworkPage from './artwork/ArtworkPage.tsx';
 import SeriesPageVermont from './artwork/vermont/SeriesPageVermont.tsx';
 import SeriesPageTrees from './artwork/trees/SeriesPageTrees.tsx';
 import SeriesPageSeasons from './artwork/seasons/SeriesPageSeasons.tsx';
@@ -46,18 +46,18 @@ function AppWithNav() {
             <Route path="anniversary" element={<ProjectPageAnniversary />} />
           </Route>
           
-          {/* <Route path="artwork">
+          <Route path="artwork">
             <Route index element={<ArtworkPage />} />
-          </Route> */}
+            <Route path="vermont/*" element={<SeriesPageVermont />} />
+            <Route path="seasons/*" element={<SeriesPageSeasons />} />
+            <Route path="pictureframes/*" element={<SeriesPageRoyalFrames />} />
+            <Route path="trees/*" element={<SeriesPageTrees />} />
+            <Route path="rowhomes/*" element={<SeriesPageRowhomes />} />
+            <Route path="tools/*" element={<SeriesPageTools />} />
+            <Route path="couch/*" element={<SeriesPageCouch />} />
+            <Route path="trees/*" element={<SeriesPageTrees />} />
+          </Route>
   
-          <Route path="artwork/vermont/*" element={<SeriesPageVermont />} />
-          <Route path="artwork/seasons/*" element={<SeriesPageSeasons />} />
-          <Route path="artwork/pictureframes/*" element={<SeriesPageRoyalFrames />} />
-          <Route path="artwork/trees/*" element={<SeriesPageTrees />} />
-          <Route path="artwork/rowhomes/*" element={<SeriesPageRowhomes />} />
-          <Route path="artwork/tools/*" element={<SeriesPageTools />} />
-          <Route path="artwork/couch/*" element={<SeriesPageCouch />} />
-          <Route path="artwork/trees/*" element={<SeriesPageTrees />} />
 
         </Routes>
       </div>
