@@ -1,17 +1,16 @@
 import React from 'react';
-import couchSketch from './couchSketch';
+import crowdSketch from './crowdSketch';
 // import ThreeDTestSketch from './ThreeDTest';
 import { useDevice } from '../../context/DeviceContext';
 import SeriesPage from '../../components/SeriesPage';
 
-const route = "artwork/couch";
+const route = "artwork/crowds";
 
 const sketches = [
-  {sketch: couchSketch, subroute: 'couch', label: 'Couch'},
-  // {sketch: ThreeDTestSketch, subroute: 'threeDTest', label: '3D Test'}
+  {sketch: crowdSketch, subroute: 'crowd', label: 'Crowd'},
 ];
 
-const SeriesPageCouch: React.FC = () => {
+const SeriesPageCrowds: React.FC = () => {
   const {isMobile} = useDevice();
   return (
       <SeriesPage
@@ -23,4 +22,4 @@ const SeriesPageCouch: React.FC = () => {
   );
 };
 
-export default SeriesPageCouch;
+export default SeriesPageCrowds;

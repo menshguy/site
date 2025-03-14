@@ -70,16 +70,17 @@ const MainNav: React.FC = () => {
       hide: siteMode == "professional"
     }, 
     {
+      label: 'Crowds', 
+      img: '/nav/nav_crowds_temp_sm.png',
+      href: '/artwork/crowds',
+      description: 'A p5js project that generates little drawings of Crowds, inspired by the World Cup.',
+      hide: siteMode == "professional"
+    }, 
+    {
       label: 'All Artwork', 
       href: '/artwork',
       // description: 'View all artwork collections'
     }, 
-    // '/sketches/couch',
-    // '/sketches/rowhomes', 
-    // '/sketches/trees',
-    // '/sketches/demos'
-    // '/sketches/crowds'
-    // '/sketches/pictureframes'
   ];
   
   const dropdownProjectsItems = [

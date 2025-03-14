@@ -69,19 +69,52 @@ const mySketch = (p: p5) => {
     p.createCanvas(cw, ch, p.WEBGL);
 
     // Create sliders for position
+    p.createDiv('X Position:').position(10, 260);
     xPosSlider = p.createSlider(-500, 500, xPos) as p5.Element;
+    xPosSlider.position(100, 260);
+    // p.createDiv().id('xPosValue').position(300, 260);
+
+    p.createDiv('Y Position:').position(10, 280);
     yPosSlider = p.createSlider(-500, 500, yPos) as p5.Element;
+    yPosSlider.position(100, 280);
+    // p.createDiv().id('yPosValue').position(300, 280);
+
+    p.createDiv('Z Position:').position(10, 300);
     zPosSlider = p.createSlider(-500, 500, zPos) as p5.Element;
+    zPosSlider.position(100, 300);
+    p.createDiv(xPos.toString() + ", " + yPos.toString() + ", " + zPos.toString()).id('zPosValue').position(300, 300);
 
     // Create sliders for rotation
+    p.createDiv('X Rotation:').position(10, 330);
     xRotSlider = p.createSlider(0, 360, xRot) as p5.Element;
+    xRotSlider.position(100, 330);
+    // p.createDiv().id('xRotValue').position(300, 330);
+
+    p.createDiv('Y Rotation:').position(10, 350);
     yRotSlider = p.createSlider(0, 360, yRot) as p5.Element;
+    yRotSlider.position(100, 350);
+    // p.createDiv().id('yRotValue').position(300, 350);
+
+    p.createDiv('Z Rotation:').position(10, 370);
     zRotSlider = p.createSlider(0, 360, zRot) as p5.Element;
+    zRotSlider.position(100, 370);
+    p.createDiv(xRot.toString() + ", " + yRot.toString() + ", " + zRot.toString()).id('zRotValue').position(300, 370);
 
     // Create sliders for light position
+    p.createDiv('Light X:').position(10, 400);
     xLightSlider = p.createSlider(-1000, 1000, xLight) as p5.Element;
+    xLightSlider.position(100, 400);
+    // p.createDiv(xLight.toString()).id('xLightValue').position(300, 400);
+
+    p.createDiv('Light Y:').position(10, 420);
     yLightSlider = p.createSlider(-1000, 1000, yLight) as p5.Element;
+    yLightSlider.position(100, 420);
+    // p.createDiv(yLight.toString()).id('yLightValue').position(300, 420);
+
+    p.createDiv('Light Z:').position(10, 440);
     zLightSlider = p.createSlider(-1000, 1000, zLight) as p5.Element;
+    zLightSlider.position(100, 440);
+    p.createDiv(xLight.toString() + ", " + yLight.toString() + ", " + zLight.toString()).id('zLightValue').position(300, 440);
   }
   
   p.draw = () => {

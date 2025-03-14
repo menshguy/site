@@ -22,6 +22,7 @@ import SeriesPageSeasons from './artwork/seasons/SeriesPageSeasons.tsx';
 import SeriesPageRowhomes from './artwork/rowhomes/SeriesPageRowhomes.tsx';
 import SeriesPageTools from './artwork/tools/SeriesPageTools.tsx';
 import SeriesPageCouch from './artwork/couch/SeriesPageCouch.tsx';
+import SeriesPageCrowds from './artwork/crowds/SeriesPageCrowds.tsx';
 import SeriesPageRoyalFrames from './artwork/pictureFrames/SeriesPagePictureframes.tsx';
 // import SeriesPageScribbleFrames from './artwork/pictureFrames/SeriesPageScribble.tsx';
 // import SeriesPageScribbleFrames2 from './artwork/pictureFrames/SeriesPageScribble2.tsx';
@@ -55,7 +56,7 @@ function AppWithNav() {
             <Route path="rowhomes/*" element={<SeriesPageRowhomes />} />
             <Route path="tools/*" element={<SeriesPageTools />} />
             <Route path="couch/*" element={<SeriesPageCouch />} />
-            <Route path="trees/*" element={<SeriesPageTrees />} />
+            <Route path="crowds/*" element={<SeriesPageCrowds />} />
           </Route>
   
 
