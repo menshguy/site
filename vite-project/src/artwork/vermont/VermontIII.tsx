@@ -2,7 +2,7 @@ import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
 import {Season} from '../trees/types.ts';
 import {VermontTree, drawGroundLine} from '../../helpers/treeHelpers.tsx';
-import {shuffleArray} from '../../helpers/arrays.ts';
+// import {_shuffleArray} from '../../helpers/arrays.ts';
 import {drawMoon, drawStars, Moon, Stars, TimeOfDay} from '../../helpers/skyHelpers.tsx';
 import p5 from 'p5';
 import { rect_gradient } from '../../helpers/shapes.ts';
@@ -17,7 +17,7 @@ const mySketch = (p: p5) => {
   let sunAngle: number;
   let sunFillPercentage: number;
   let season: Season;
-  let textureImg: p5.Image;
+  // let textureImg: p5.Image;
   let colors: Record<any, (s:number, l:number) => () => p5.Color>;
   let fgTrees: VermontTree[] = [];
   let mgTrees: VermontTree[] = [];
@@ -26,9 +26,9 @@ const mySketch = (p: p5) => {
   let moonConfig: Moon;
   let starsConfig: Stars;
   
-  p.preload = () => {
-    textureImg = p.loadImage('/textures/coldpressed_1.PNG');
-  }
+  // p.preload = () => {
+  //   textureImg = p.loadImage('/textures/coldpressed_1.PNG');
+  // }
   
   p.setup = () => {
     p.colorMode(p.HSL);
@@ -67,62 +67,6 @@ const mySketch = (p: p5) => {
     let leafHeight = 3;
     let leafWidth = 3;
 
-    function getForestShape(shapeType: 'convex' | 'concave' | 'flat' | 'upHill' | 'downHill', treeHeight:number, maxHeight:number, index:number, centerIndex: number, arrayLength: number) {
-
-      const incrementY = treeHeight/5; // spaceing between trees. This will allow the trees to overlap
-
-      if (shapeType === 'convex') {
-        const distanceFromCenter = Math.abs(index - centerIndex);
-        const columHeight = treeHeight * (distanceFromCenter/6);
-        const columnStartY = 0;
-        const maxY = columnStartY - columHeight;
-        const numTreesInColumn = Math.max(1, (columnStartY - maxY) / incrementY) // Calc number of trees based on how many can fit into the alotted space
-        return {columnStartY, incrementY, numTreesInColumn}
-      }
-
-      if (shapeType === 'concave') {
-        const centerIndex = (arrayLength - 1) / 2; // TODO: make this an argument? Then can control where the hill "peaks" by adjusting the center
-        const distanceFromCenter = Math.abs(index - centerIndex);
-        let _columnHeight: number;
-
-        if (index === 0 || index === arrayLength - 1) _columnHeight = incrementY
-        else if (index > centerIndex) _columnHeight = incrementY * (index - (distanceFromCenter * 2))
-        else _columnHeight = incrementY * index;
-        
-        const columnHeight = _columnHeight > maxHeight ? maxHeight : _columnHeight;
-        const columnStartY = 0;
-        const maxY = columnStartY - columnHeight;
-        const numTreesInColumn = Math.max(1, (columnStartY - maxY) / incrementY) // Calc number of trees based on how many can fit into the alotted space
-        return {columnStartY, incrementY, numTreesInColumn}
-      }
-      
-      if (shapeType === 'flat') {
-        const columnHeight = maxHeight;
-        const columnStartY = 0;
-        const maxY = columnStartY - columnHeight;
-        const numTreesInColumn = Math.max(1, (columnStartY - maxY) / incrementY) // Calc number of trees based on how many can fit into the alotted space
-        return {columnStartY, incrementY, numTreesInColumn}
-      }
-      
-      if (shapeType === 'upHill') {
-        const columnHeight = (incrementY * index) > maxHeight ? maxHeight : (incrementY * index);
-        const columnStartY = 0;
-        const maxY = columnStartY - columnHeight;
-        const numTreesInColumn = Math.max(0, (columnStartY - maxY) / incrementY) // Calc number of trees based on how many can fit into the alotted space
-        return {columnStartY, incrementY, numTreesInColumn}
-      }
-      
-      if (shapeType === 'downHill') {
-        const reverseIndex = arrayLength - 1 - index; // Calculate height based on the reverse index (highest on left, lowest on right)
-        const columnHeight = (incrementY * reverseIndex) > maxHeight ? maxHeight : (incrementY * reverseIndex); 
-        const columnStartY = 0;
-        const maxY = columnStartY - columnHeight;
-        const numTreesInColumn = Math.max(1, (columnStartY - maxY) / incrementY); // Ensure numTreesInColumn is at least 1
-        return {columnStartY, incrementY, numTreesInColumn}
-      }
-      
-    }
-
     /** FOREGROUND TREES */
     let numFGTreeColumns = 20;
     for (let i = 0; i < numFGTreeColumns; i++) {
@@ -156,7 +100,7 @@ const mySketch = (p: p5) => {
         let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
         let fills = timeOfDay === "night" 
           ? colors[fallColor](0.4, .2)
-          : colors[fallColor](0.9, .75)
+          : colors[fallColor](0.9, .65)
         let fillsSunlight = timeOfDay === "night" 
           ? colors[fallColor](0.1, .5)
           : colors[fallColor](0.8, .99);
@@ -220,10 +164,10 @@ const mySketch = (p: p5) => {
         // Colors
         let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
         let fills = timeOfDay === "night" 
-          ? colors[fallColor](0.4, .2)
-          : colors[fallColor](0.6, .5)
+          ? colors[fallColor](0.3, .15)
+          : colors[fallColor](0.6, .45)
         let fillsSunlight = timeOfDay === "night" 
-          ? colors[fallColor](0.1, .5)
+          ? colors[fallColor](0.1, .3)
           : colors[fallColor](0.6, .55);
           
         /** Create Tree */
@@ -254,18 +198,25 @@ const mySketch = (p: p5) => {
     }
    
     /** BACKGROUND TREES */
-    let numBGTreeColumns = 20;
+    let numBGTreeColumns = 25;
     for (let i = 0; i < numBGTreeColumns; i++) {
 
+      // Tree Setting Overrides
+      let pointBoundaryRadius = {min: 15, max: 20};
+      let leafHeight = 2;
+      let leafWidth = 2;
+      let numPointsPerRow = 4;
+      let numLeavesPerPoint = 100;
+
       // Forest Settings
-      const minTreeHeight = 70;
-      const maxTreeHeight = 100;
+      const minTreeHeight = 40;
+      const maxTreeHeight = 60;
       const centerIndex = (numBGTreeColumns - 1) / 2;
-      const maxHeight = minTreeHeight * 5;
+      const maxHeight = minTreeHeight * 3;
       const treeHeight = minTreeHeight;
       const forestStartX = 0
       const forestStartY = ch - bottom - 180;
-      const {columnStartY, incrementY, numTreesInColumn} = getForestShape("concave", treeHeight, maxHeight, i, centerIndex, numBGTreeColumns) ?? {columnStartY: 0, incrementY: 0, numTreesInColumn: 0};
+      const {columnStartY, incrementY, numTreesInColumn} = getForestShape("flat", treeHeight, maxHeight, i, centerIndex, numBGTreeColumns) ?? {columnStartY: 0, incrementY: 0, numTreesInColumn: 0};
       
       for (let j = numTreesInColumn; j >= 0; j--) {
 
@@ -286,10 +237,10 @@ const mySketch = (p: p5) => {
         let fallColor = p.random(['green', 'yellow', 'orange', 'red']);
         let fills = timeOfDay === "night" 
           ? colors[fallColor](0.1, .052)
-          : colors[fallColor](0.6, .75)
+          : colors[fallColor](0.35, .9)
         let fillsSunlight = timeOfDay === "night" 
           ? colors[fallColor](0.15, .06)
-          : colors[fallColor](0.65, .85);
+          : colors[fallColor](0.4, .95);
           
         /** Create Tree */
         tree = new VermontTree({
@@ -369,7 +320,7 @@ const mySketch = (p: p5) => {
     p.fill(skyColor);
     p.rect(0, 0, p.width, p.height)
 
-    // Draw Moon and Stars to buffer
+    // Add Moon and Stars to buffer
     if (timeOfDay === "night") {
       drawMoon(moonBuffer, moonConfig); // Draw Moon
       drawStars(starsBuffer, starsConfig); // Draw Stars
@@ -430,14 +381,14 @@ const mySketch = (p: p5) => {
     
     // Create Reflection Buffer and draw all relevant images to it (trees, moon, etc)
     const reflectionBuffer = p.createGraphics(p.width, p.height) // Reflection Buffer
-    addReflectionImageToReflection(reflectionBuffer, bg) // Add all of the reflection images to a single buffer image
-    addReflectionImageToReflection(reflectionBuffer, mg) // Add all of the reflection images to a single buffer image
-    addReflectionImageToReflection(reflectionBuffer, fg) // Add all of the reflection images to a single buffer image
-    addCircleImageToReflection(reflectionBuffer, timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2))
     if (timeOfDay === "night") {
       addReflectionImageToReflection(reflectionBuffer, moonBuffer)
       addReflectionImageToReflection(reflectionBuffer, starsBuffer)
     }
+    addReflectionImageToReflection(reflectionBuffer, bg) // Add all of the reflection images to a single buffer image
+    addReflectionImageToReflection(reflectionBuffer, mg) // Add all of the reflection images to a single buffer image
+    addReflectionImageToReflection(reflectionBuffer, fg) // Add all of the reflection images to a single buffer image
+    addCircleImageToReflection(reflectionBuffer, timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2))
 
     // Draw Reflection Image to Canvas
     const rx = 0
@@ -476,6 +427,63 @@ const mySketch = (p: p5) => {
       })
     }
   }
+
+  function getForestShape(shapeType: 'convex' | 'concave' | 'flat' | 'upHill' | 'downHill', treeHeight:number, maxHeight:number, index:number, centerIndex: number, arrayLength: number) {
+
+    const incrementY = treeHeight/5; // spaceing between trees. This will allow the trees to overlap
+
+    if (shapeType === 'convex') {
+      const distanceFromCenter = Math.abs(index - centerIndex);
+      const columHeight = treeHeight * (distanceFromCenter/6);
+      const columnStartY = 0;
+      const maxY = columnStartY - columHeight;
+      const numTreesInColumn = Math.max(1, (columnStartY - maxY) / incrementY) // Calc number of trees based on how many can fit into the alotted space
+      return {columnStartY, incrementY, numTreesInColumn}
+    }
+
+    if (shapeType === 'concave') {
+      const centerIndex = (arrayLength - 1) / 2; // TODO: make this an argument? Then can control where the hill "peaks" by adjusting the center
+      const distanceFromCenter = Math.abs(index - centerIndex);
+      let _columnHeight: number;
+
+      if (index === 0 || index === arrayLength - 1) _columnHeight = incrementY
+      else if (index > centerIndex) _columnHeight = incrementY * (index - (distanceFromCenter * 2))
+      else _columnHeight = incrementY * index;
+      
+      const columnHeight = _columnHeight > maxHeight ? maxHeight : _columnHeight;
+      const columnStartY = 0;
+      const maxY = columnStartY - columnHeight;
+      const numTreesInColumn = Math.max(1, (columnStartY - maxY) / incrementY) // Calc number of trees based on how many can fit into the alotted space
+      return {columnStartY, incrementY, numTreesInColumn}
+    }
+    
+    if (shapeType === 'flat') {
+      const columnHeight = maxHeight;
+      const columnStartY = 0;
+      const maxY = columnStartY - columnHeight;
+      const numTreesInColumn = Math.max(1, (columnStartY - maxY) / incrementY) // Calc number of trees based on how many can fit into the alotted space
+      return {columnStartY, incrementY, numTreesInColumn}
+    }
+    
+    if (shapeType === 'upHill') {
+      const columnHeight = (incrementY * index) > maxHeight ? maxHeight : (incrementY * index);
+      const columnStartY = 0;
+      const maxY = columnStartY - columnHeight;
+      const numTreesInColumn = Math.max(0, (columnStartY - maxY) / incrementY) // Calc number of trees based on how many can fit into the alotted space
+      return {columnStartY, incrementY, numTreesInColumn}
+    }
+    
+    if (shapeType === 'downHill') {
+      const reverseIndex = arrayLength - 1 - index; // Calculate height based on the reverse index (highest on left, lowest on right)
+      const columnHeight = (incrementY * reverseIndex) > maxHeight ? maxHeight : (incrementY * reverseIndex); 
+      const columnStartY = 0;
+      const maxY = columnStartY - columnHeight;
+      const numTreesInColumn = Math.max(1, (columnStartY - maxY) / incrementY); // Ensure numTreesInColumn is at least 1
+      return {columnStartY, incrementY, numTreesInColumn}
+    }
+    
+  }
+
 
   function addReflectionImageToReflection(
     reflectionBuffer: p5.Graphics, 
@@ -524,7 +532,7 @@ const mySketch = (p: p5) => {
     }
   }
 
-  function drawTree(tree, buffer, strokeColor) {
+  function drawTree(tree: VermontTree, buffer: p5.Graphics, strokeColor: p5.Color) {
     buffer.push();
     buffer.noFill();
     buffer.strokeWeight(1);
