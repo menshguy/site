@@ -38,7 +38,10 @@ const SketchSelector: React.FC<SketchSelectorProps> = ({ sketches, route, handle
       <div className={isMobile ? styles.mobileActionsContainer : styles.actionsContainer} {...props}>
         <select className={styles.select} value={selectedSketchIndex} onChange={handleChange}>
           {sketches.map((sketch, index) => (
-            <option key={index} value={index}>
+            <option 
+              key={index} 
+              value={index}
+            >
               {sketch.label}
             </option>
           ))}

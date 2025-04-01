@@ -19,31 +19,96 @@
 }
 
 .select {
-    appearance: none;
-    background-color: transparent;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 12px 36px 12px 16px;
-    font-size: 16px;
-    cursor: pointer;
-    color: #333;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
+    /* Base select appearance */
+    appearance: base-select;
+    
+    /* Dimensions and spacing */
     min-width: 200px;
+    padding: 12px 36px 12px 16px;
+    
+    /* Border and background */
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 2px solid hsl(180, 70%, 85%);
+    border-radius: 12px;
+    
+    /* Typography */
+    font-size: 16px;
+    color: #333;
+    
+    /* Interaction */
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.select:hover {
-    border-color: #999;
+/* Custom dropdown arrow using ::after */
+.select::after {
+    content: "";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='hsl(180, 70%, 65%)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    pointer-events: none;
+}
+
+/* Styling the select when open */
+.select:is(:hover, :focus) {
+    border-color: hsl(320, 70%, 85%);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     transform: translateY(-1px);
+    outline: none;
 }
 
-.select:focus {
-    outline: none;
-    border-color: #666;
+/* Styling the options container */
+.select::picker(select) {
+    appearance: base-select;
+    background-color: white;
+    border-radius: 10px;
+    border: 2px solid hsl(180, 70%, 85%);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
+    padding: 8px 0;
+    max-height: 300px;
+    overflow-y: auto;
 }
+
+/* Styling individual options */
+.select option {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+/* Styling option hover state */
+.select option:hover {
+    background-color: hsl(140, 70%, 90%);
+}
+
+/* Styling selected option */
+.select option:checked {
+    background-color: hsl(280, 70%, 90%);
+    color: #333;
+    font-weight: 500;
+}
+
+/* Remove the previous styles that are no longer needed */
+.optionContent,
+.optionIcon,
+option:hover .optionIcon {
+    display: none;
+}
+
+/* Add a left border with pastel colors to options */
+.select option:nth-child(1) { border-left: 4px solid hsl(180, 70%, 85%); padding-left: 12px; }
+.select option:nth-child(2) { border-left: 4px solid hsl(320, 70%, 85%); padding-left: 12px; }
+.select option:nth-child(3) { border-left: 4px solid hsl(45, 70%, 85%); padding-left: 12px; }
+.select option:nth-child(4) { border-left: 4px solid hsl(280, 70%, 85%); padding-left: 12px; }
+.select option:nth-child(5) { border-left: 4px solid hsl(140, 70%, 85%); padding-left: 12px; }
+.select option:nth-child(6) { border-left: 4px solid hsl(225, 70%, 85%); padding-left: 12px; }
+.select option:nth-child(7) { border-left: 4px solid hsl(0, 70%, 85%); padding-left: 12px; }
+.select option:nth-child(8) { border-left: 4px solid hsl(90, 70%, 85%); padding-left: 12px; }
