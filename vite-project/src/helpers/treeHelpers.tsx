@@ -615,10 +615,10 @@ class VermontTreePerformant {
     })
 
     // Draw Leaves to Buffer
-    points.forEach(({ x: px, y: py, boundary: b }) => {
+    points.forEach(({ x, y }) => {
       fullTreeBuffer.push();
       fullTreeBuffer.noStroke();
-      fullTreeBuffer.translate(px, py);
+      fullTreeBuffer.translate(x, y);
       fullTreeBuffer.rotate(p.random(p.TWO_PI));
       fullTreeBuffer.image(this.leafBuffer, 0, 0);
       fullTreeBuffer.pop();
