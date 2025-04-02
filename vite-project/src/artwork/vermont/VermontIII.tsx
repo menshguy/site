@@ -62,7 +62,7 @@ const mySketch = (p: p5) => {
     // Points & Leaves
     let pointBoundaryRadius = {min: 20, max: 25};
     let numPointsPerRow = 5; // X points are draw within boundary radius
-    let numLeavesPerPoint = p.random(120, 180); // X leaves are draw around each point.
+    let numLeavesPerPoint = p.random(120, 150); // X leaves are draw around each point.
     let leavesStartY = p.height - bottom - pointBoundaryRadius.max; //where on y axis do leaves start
     let leafHeight = 3;
     let leafWidth = 3;
@@ -206,7 +206,7 @@ const mySketch = (p: p5) => {
       let leafHeight = 2;
       let leafWidth = 2;
       let numPointsPerRow = 4;
-      let numLeavesPerPoint = 100;
+      let numLeavesPerPoint = 80;
 
       // Forest Settings
       const minTreeHeight = 40;
