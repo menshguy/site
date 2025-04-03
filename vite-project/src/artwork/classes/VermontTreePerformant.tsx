@@ -342,9 +342,11 @@ export class VermontTreePerformant {
 
     // Draw Leaves to Buffer
     points.forEach(({ x, y, boundary }) => {
+      const padding = boundary ? boundary.radius : 0
+      
       fullTreeBuffer.push();
       fullTreeBuffer.noStroke();
-      fullTreeBuffer.translate(x - boundary.radius, y - boundary.radius);
+      fullTreeBuffer.translate(x - padding, y - padding);
       // fullTreeBuffer.rotate(p.random(p.TWO_PI)); // Can't rotate it because the light direction is backed in
       const leafX = 0 
       const leafY = 0
@@ -383,7 +385,7 @@ export class VermontTreePerformant {
     this.points = []
     this.trunkLines = []
     this.leafBatchBuffer.clear();
-    this.fullTreeBuffer.clear();
+    this.image.clear();
   }
 
 }

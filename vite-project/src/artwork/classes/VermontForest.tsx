@@ -41,7 +41,7 @@ export type VermontForestSettings = {
 
 export class VermontForest {
   private p: p5;
-  private settings: VermontForestSettings;
+  settings: VermontForestSettings;
 
   constructor({p5Instance, settings}: {p5Instance: p5; settings: VermontForestSettings}) {
     this.p = p5Instance;
@@ -49,12 +49,10 @@ export class VermontForest {
   }
 
   getImage(width: number, height: number){
-    const {forestStartX, forestStartY} = this.settings;
     const trees = this.#generateForestTrees();
     const buffer = this.p.createGraphics(width, height);
     
     buffer.push();
-    // buffer.translate(forestStartX, forestStartY);
     trees.forEach(tree => tree.draw(buffer))
     buffer.pop();
 
