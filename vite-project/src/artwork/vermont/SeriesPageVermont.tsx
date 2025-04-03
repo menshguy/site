@@ -1,6 +1,7 @@
 import React from 'react';
 import { mySketch as vermontIISketch } from './VermontII';
 import { mySketch as vermontIIISketch } from './VermontIII';
+import { mySketch as vermontIII_PERFORMANT_Sketch } from './VermontIII_Performant';
 import { mySketch as vermontIIIISketch } from './VermontIIII';
 // import { mySketch as vermontSeasonsSketch } from './VermontSeasons';
 // import { mySketch as vermontIIIAnimatedSketch } from './VermontIIIAnimated';
@@ -12,6 +13,7 @@ const route = "artwork/vermont";
 
 const sketches = [
   {sketch: vermontIIISketch, subroute: 'vermontIII', label: 'Vermont I'},
+  {sketch: vermontIII_PERFORMANT_Sketch, subroute: 'vermontIII_Performant', label: 'Vermont Performant'},
   {sketch: vermontIISketch, subroute: 'vermontII', label: 'VermontII'},
   {sketch: vermontIIIISketch, subroute: 'soloTree', label: 'Reflection'},
   // {sketch: vermontSeasonsSketch, subroute: 'rainyDay', label: 'Rainy Day'},
