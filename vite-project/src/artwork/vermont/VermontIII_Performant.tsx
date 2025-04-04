@@ -90,6 +90,31 @@ const mySketch = (p: p5) => {
       }
     }
 
+    // Wind Settings
+    const WINDSETTINGS = {
+      foreground: {
+        windSpeed: 0.08,           // How fast the wind phase changes (oscillation speed)
+        windIntensitySpeed: 0.02,  // How fast the wind intensity changes
+        maxWindIntensity: 5,       // Maximum pixels trees can sway
+        windPhase: 0,              // Starting phase of wind oscillation
+        windIntensityPhase: 0,     // Starting phase of wind intensity oscillation
+      },
+      midground: {
+        windSpeed: 0.06,           // Slightly slower wind for midground trees
+        windIntensitySpeed: 0.015, // Slightly slower intensity changes
+        maxWindIntensity: 3,       // Less movement for midground trees
+        windPhase: 0.5,            // Offset phase for variation
+        windIntensityPhase: 0.5,   // Offset phase for variation
+      },
+      background: {
+        windSpeed: 0.04,           // Slowest wind for background trees
+        windIntensitySpeed: 0.01,  // Slowest intensity changes
+        maxWindIntensity: 1.5,     // Minimal movement for background trees
+        windPhase: 1.0,            // Offset phase for variation
+        windIntensityPhase: 1.0,   // Offset phase for variation
+      }
+    }
+
     /** 
      * FOREGROUND FOREST 
      */
@@ -98,16 +123,16 @@ const mySketch = (p: p5) => {
       settings: {
         forestStartX: -100,
         forestStartY: ch - bottom,
-        forestNumberOfColumns: 10,
-        forestWidth: p.width/2 + 100,
-        forestHeight: 300,
+        forestNumberOfColumns: 30,
+        forestWidth: p.width + 100,
+        forestHeight: 200,
         forestShape: p.random(['upHill', 'downHill', 'concave', 'convex', /*'flat' */]),
         forestTreeSettings: {
           trunkSpace: 20, // Space to expose bottom of trunks, between bottom of tree and where leaves start
           minHeight: 30, 
           maxHeight: 100, 
-          minWidth: 20, 
-          maxWidth: 50, 
+          minWidth: 40, 
+          maxWidth: 80, 
         },
         forestTrunkSettings: {
           numTrunkLines: 5, 
@@ -115,17 +140,18 @@ const mySketch = (p: p5) => {
           trunkWidth: 60, 
         },
         forestLeafSettings: {
-          rows: 15,
-          numPointsPerRow: 10, 
+          rows: 5,
+          numPointsPerRow: 5, 
           numLeavesPerPoint: 300, 
-          minBoundaryRadius: 25,
-          maxBoundaryRadius: 50,
-          leafWidth: 5, 
-          leafHeight: 6.5,
+          minBoundaryRadius: 15,
+          maxBoundaryRadius: 30,
+          leafWidth: 3, 
+          leafHeight: 3,
           rowHeight: 10, // REMOVE this and calcuate within
         },
         forestPalette: PALETTES[timeOfDay][season],
         forestLightSettings: LIGHTSETTINGS[timeOfDay],
+        forestWindSettings: WINDSETTINGS.foreground
       }
     });
 
@@ -162,15 +188,19 @@ const mySketch = (p: p5) => {
         },
         forestPalette: darkenPalette(PALETTES[timeOfDay][season]),
         forestLightSettings: LIGHTSETTINGS[timeOfDay],
+        forestWindSettings: WINDSETTINGS.midground
       }
     });
     
+    const bgPalette = PALETTES[timeOfDay][season]
+    const darkenbgPalette = darkenPalette(bgPalette, 0.8, 1, 0.8)
+    const desaturatebgPalette = desaturatePalette(darkenbgPalette, 0.7, 1, 0.8)
     bgForest = new VermontForest({
       p5Instance: p,
       settings: {
         forestStartX: -100,
         forestStartY: ch - bottom,
-        forestNumberOfColumns: 10,
+        forestNumberOfColumns: 30,
         forestWidth: p.width,
         forestHeight: 300,
         forestShape: p.random([/*'convex'*/, 'flat']),
@@ -187,17 +217,18 @@ const mySketch = (p: p5) => {
           trunkWidth: 60, 
         },
         forestLeafSettings: {
-          rows: 25,
-          numPointsPerRow: 30, 
-          numLeavesPerPoint: 300, 
-          minBoundaryRadius: 15,
-          maxBoundaryRadius: 20,
-          leafWidth: 5, 
-          leafHeight: 6.5,
+          rows: 15,
+          numPointsPerRow: 10, 
+          numLeavesPerPoint: 500, 
+          minBoundaryRadius: 30,
+          maxBoundaryRadius: 50,
+          leafWidth: 2, 
+          leafHeight: 3,
           rowHeight: 10, // REMOVE this and calcuate within
         },
-        forestPalette: darkenPalette(PALETTES[timeOfDay][season], 0.48, 0.48, 0.48),
+        forestPalette: desaturatebgPalette,
         forestLightSettings: LIGHTSETTINGS[timeOfDay],
+        forestWindSettings: WINDSETTINGS.background
       }
     });
 
@@ -208,6 +239,16 @@ const mySketch = (p: p5) => {
         const darkHighlight = p.color(p.hue(highlight), p.saturation(highlight), p.brightness(highlight) * highlightDarken);
         const darkShadow = p.color(p.hue(shadow), p.saturation(shadow), p.brightness(shadow) * shadowDarken);
         return { base: darkBase, highlight: darkHighlight, shadow: darkShadow };
+      });
+    }
+
+    function desaturatePalette(palette: TreeColorPalette[], baseDesaturation: number = 0.18, highlightDesaturation: number = 0.18, shadowDesaturation: number = 0.18) {
+      return palette.map(color => {
+        const { base, highlight, shadow } = color;
+        const desaturatedBase = p.color(p.hue(base), p.saturation(base) * baseDesaturation, p.brightness(base));
+        const desaturatedHighlight = p.color(p.hue(highlight), p.saturation(highlight) * highlightDesaturation, p.brightness(highlight));
+        const desaturatedShadow = p.color(p.hue(shadow), p.saturation(shadow) * shadowDesaturation, p.brightness(shadow));
+        return { base: desaturatedBase, highlight: desaturatedHighlight, shadow: desaturatedShadow };
       });
     }
 
@@ -267,14 +308,14 @@ const mySketch = (p: p5) => {
     // const fgHeight = p.height - fgForest.settings.forestStartY;
     
     // BGForest Animation
-    bgForest.animate(); // update forest image to next frame
-    bgForestImage = bgForest.getImage();
-    p.image(bgForestImage, 0, 0);
+    // bgForest.animate(); // update forest image to next frame
+    // bgForestImage = bgForest.getImage();
+    // p.image(bgForestImage, 0, 0);
 
     // MGForest Animation
-    mgForest.animate(); // update forest image to next frame
-    mgForestImage = mgForest.getImage();
-    p.image(mgForestImage, 0, 0);
+    // mgForest.animate(); // update forest image to next frame
+    // mgForestImage = mgForest.getImage();
+    // p.image(mgForestImage, 0, 0);
     
     // FGForest Animation
     fgForest.animate(); // update forest image to next frame

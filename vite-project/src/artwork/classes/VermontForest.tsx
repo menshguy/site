@@ -25,18 +25,25 @@ export type VermontForestSettings = {
   },
   forestLeafSettings: {
       rows: number
-      numPointsPerRow: number, 
-      numLeavesPerPoint: number, 
+      numPointsPerRow: number; 
+      numLeavesPerPoint: number; 
       minBoundaryRadius: number;
       maxBoundaryRadius: number;
-      rowHeight: number, // REMOVE this and calcuate dynamically in VermontTreePerformant class based on height of tree and boundary radius
-      leafWidth: number, 
-      leafHeight: number,
+      leafWidth: number; 
+      leafHeight: number;
+      rowHeight: number; // Height between rows of leaves
   },
   forestLightSettings?: {
     lightAngle: number, // Radians (i.e p.radians(200))
     lightFillPercentage: number, // portion of leaves that will highlight color, facing sun
   },
+  forestWindSettings?: {
+    windSpeed?: number;           // How fast the wind phase changes (oscillation speed)
+    windIntensitySpeed?: number;  // How fast the wind intensity changes
+    maxWindIntensity?: number;    // Maximum pixels trees can sway
+    windPhase?: number;           // Starting phase of wind oscillation
+    windIntensityPhase?: number;  // Starting phase of wind intensity oscillation
+  }
 }
 
 export class VermontForest {
@@ -86,16 +93,17 @@ export class VermontForest {
 
   #generateForestTrees() {
     const {p, settings} = this;
-    const {forestNumberOfColumns, forestStartX, forestStartY, forestWidth, forestShape, forestPalette, forestTreeSettings, forestLeafSettings, forestTrunkSettings, forestLightSettings} = settings;
+    const {forestNumberOfColumns, forestStartX, forestStartY, forestWidth, forestShape, forestPalette, forestTreeSettings, forestLeafSettings, forestTrunkSettings, forestLightSettings, forestWindSettings} = settings;
     const {trunkSpace, minHeight, maxHeight, minWidth, maxWidth} = forestTreeSettings;
     const {numTrunkLines, trunkHeight, trunkWidth: _trunkWidth} = forestTrunkSettings;
-    const {leafWidth, leafHeight, minBoundaryRadius, maxBoundaryRadius, numLeavesPerPoint, numPointsPerRow} = forestLeafSettings;
+    const {leafWidth, leafHeight, minBoundaryRadius, maxBoundaryRadius, numLeavesPerPoint, numPointsPerRow, rowHeight} = forestLeafSettings;
     const {lightAngle, lightFillPercentage} = forestLightSettings || {lightAngle: 0, lightFillPercentage: 0};
+    const {windSpeed, windIntensitySpeed, maxWindIntensity, windPhase, windIntensityPhase} = forestWindSettings || {};
 
     // Calculate column width based on forestWidth and number of columns
     const columnWidth = forestWidth / forestNumberOfColumns;
 
-    let trees = []
+    let forestTrees = []
     for (let i = 0; i < forestNumberOfColumns; i++) {
       
       const {incrementY, numTreesInColumn} = this.#getForestShape(forestShape, i)
@@ -106,8 +114,8 @@ export class VermontForest {
         const treeHeight = p.random(minHeight, maxHeight); // total height including leaves
         const trunkWidth = _trunkWidth;
         const treeWidth = p.random(minWidth, maxWidth); 
-        const rowHeight = treeHeight/5; //x points will drawn p.randominly in each row. rows increment up by this amount
-        
+        // Use rowHeight from settings for consistent row spacing
+        const calculatedRowHeight = rowHeight || treeHeight/3; 
         // Position trees within the forestWidth
         const startX = forestStartX + (i * columnWidth) + p.random(-15, 15); // Distribute trees evenly across forestWidth
         const startY = forestStartY - (incrementY * j)
@@ -140,7 +148,7 @@ export class VermontForest {
             leafSettings: {
               leafWidth, 
               leafHeight,
-              rowHeight,
+              rowHeight: calculatedRowHeight,
               leavesStartY: startY - trunkSpace,
               numLeavesPerPoint, 
               numPointsPerRow, 
@@ -149,23 +157,29 @@ export class VermontForest {
             lightSettings: {
               lightAngle,
               lightFillPercentage,
+            },
+            windSettings: {
+              windSpeed,
+              windIntensitySpeed,
+              maxWindIntensity,
+              windPhase,
+              windIntensityPhase,
             }
           }
         });
 
-        trees.push(tree);
+        forestTrees.push(tree);
       }
     }
 
-    return trees;
+    return forestTrees;
   }
 
   #getForestShape(shape: VermontForestShapes, columnIndex: number) {
     const {settings} = this;
     const {forestHeight, forestWidth, forestNumberOfColumns, forestTreeSettings} = settings;
-    const {minHeight: minTreeHeight} = forestTreeSettings;
-    const maxForestHeight = forestHeight;
-    
+
+    const minTreeHeight = forestTreeSettings.minHeight;
     const centerIndex = (forestNumberOfColumns - 1) / 2; // indenify center index for shapes that bulge like convave or convex
     const incrementY = minTreeHeight; // spaceing between trees. This will allow the trees to overlap
     
@@ -177,7 +191,7 @@ export class VermontForest {
       const maxDistFromCenter = centerIndex; // Max distance is from edge to center
 
       if (maxDistFromCenter <= 0) { // Handles 1 or 2 columns
-        columnHeight = maxForestHeight; 
+        columnHeight = forestHeight; 
       } else {
         const distanceFromCenter = Math.abs(columnIndex - centerIndex);
         // Normalize distance: 0 at center, 1 at edges
@@ -185,7 +199,7 @@ export class VermontForest {
         // Apply quadratic easing (ease-in)
         const easedT = t * t; 
         // Height scales with eased normalized distance from center
-        columnHeight = maxForestHeight * easedT; 
+        columnHeight = forestHeight * easedT; 
       }
       
       const maxY = columnStartY - columnHeight;
@@ -197,7 +211,7 @@ export class VermontForest {
       const maxDistFromCenter = centerIndex; // Max distance is from edge to center
 
       if (maxDistFromCenter <= 0) { // Handles 1 or 2 columns
-        columnHeight = maxForestHeight;
+        columnHeight = forestHeight;
       } else {
         const distanceFromCenter = Math.abs(columnIndex - centerIndex);
         // Normalize distance: 0 at center, 1 at edges
@@ -205,7 +219,7 @@ export class VermontForest {
         // Apply quadratic easing (ease-out equivalent for inverse logic)
         const easedT = t * t; 
         // Height scales inversely with eased normalized distance from center
-        columnHeight = maxForestHeight * (1 - easedT);
+        columnHeight = forestHeight * (1 - easedT);
       }
       
       const maxY = columnStartY - columnHeight;
@@ -213,7 +227,7 @@ export class VermontForest {
     }
     
     if (shape  === 'flat') {
-      const columnHeight = maxForestHeight;
+      const columnHeight = forestHeight;
       const maxY = columnStartY - columnHeight;
       numTreesInColumn = Math.max(1, (columnStartY - maxY) / incrementY) // Calc number of trees based on how many can fit into the alotted space
     }
@@ -221,10 +235,10 @@ export class VermontForest {
     if (shape === 'upHill') {
       let columnHeight: number;
       if (forestNumberOfColumns <= 1){
-        columnHeight = maxForestHeight; // Handle edge case of a single column
+        columnHeight = forestHeight; // Handle edge case of a single column
       } else {
         const t = columnIndex / (forestNumberOfColumns - 1); // Normalize columnIndex to a value between 0 and 1 
-        columnHeight = maxForestHeight * t; // Linearly scale the height from 0 up to maxForestHeight
+        columnHeight = forestHeight * t; // Linearly scale the height from 0 up to forestHeight
       }
 
       const maxY = columnStartY - columnHeight;
@@ -234,10 +248,10 @@ export class VermontForest {
     if (shape === 'downHill') {
       let columnHeight: number;
       if (forestNumberOfColumns <= 1) {
-        columnHeight = maxForestHeight; // Handle edge case of a single column
+        columnHeight = forestHeight; // Handle edge case of a single column
       } else {
         const t = columnIndex / (forestNumberOfColumns - 1); // Normalize columnIndex to a value between 0 and 1
-        columnHeight = maxForestHeight * (1 - t); // Linearly scale the height from maxForestHeight down to 0
+        columnHeight = forestHeight * (1 - t); // Linearly scale the height from forestHeight down to 0
       }
       const maxY = columnStartY - columnHeight;
       numTreesInColumn = Math.max(1, (columnStartY - maxY) / incrementY); // Ensure numTreesInColumn is at least 1

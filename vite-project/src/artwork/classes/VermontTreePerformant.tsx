@@ -79,6 +79,13 @@ export type VermontTreePerformantSettings = {
     lightAngle: number,
     lightFillPercentage: number,
   },
+  windSettings?: {
+    windSpeed?: number,           // How fast the wind phase changes (oscillation speed)
+    windIntensitySpeed?: number,  // How fast the wind intensity changes
+    maxWindIntensity?: number,    // Maximum pixels trees can sway
+    windPhase?: number,           // Starting phase of wind oscillation
+    windIntensityPhase?: number,  // Starting phase of wind intensity oscillation
+  }
 }
 
 export class VermontTreePerformant {
@@ -88,7 +95,7 @@ export class VermontTreePerformant {
 
   trunkLines: TrunkLine[];
   points: Point[];
-  leafBatchBuffer: p5.Graphics;
+  leafBushelBuffer: p5.Graphics;
   image: p5.Graphics;
 
   windSpeed: number;
@@ -104,16 +111,31 @@ export class VermontTreePerformant {
     this.trunkLines = this.#generateTrunkLines();
     this.points = this.#generatePoints();
 
-    this.leafBatchBuffer = this.#generateLeafBatchBuffer();
+    this.leafBushelBuffer = this.#drawLeafBushelBuffer();
 
     this.image = this.#generateInitialImage(this.p.width, this.p.height);
 
-    // Initialize Wind (randomized per tree for variation)
-    this.windSpeed = this.p.random(0.05, 0.15);
-    this.windIntensitySpeed = this.p.random(0.01, 0.03);
-    this.maxWindIntensity = this.p.random(2, 6); // Max pixels to sway
-    this.windPhase = this.p.random(this.p.TWO_PI); // Start at random phase
-    this.windIntensityPhase = this.p.random(this.p.TWO_PI); // Start at random intensity phase
+    // Initialize Wind settings from props or use defaults
+    const { windSettings } = settings;
+    // How fast the wind phase changes (oscillation speed)
+    this.windSpeed = windSettings?.windSpeed !== undefined ? 
+      windSettings.windSpeed : this.p.random(0.05, 0.15);
+    
+    // How fast the wind intensity changes
+    this.windIntensitySpeed = windSettings?.windIntensitySpeed !== undefined ? 
+      windSettings.windIntensitySpeed : this.p.random(0.01, 0.03);
+    
+    // Maximum pixels trees can sway
+    this.maxWindIntensity = windSettings?.maxWindIntensity !== undefined ? 
+      windSettings.maxWindIntensity : this.p.random(2, 6);
+    
+    // Starting phase of wind oscillation
+    this.windPhase = windSettings?.windPhase !== undefined ? 
+      windSettings.windPhase : this.p.random(this.p.TWO_PI);
+    
+    // Starting phase of wind intensity oscillation
+    this.windIntensityPhase = windSettings?.windIntensityPhase !== undefined ? 
+      windSettings.windIntensityPhase : this.p.random(this.p.TWO_PI);
   }
 
   getImage() {
@@ -135,21 +157,21 @@ export class VermontTreePerformant {
   }
 
   /**
- * Generates an image (p5.graphics) of the full tree.
- * @returns p5.Graphics
- */
+   * Generates an image (p5.graphics) of the full tree.
+   * @returns p5.Graphics
+   */
   #generateInitialImage(width: number, height: number) {
     const buffer = this.p.createGraphics(width, height);
-    this.#drawTreeToBuffer(buffer, false); // Draw initially without wind
+    this.#drawTreeToTreeBuffer(buffer, false); // Draw initially without wind
     return buffer;
   }
   
   #generateNextImage(buffer: p5.Graphics, isAnimated: boolean = false) {
     buffer.clear();
-    this.#drawTreeToBuffer(buffer, isAnimated); // Redraw with current state
+    this.#drawTreeToTreeBuffer(buffer, isAnimated); // Redraw with current state
   }
   
-  #drawTreeToBuffer(buffer: p5.Graphics, isAnimated: boolean = false) {
+  #drawTreeToTreeBuffer(buffer: p5.Graphics, isAnimated: boolean = false) {
     const {p, points, settings: {trunkSettings}} = this;
     const {includeTrunk = true} = trunkSettings;
     
@@ -198,7 +220,7 @@ export class VermontTreePerformant {
       buffer.translate(x - padding + windSwayX, y - padding); // Apply wind sway to the translation
       const leafX = 0 
       const leafY = 0
-      buffer.image(this.leafBatchBuffer, leafX, leafY);
+      buffer.image(this.leafBushelBuffer, leafX, leafY);
       buffer.pop();
     })
 
@@ -243,9 +265,7 @@ export class VermontTreePerformant {
     // Calculate the tree's visual boundaries
     const treeLeft = startPoint.x - (treeWidth / 2);
     const treeRight = startPoint.x + (treeWidth / 2);
-    const treeTop = end_y;
-    const treeBottom = start_y;
-
+    
     let lowerHalfHeight = start_y - bulgePoint.y;
     let upperHalfHeight = bulgePoint.y - end_y;
     let numLowerRows = lowerHalfHeight / rowHeight;
@@ -356,19 +376,12 @@ export class VermontTreePerformant {
     return leafCoords;
   }
 
-  #generateLeafBatchBuffer() {
-    const {p, settings: {lightSettings, leafSettings, palette}} = this;
-    const {leafWidth, leafHeight, numLeavesPerPoint, pointBoundaryRadius} = leafSettings; // Get radius settings
-    const {lightAngle, lightFillPercentage = 0.3} = lightSettings || {}; // Default light settings if needed
-    
-    // *** CHANGE: Determine buffer size and center based on max radius ***
-    const maxRadius = pointBoundaryRadius.max;
-    const bufferSize = maxRadius * 2; // Buffer needs to be diameter x diameter
-    const bufferCenter = maxRadius; // Center coordinate within the buffer
-    
-    const bushelBuffer: p5.Graphics = p.createGraphics(bufferSize, bufferSize);
-    let leaves: Leaf[] = []; // Assuming Leaf type is defined
+  #generateLeavesPerPoint (numLeavesPerPoint: number, leafWidth: number, leafHeight: number, maxRadius: number, bufferCenter: number = 0) {
+    const {p} = this;
+    const {lightAngle, lightFillPercentage = 0.3} = this.settings.lightSettings || {};
+    const {palette} = this.settings;
 
+    let leaves: Leaf[] = [];
     for (let i = 0; i < numLeavesPerPoint; i++) {
       let angle = p.random(p.TWO_PI);
       let r = p.random(0, maxRadius); // Use maxRadius for scattering range
@@ -404,44 +417,88 @@ export class VermontTreePerformant {
 
       leaves.push(leaf);
     }
+    return leaves;
+  }
+
+  #drawLeafBushelBuffer() {
+    const {p, settings: {leafSettings}} = this;
+    const {leafWidth, leafHeight, numLeavesPerPoint, pointBoundaryRadius} = leafSettings; // Get radius settings
+    
+    // *** CHANGE: Determine buffer size and center based on max radius ***
+    const maxRadius = pointBoundaryRadius.max;
+    const bufferSize = maxRadius * 2; // Buffer needs to be diameter x diameter
+    const bufferCenter = maxRadius; // Center coordinate within the buffer
+    
+    const bushelBuffer: p5.Graphics = p.createGraphics(bufferSize, bufferSize);
+    let leaves: Leaf[] = this.#generateLeavesPerPoint(numLeavesPerPoint, leafWidth, leafHeight, maxRadius, bufferCenter);
 
     // Draw Each Leaf to Buffer
     bushelBuffer.push(); // Isolate buffer drawing state
     bushelBuffer.colorMode(p.HSL);
-    bushelBuffer.noStroke(); // Default to no stroke
-    
-    leaves.forEach(leaf => {
-       bushelBuffer.fill(leaf.fill);
-       
-       if (leaf.hasOutline) {
-         // For leaves with outline, we need to draw the leaf in two parts:
-         // 1. The full leaf with no stroke
-         bushelBuffer.noStroke();
-         bushelBuffer.ellipse(leaf.x, leaf.y, leaf.w, leaf.h);
-         
-         // 2. The outer half with stroke
-         bushelBuffer.push();
-         // Translate to leaf center
-         bushelBuffer.translate(leaf.x, leaf.y);
-         // Rotate to the angle pointing away from center
-         const angleToCenter = Math.atan2(leaf.y - bufferCenter, leaf.x - bufferCenter);
-         bushelBuffer.rotate(angleToCenter);
-         
-         // 3. Draw only the outer half with stroke
-         bushelBuffer.stroke(p.hue(leaf.fill), p.saturation(leaf.fill), p.lightness(leaf.fill) * 0.5); // Darken Fill Color for Stroke
-         bushelBuffer.strokeWeight(0.5);
-         bushelBuffer.noFill();
-         bushelBuffer.arc(0, 0, leaf.w, leaf.h, -Math.PI/2, Math.PI/2); // Draw an arc for the outer half of the ellipse
-         bushelBuffer.pop();
-       } else {
-         // For leaves without outline, just draw the full ellipse
-         bushelBuffer.noStroke();
-         bushelBuffer.ellipse(leaf.x, leaf.y, leaf.w, leaf.h);
-       }
-    });
-    bushelBuffer.pop(); // Restore buffer state
 
+    this.#drawLeavesToBuffer(bushelBuffer, leaves, bufferCenter);
+    const rotatedBushelBuffer = this.#rotateBushelBufferToNewBuffer(bushelBuffer);
+
+    return rotatedBushelBuffer;
+  }
+
+  #drawLeavesToBuffer(bushelBuffer: p5.Graphics, leaves: Leaf[], bufferCenter: number) {
+    const {p} = this;
+    console.log("leaves", leaves)
+    leaves.forEach(leaf => {
+      bushelBuffer.noStroke(); // Default to no stroke
+      bushelBuffer.fill(leaf.fill);
+      
+      if (leaf.hasOutline) {
+        // For leaves with outline, we need to draw the leaf in two parts:
+        // 1. The full leaf with no stroke
+        bushelBuffer.noStroke();
+        bushelBuffer.ellipse(leaf.x, leaf.y, leaf.w, leaf.h);
+        
+        // 2. The outer half with stroke
+        bushelBuffer.push();
+        // Translate to leaf center
+        bushelBuffer.translate(leaf.x, leaf.y);
+        // Rotate to the angle pointing away from center
+        const angleToCenter = Math.atan2(leaf.y - bufferCenter, leaf.x - bufferCenter);
+        bushelBuffer.rotate(angleToCenter);
+        
+        // 3. Draw only the outer half with stroke
+        bushelBuffer.stroke(p.hue(leaf.fill), p.saturation(leaf.fill), p.lightness(leaf.fill) * 0.5); // Darken Fill Color for Stroke
+        bushelBuffer.strokeWeight(0.5);
+        bushelBuffer.noFill();
+        bushelBuffer.arc(0, 0, leaf.w, leaf.h, -Math.PI/2, Math.PI/2); // Draw an arc for the outer half of the ellipse
+        bushelBuffer.pop();
+      } else {
+        // For leaves without outline, just draw the full ellipse
+        bushelBuffer.noStroke();
+        bushelBuffer.ellipse(leaf.x, leaf.y, leaf.w, leaf.h);
+      }
+    });
+    
+    bushelBuffer.pop(); // Restore buffer state
     return bushelBuffer;
+  }
+
+  #rotateBushelBufferToNewBuffer(bushelBuffer: p5.Graphics, bufferCenter: number = 0) {
+    const {p} = this;
+    // Create a new buffer for the rotated version with the same size
+    const rotatedBuffer = p.createGraphics(bushelBuffer.width, bushelBuffer.height);
+        
+    // Calculate a random rotation angle - using pastel-friendly subtle rotation
+    const rotationAngle = p.random(-p.PI/6, p.PI/6);
+    
+    // Draw the original buffer onto the new one with rotation
+    rotatedBuffer.push();
+    // First translate to center of the buffer
+    rotatedBuffer.translate(bufferCenter, bufferCenter);
+    // Apply the rotation
+    rotatedBuffer.rotate(rotationAngle);
+    // Draw the original buffer with an offset to center it
+    rotatedBuffer.image(bushelBuffer, -bufferCenter, -bufferCenter);
+    rotatedBuffer.pop();
+
+    return rotatedBuffer;
   }
   
   #isSunLeaf (p: p5, leafAngle: number, sunlightAngle: number) {
@@ -450,27 +507,10 @@ export class VermontTreePerformant {
     return leafAngle > min && leafAngle < max;
   }
 
-  // #getPointBoundary(p: p5, max_r: {min: number, max: number}, px: number, py: number, mx: number, my: number) {
-  //   let min = max_r.min;
-  //   let max = max_r.max;
-  //   let radius = p.random(min, max); 
-    
-  //   // Calculate the differences in x and y and calc angle us atan2
-  //   let dx = mx - px;
-  //   let dy = my - py;
-  //   let angle = p.atan2(dy, dx);
-    
-  //   // This won't do anything, but if you want to create a gap that faces startP you can take the values in the comments
-  //   let start = 0 // angle + QUARTER_PI
-  //   let stop = p.TWO_PI // angle - QUARTER_PI
-    
-  //   return {start, stop, angle, radius};
-  // }
-
   clear() {
     this.points = []
     this.trunkLines = []
-    this.leafBatchBuffer.clear();
+    this.leafBushelBuffer.clear();
     this.image.clear();
   }
 
