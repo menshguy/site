@@ -42,20 +42,45 @@ export type VermontForestSettings = {
 export class VermontForest {
   private p: p5;
   settings: VermontForestSettings;
-
+  trees: VermontTreePerformant[];
+  image: p5.Graphics;
+  
   constructor({p5Instance, settings}: {p5Instance: p5; settings: VermontForestSettings}) {
     this.p = p5Instance;
     this.settings = settings;
+    this.trees = this.#generateForestTrees();
+    this.image = this.#generateInitialImage(this.p.width, this.p.height);
   }
 
-  getImage(width: number, height: number){
-    const trees = this.#generateForestTrees();
-    const buffer = this.p.createGraphics(width, height);
-    
-    buffer.push();
-    trees.forEach(tree => tree.draw(buffer))
-    buffer.pop();
+  getImage(){
+    return this.image;
+  }
 
+  getTrees() {
+    return this.trees;
+  }
+
+  animate() {
+    this.#generateNextImage(this.image, true);
+  }
+
+  #generateInitialImage(width: number, height: number) {
+    const buffer = this.p.createGraphics(width, height);
+    this.#drawForestToBuffer(buffer, false);
+    return buffer;
+  }
+  
+  #generateNextImage(buffer: p5.Graphics, isAnimated: boolean) {
+    buffer.clear();
+    this.#drawForestToBuffer(buffer, isAnimated);
+  }
+
+  #drawForestToBuffer(buffer: p5.Graphics, isAnimated: boolean){
+    this.trees.forEach((tree: VermontTreePerformant) => {
+      if (isAnimated) tree.animate(); // This will update the tree.image to the next frame
+      const treeImage = tree.getImage();
+      buffer.image(treeImage, 0, 0);
+    })
     return buffer;
   }
 
@@ -139,7 +164,7 @@ export class VermontForest {
     const maxForestHeight = forestHeight;
     
     const centerIndex = (forestNumberOfColumns - 1) / 2; // indenify center index for shapes that bulge like convave or convex
-    const incrementY = minTreeHeight/2; // spaceing between trees. This will allow the trees to overlap
+    const incrementY = minTreeHeight; // spaceing between trees. This will allow the trees to overlap
     
     let columnStartY = 0;
     let numTreesInColumn = 0;

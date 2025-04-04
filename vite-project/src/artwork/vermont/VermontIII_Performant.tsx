@@ -7,17 +7,23 @@ import {drawMoon, drawStars, Moon, Stars} from '../../helpers/skyHelpers.tsx';
 import p5 from 'p5';
 import { rect_gradient } from '../../helpers/shapes.ts';
 
+type GroundSettings = {
+  startX: number;
+  startY: number;
+  endX: number;
+  fill: p5.Color;
+}
+
 const mySketch = (p: p5) => {
 
   let cw: number = 1200; 
   let ch: number = 800;
   let bottom = 300;
-  let sunAngle: number;
   let season: Season;
   let fgForest: VermontForest;
+  let fgForestImage: p5.Graphics | p5.Image;
   let timeOfDay: TimeOfDay;
-  let moonConfig: Moon;
-  let starsConfig: Stars;
+  let groundLineBuffer: p5.Graphics;
   
   p.setup = () => {
     p.colorMode(p.HSL);
@@ -84,7 +90,7 @@ const mySketch = (p: p5) => {
     const forestHeight = 250;
     const forestStartX = 100;
     const forestStartY = ch - bottom;
-    const forestNumberOfColumns = 25;
+    const forestNumberOfColumns = 15;
     const forestShape: VermontForestShapes = 'upHill';
     const forestTreeSettings = {
       trunkSpace: 20, // Space to expose bottom of trunks, between bottom of tree and where leaves start
@@ -99,11 +105,11 @@ const mySketch = (p: p5) => {
       trunkWidth: 40, 
     }
     const forestLeafSettings = {
-      rows: 10,
-      numPointsPerRow: 10, 
+      rows: 3,
+      numPointsPerRow: 3, 
       numLeavesPerPoint: 1000, 
-      minBoundaryRadius: 30,
-      maxBoundaryRadius: 50,
+      minBoundaryRadius: 2,
+      maxBoundaryRadius: 30,
       leafWidth: 2, 
       leafHeight: 2,
       rowHeight: 10, // REMOVE this and calcuate within
@@ -111,7 +117,7 @@ const mySketch = (p: p5) => {
     const forestPalette: TreeColorPalette[] = PALETTES[timeOfDay][season];
     const forestLightSettings = LIGHTSETTINGS[timeOfDay];
 
-
+    // Create Forest
     fgForest = new VermontForest({
       p5Instance: p,
       settings: {
@@ -128,38 +134,22 @@ const mySketch = (p: p5) => {
         forestLightSettings,
       }
     });
-    
-    /** Moon */
-    let moonX = p.map(sunAngle, p.radians(180), p.radians(360), 0, cw);
-    let moonY = p.random(0, p.height-bottom);
-    let moonR = p.map(moonY, 0, p.height-bottom, 50, 350);
-    let moonHue = p.map(moonY, 0, p.height-bottom-moonR, 52, 33)
-    let moonFill = p.color(moonHue, 78, 92);
-    moonConfig = {x: moonX, y: moonY, r: moonR, fill: moonFill}
 
-    /** Stars */
-    let numStars = 650;
-    let starFill = p.color(255, 100, 100);
-    let minR = 0.25;
-    let maxR = 2;
-    let minX = 0;
-    let maxX = cw;
-    let minY = 0;
-    let maxY = p.height;
-    starsConfig = {numStars, fill: starFill, minR, maxR, minX, maxX, minY, maxY}
+    // Ground Settings
+    const groundSettings = {
+      startX: 25, 
+      startY: ch-bottom, 
+      endX: cw-25, 
+      fill: timeOfDay === "night" ? p.color(12, 20, 10) : p.color(12, 20, 20)
+    }
+    groundLineBuffer = p.createGraphics(p.width, p.height)
+    drawGroundLineToBuffer(groundLineBuffer, groundSettings.startX, groundSettings.startY, groundSettings.endX, groundSettings.fill)
+    
   }
   
   p.draw = () => {
-    p.noLoop();
+    // p.noLoop();
     p.clear();
-    
-    // Buffer for moon image to be drawn to.
-    let moonBuffer = p.createGraphics(p.width, p.height)
-    moonBuffer.colorMode(moonBuffer.HSL)
-    
-    // Buffer for stars image to be drawn to.
-    let starsBuffer = p.createGraphics(p.width, p.height)
-    starsBuffer.colorMode(starsBuffer.HSL)
 
     // Sky to canvas
     let skyColor = timeOfDay === "night" ? p.color(223,43,18) : p.color(211, 88.8, 68.6)
@@ -167,12 +157,6 @@ const mySketch = (p: p5) => {
     p.fill(skyColor);
     p.rect(0, 0, p.width, p.height)
 
-    // Add Moon and Stars to buffer
-    if (timeOfDay === "night") {
-      drawMoon(moonBuffer, moonConfig); // Draw Moon
-      drawStars(starsBuffer, starsConfig); // Draw Stars
-    }
-    
     // Buffer for midground image to be drawn to.
     let mg = p.createGraphics(p.width, p.height)
     let shadowColor = timeOfDay === "night" ? p.color(30, 30, 5) : p.color(211, 30, 22)
@@ -191,17 +175,13 @@ const mySketch = (p: p5) => {
     p.fill(skyColor)
     p.rect(0, p.height-bottom, p.width, p.height)
     
+    // Animate the Forest
     // const fgWidth = p.width - fgForest.settings.forestStartX;
     // const fgHeight = p.height - fgForest.settings.forestStartY;
-    const fgForestBuffer = fgForest.getImage(p.width, p.height);
-    p.image(fgForestBuffer, 0, 0);
     
-
-    // Draw tree buffers
-    // if (timeOfDay === "night") {
-    //   p.image(moonBuffer, 0, 0)
-    //   p.image(starsBuffer, 0, 0)
-    // }
+    fgForest.animate(); // update forest image to next frame
+    fgForestImage = fgForest.getImage();
+    p.image(fgForestImage, 0, 0);
     
     // Draw tree buffer image shadow
     // p.push()
@@ -213,27 +193,21 @@ const mySketch = (p: p5) => {
     // p.pop()
 
     // Ground Line
-    drawGroundLine(p, 25, ch-bottom, cw-25, timeOfDay === "night" ? mg.color(12, 20, 10) : mg.color(12, 20, 20))
+    p.image(groundLineBuffer, 0, 0)
     
     // Create Reflection Buffer and draw all relevant images to it (trees, moon, etc)
-    const reflectionBuffer = p.createGraphics(p.width, p.height) // Reflection Buffer
-    // if (timeOfDay === "night") {
-    //   addReflectionImageToReflection(reflectionBuffer, moonBuffer)
-    //   addReflectionImageToReflection(reflectionBuffer, starsBuffer)
-    // }
-    addReflectionImageToReflection(reflectionBuffer, fgForestBuffer) // Add all of the reflection images to a single buffer image
-    // // addReflectionImageToReflection(reflectionBuffer, mg) // Add all of the reflection images to a single buffer image
-    // addReflectionImageToReflection(reflectionBuffer, fg) // Add all of the reflection images to a single buffer image
-    addCircleImageToReflection(reflectionBuffer, timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2))
+    // const reflectionBuffer = p.createGraphics(p.width, p.height) // Reflection Buffer
+    // addReflectionImageToReflection(reflectionBuffer, fgForestImage as p5.Graphics) // Add all of the reflection images to a single buffer image
+    // addCircleImageToReflection(reflectionBuffer, timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2))
 
     // Draw Reflection Image to Canvas
-    const rx = 0
-    const ry = -p.height - (p.height - bottom) + bottom
-    p.push();
-    p.scale(1, -1); // Flip the y-axis to draw upside down
-    p.translate(rx, ry); // Adjust translation for the buffer
-    p.image(reflectionBuffer, 0, 0)
-    p.pop();
+    // const rx = 0
+    // const ry = -p.height - (p.height - bottom) + bottom
+    // p.push();
+    // p.scale(1, -1); // Flip the y-axis to draw upside down
+    // p.translate(rx, ry); // Adjust translation for the buffer
+    // p.image(reflectionBuffer, 0, 0)
+    // p.pop();
 
   }
 
@@ -303,8 +277,8 @@ const mySketch = (p: p5) => {
   //   buffer.pop();
   // }
 
-  function drawGroundLine(
-    p: p5,
+  function drawGroundLineToBuffer(
+    buffer: p5.Graphics,
     xStart: number,
     yStart: number,
     xEnd: number,
@@ -312,9 +286,9 @@ const mySketch = (p: p5) => {
   ) {
     let x = xStart;
     const y = yStart;
-    p.stroke(fill_c);
-    p.strokeWeight(1);
-    fill_c ? p.fill(fill_c) : p.noFill();
+    buffer.stroke(fill_c);
+    buffer.strokeWeight(1);
+    fill_c ? buffer.fill(fill_c) : buffer.noFill();
   
     while (x < xEnd) {
       const tickBump = p.random(-4, 0);
@@ -343,14 +317,14 @@ const mySketch = (p: p5) => {
     }
   
     function drawTick(x: number, y: number, length: number, bump: number) {
-      p.beginShape();
-      p.vertex(x, y, 0);
+      buffer.beginShape();
+      buffer.vertex(x, y, 0);
       const cx1 = x + length / 2;
       const cy1 = y + bump;
       const cx2 = x + length;
       const cy2 = y;
-      p.bezierVertex(x, y, cx1, cy1, cx2, cy2);
-      p.endShape();
+      buffer.bezierVertex(x, y, cx1, cy1, cx2, cy2);
+      buffer.endShape();
     }
   }
   
