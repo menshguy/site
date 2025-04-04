@@ -12,8 +12,8 @@ import SeriesPage from '../../components/SeriesPage';
 const route = "artwork/vermont";
 
 const sketches = [
-  {sketch: vermontIIISketch, subroute: 'vermontIII', label: 'Vermont I'},
   {sketch: vermontIII_PERFORMANT_Sketch, subroute: 'vermontIII_Performant', label: 'Vermont Performant'},
+  {sketch: vermontIIISketch, subroute: 'vermontIII', label: 'Vermont I'},
   {sketch: vermontIISketch, subroute: 'vermontII', label: 'VermontII'},
   {sketch: vermontIIIISketch, subroute: 'soloTree', label: 'Reflection'},
   // {sketch: vermontSeasonsSketch, subroute: 'rainyDay', label: 'Rainy Day'},

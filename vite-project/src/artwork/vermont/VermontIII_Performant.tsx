@@ -16,12 +16,17 @@ type GroundSettings = {
 
 const mySketch = (p: p5) => {
 
-  let cw: number = 1000; 
+  let cw: number = 1200; 
   let ch: number = 600;
+  // let groundSettings: GroundSettings;
   let bottom = 200;
   let season: Season;
   let fgForest: VermontForest;
+  let mgForest: VermontForest;
+  let bgForest: VermontForest;
   let fgForestImage: p5.Graphics | p5.Image;
+  let mgForestImage: p5.Graphics | p5.Image;
+  let bgForestImage: p5.Graphics | p5.Image;
   let timeOfDay: TimeOfDay;
   let groundLineBuffer: p5.Graphics;
   let reflectionBuffer: p5.Graphics;
@@ -88,55 +93,123 @@ const mySketch = (p: p5) => {
     /** 
      * FOREGROUND FOREST 
      */
-    // Forest Settings
-    const forestWidth = p.width;
-    const forestHeight = 300;
-    const forestStartX = -100;
-    const forestStartY = ch - bottom;
-    const forestNumberOfColumns = 20;
-    const forestShape: VermontForestShapes = p.random(['upHill', 'downHill', 'concave', 'convex', 'flat']);
-    const forestTreeSettings = {
-      trunkSpace: 20, // Space to expose bottom of trunks, between bottom of tree and where leaves start
-      minHeight: 30, 
-      maxHeight: 100, 
-      minWidth: 50, 
-      maxWidth: 80, 
-    }
-    const forestTrunkSettings = {
-      numTrunkLines: 5, 
-      trunkHeight: 70,
-      trunkWidth: 60, 
-    }
-    const forestLeafSettings = {
-      rows: 25,
-      numPointsPerRow: 30, 
-      numLeavesPerPoint: 300, 
-      minBoundaryRadius: 15,
-      maxBoundaryRadius: 20,
-      leafWidth: 1.5, 
-      leafHeight: 1.5,
-      rowHeight: 10, // REMOVE this and calcuate within
-    }
-    const forestPalette: TreeColorPalette[] = PALETTES[timeOfDay][season];
-    const forestLightSettings = LIGHTSETTINGS[timeOfDay];
-
-    // Create Forest
     fgForest = new VermontForest({
       p5Instance: p,
       settings: {
-        forestStartX,
-        forestStartY,
-        forestNumberOfColumns,
-        forestHeight,
-        forestWidth,
-        forestShape,
-        forestTreeSettings,
-        forestTrunkSettings,
-        forestLeafSettings,
-        forestPalette,
-        forestLightSettings,
+        forestStartX: -100,
+        forestStartY: ch - bottom,
+        forestNumberOfColumns: 10,
+        forestWidth: p.width/2 + 100,
+        forestHeight: 300,
+        forestShape: p.random(['upHill', 'downHill', 'concave', 'convex', /*'flat' */]),
+        forestTreeSettings: {
+          trunkSpace: 20, // Space to expose bottom of trunks, between bottom of tree and where leaves start
+          minHeight: 30, 
+          maxHeight: 100, 
+          minWidth: 20, 
+          maxWidth: 50, 
+        },
+        forestTrunkSettings: {
+          numTrunkLines: 5, 
+          trunkHeight: 70,
+          trunkWidth: 60, 
+        },
+        forestLeafSettings: {
+          rows: 15,
+          numPointsPerRow: 10, 
+          numLeavesPerPoint: 300, 
+          minBoundaryRadius: 25,
+          maxBoundaryRadius: 50,
+          leafWidth: 5, 
+          leafHeight: 6.5,
+          rowHeight: 10, // REMOVE this and calcuate within
+        },
+        forestPalette: PALETTES[timeOfDay][season],
+        forestLightSettings: LIGHTSETTINGS[timeOfDay],
       }
     });
+
+    mgForest = new VermontForest({
+      p5Instance: p,
+      settings: {
+        forestStartX: -100,
+        forestStartY: ch - bottom,
+        forestNumberOfColumns: 10,
+        forestWidth: p.width,
+        forestHeight: 300,
+        forestShape: p.random(['upHill', 'downHill', 'concave', 'convex', /*'flat' */]),
+        forestTreeSettings: {
+          trunkSpace: 20, // Space to expose bottom of trunks, between bottom of tree and where leaves start
+          minHeight: 30, 
+          maxHeight: 100, 
+          minWidth: 50, 
+          maxWidth: 80, 
+        },
+        forestTrunkSettings: {
+          numTrunkLines: 5, 
+          trunkHeight: 70,
+          trunkWidth: 60, 
+        },
+        forestLeafSettings: {
+          rows: 25,
+          numPointsPerRow: 30, 
+          numLeavesPerPoint: 300, 
+          minBoundaryRadius: 15,
+          maxBoundaryRadius: 20,
+          leafWidth: 5, 
+          leafHeight: 6.5,
+          rowHeight: 10, // REMOVE this and calcuate within
+        },
+        forestPalette: darkenPalette(PALETTES[timeOfDay][season]),
+        forestLightSettings: LIGHTSETTINGS[timeOfDay],
+      }
+    });
+    
+    bgForest = new VermontForest({
+      p5Instance: p,
+      settings: {
+        forestStartX: -100,
+        forestStartY: ch - bottom,
+        forestNumberOfColumns: 10,
+        forestWidth: p.width,
+        forestHeight: 300,
+        forestShape: p.random([/*'convex'*/, 'flat']),
+        forestTreeSettings: {
+          trunkSpace: 20, // Space to expose bottom of trunks, between bottom of tree and where leaves start
+          minHeight: 30, 
+          maxHeight: 100, 
+          minWidth: 50, 
+          maxWidth: 80, 
+        },
+        forestTrunkSettings: {
+          numTrunkLines: 5, 
+          trunkHeight: 70,
+          trunkWidth: 60, 
+        },
+        forestLeafSettings: {
+          rows: 25,
+          numPointsPerRow: 30, 
+          numLeavesPerPoint: 300, 
+          minBoundaryRadius: 15,
+          maxBoundaryRadius: 20,
+          leafWidth: 5, 
+          leafHeight: 6.5,
+          rowHeight: 10, // REMOVE this and calcuate within
+        },
+        forestPalette: darkenPalette(PALETTES[timeOfDay][season], 0.48, 0.48, 0.48),
+        forestLightSettings: LIGHTSETTINGS[timeOfDay],
+      }
+    });
+
+    function darkenPalette(palette: TreeColorPalette[], baseDarken: number = 0.18, highlightDarken: number = 0.18, shadowDarken: number = 0.18) {
+      return palette.map(color => {
+        const { base, highlight, shadow } = color;
+        const darkBase = p.color(p.hue(base), p.saturation(base), p.brightness(base) * baseDarken);
+        const darkHighlight = p.color(p.hue(highlight), p.saturation(highlight), p.brightness(highlight) * highlightDarken);
+        const darkShadow = p.color(p.hue(shadow), p.saturation(shadow), p.brightness(shadow) * shadowDarken);
+        return { base: darkBase, highlight: darkHighlight, shadow: darkShadow };
+      });
+    }
 
     // Ground Settings
     const groundSettings = {
@@ -193,9 +266,21 @@ const mySketch = (p: p5) => {
     // const fgWidth = p.width - fgForest.settings.forestStartX;
     // const fgHeight = p.height - fgForest.settings.forestStartY;
     
+    // BGForest Animation
+    bgForest.animate(); // update forest image to next frame
+    bgForestImage = bgForest.getImage();
+    p.image(bgForestImage, 0, 0);
+
+    // MGForest Animation
+    mgForest.animate(); // update forest image to next frame
+    mgForestImage = mgForest.getImage();
+    p.image(mgForestImage, 0, 0);
+    
+    // FGForest Animation
     fgForest.animate(); // update forest image to next frame
     fgForestImage = fgForest.getImage();
     p.image(fgForestImage, 0, 0);
+    
     
     // Draw tree buffer image shadow
     // p.push()
@@ -253,7 +338,7 @@ const mySketch = (p: p5) => {
         let y = buffer.random(0, buffer.height - bottom - 5)
         let x = buffer.random(buffer.width/2 - 100, buffer.width/2 + 100)
         let w = buffer.random(1600, 2000); 
-        let h = buffer.map(y, 0, buffer.height - bottom, 200, 5);
+        let h = buffer.map(y, 0, buffer.height - bottom, 100, 5);
     
         // Draw ellipse with soft edges
         buffer.colorMode(buffer.HSL);

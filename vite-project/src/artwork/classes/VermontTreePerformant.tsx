@@ -10,10 +10,12 @@ export type Leaf = {
   w: number, 
   h: number, 
   angle: number, 
-  fill_c: p5.Color,
+  fill: p5.Color,
   isSunLeaf?: boolean, 
   movementFactor?: number,
-  movementDirection?: number
+  movementDirection?: number,
+  isEdgeLeaf?: boolean,
+  hasOutline?: boolean
 }
 
 export type Point = {
@@ -233,13 +235,23 @@ export class VermontTreePerformant {
       leafSettings: {rowHeight, leavesStartY, numPointsPerRow, pointBoundaryRadius},
     } = settings;
     let points = [];
+    
+    // Ensure we don't exceed the tree height boundary
     let start_y = leavesStartY;
     let end_y = startPoint.y - treeHeight;
+    
+    // Calculate the tree's visual boundaries
+    const treeLeft = startPoint.x - (treeWidth / 2);
+    const treeRight = startPoint.x + (treeWidth / 2);
+    const treeTop = end_y;
+    const treeBottom = start_y;
 
     let lowerHalfHeight = start_y - bulgePoint.y;
     let upperHalfHeight = bulgePoint.y - end_y;
     let numLowerRows = lowerHalfHeight / rowHeight;
     let numUpperRows = upperHalfHeight / rowHeight;
+    
+    // Ensure we respect the tree width at each row
     let lowerRowIncrement = treeWidth / numLowerRows;
     let upperRowIncrement = treeWidth / numUpperRows;
     let rowWidth = lowerRowIncrement;
@@ -252,46 +264,62 @@ export class VermontTreePerformant {
         // Calculate the increment for start_y using a quadratic function
         let lowerRowHeightIncrement = (lowerHalfHeight * (i + 1)) / (lowerRows * (lowerRows + 1) / 2);
 
+        // Ensure row width doesn't exceed tree width
+        const currentRowWidth = Math.min(rowWidth, treeWidth);
+        
+        // Calculate row boundaries, ensuring they stay within tree width
+        const rowLeft = Math.max(treeLeft, startPoint.x - (currentRowWidth / 2));
+        const rowRight = Math.min(treeRight, startPoint.x + (currentRowWidth / 2));
+        const rowTop = start_y - lowerRowHeightIncrement;
+        const rowBottom = start_y;
+
         let leafPoints = this.#genLeafCoordinates(
             startPoint,
             treeWidth,
             numPointsPerRow,
             pointBoundaryRadius,
-            startPoint.x - (rowWidth / 2),
-            startPoint.x + (rowWidth / 2),
-            start_y,
-            start_y - rowHeight,
+            rowLeft,
+            rowRight,
+            rowBottom,
+            rowTop
         );
         points.push(...leafPoints);
-        start_y -= lowerRowHeightIncrement; // Increase start_y by the calculated increment
+        start_y = rowTop; // Update start_y for next row
         rowWidth += lowerRowIncrement;
     }
     
     // Upper Half -- reduce row width until you reach the top
-    rowWidth = treeWidth
+    rowWidth = treeWidth;
     for (let i = 0; i < upperRows - 1; i++) {
       // Calculate the increment for start_y using a quadratic function
       let upperRowHeightIncrement = (upperHalfHeight * (upperRows - i)) / (upperRows * (upperRows + 1) / 2);
+
+      // Ensure row width doesn't exceed tree width and stays positive
+      const currentRowWidth = Math.min(Math.max(0, rowWidth), treeWidth);
+      
+      // Calculate row boundaries, ensuring they stay within tree width
+      const rowLeft = Math.max(treeLeft, startPoint.x - (currentRowWidth / 2));
+      const rowRight = Math.min(treeRight, startPoint.x + (currentRowWidth / 2));
+      const rowTop = start_y - upperRowHeightIncrement;
+      const rowBottom = start_y;
 
       let leafPoints = this.#genLeafCoordinates(
         startPoint,
         treeWidth,
         numPointsPerRow,
         pointBoundaryRadius,
-        startPoint.x - (rowWidth/2),
-        startPoint.x + (rowWidth/2),
-        start_y, 
-        start_y - rowHeight, 
-      )
+        rowLeft,
+        rowRight,
+        rowBottom,
+        rowTop
+      );
 
-      points.push(...leafPoints)
-      start_y -= upperRowHeightIncrement;
+      points.push(...leafPoints);
+      start_y = rowTop; // Update start_y for next row
       rowWidth -= upperRowIncrement;
     }
 
     return points;
-
-    
   }
 
   // Generate a point within the pointBoundary radius for each numPointsPerRow
@@ -306,15 +334,21 @@ export class VermontTreePerformant {
     max_y: number, 
   ) {
     let leafCoords: Point[] = []; // Type the array
-    // Clamp min_x and max_x to ensure they are within the treeWidth boundary
+    
+    // Ensure coordinates stay within the tree's boundaries
     min_x = Math.max(min_x, startPoint.x - (treeWidth / 2));
     max_x = Math.min(max_x, startPoint.x + (treeWidth / 2));
     
     for(let j=0; j < numPointsPerRow; j++){
+      // Generate random coordinates within the specified boundaries
       let x = this.p.random(min_x, max_x);
       let y = this.p.random(min_y, max_y);
+      
+      // Ensure the point with its radius doesn't extend beyond the tree boundaries
+      x = Math.max(min_x + pointBoundaryRadius.max, Math.min(x, max_x - pointBoundaryRadius.max));
+      
       let r = pointBoundaryRadius;
-      let windPhaseOffset = this.p.random(-this.p.PI / 4, this.p.PI / 4); // Generate a random offset for each point, so that each point sways differently
+      let windPhaseOffset = this.p.random(-this.p.PI / 4, this.p.PI / 4); // Generate a random offset for each point
       let leaf = {x, y, r, windPhaseOffset};
       leafCoords.push(leaf);
     }
@@ -336,40 +370,19 @@ export class VermontTreePerformant {
     let leaves: Leaf[] = []; // Assuming Leaf type is defined
 
     for (let i = 0; i < numLeavesPerPoint; i++) {
-      // *** CHANGE: Scatter leaves within the maxRadius ***
       let angle = p.random(p.TWO_PI);
       let r = p.random(0, maxRadius); // Use maxRadius for scattering range
       
-      // isSunLeaf calculation - ensure lightAngle is defined
       let currentLightAngle = lightAngle !== undefined ? lightAngle : p.PI; // Default if undefined
       let isSunLeaf = lightAngle !== undefined ? this.#isSunLeaf(p, angle, currentLightAngle) : true; // Default to true if no light angle
 
- 
-      
-      let leaf_w, leaf_h, fill_c;
       const baseColor = palette.base || p.color(120, 60, 70); // Default colors
       const highlightColor = palette.highlight || palette.base || p.color(100, 70, 80);
       
-      // Leaf size and fill settings
-      if (isSunLeaf) {
-        leaf_w = leafWidth;
-        leaf_h = leafHeight;
-        // Highlight leaves further from the center (adjust logic as needed)
-        fill_c = r > maxRadius * (1 - lightFillPercentage) ? highlightColor : baseColor; 
-      } else {
-        leaf_w = leafWidth;
-        leaf_h = leafHeight;
-        fill_c = baseColor;
-      }
-
       // *** CHANGE: Calculate coordinates relative to buffer center ***
       let x = bufferCenter + (p.cos(angle) * r);
       let y = bufferCenter + (p.sin(angle) * r);
 
-      // Fallen leaf check needs context outside the buffer - remove or adapt if needed
-      // let isFallenLeaf = y >= startPoint.y; // This doesn't make sense for a generic buffer
-      // angle = isFallenLeaf ? p.HALF_PI : angle; // Remove fallen leaf logic for buffer
-      
       // Movement factor might be applied later during animation, not needed in static buffer
       // let movementFactor: number = p.random(0.7, 0.9);
       // let movementDirection: number = p.random(0, p.TWO_PI);
@@ -378,11 +391,13 @@ export class VermontTreePerformant {
       let leaf: Leaf = {
         x, 
         y, 
-        w: leaf_w, 
-        h: leaf_h, 
+        w: leafWidth, 
+        h: leafHeight, 
         angle: angle, // Store the angle used for potential rotation
-        fill_c, 
-        isSunLeaf, // Store for potential later use
+        fill: isSunLeaf && r > maxRadius * (1 - lightFillPercentage) ? highlightColor : baseColor, 
+        isSunLeaf, // Store for potential later use,
+        isEdgeLeaf: r > (maxRadius * 0.1), // Add a property to track if this is an edge leaf (outer 20% of radius)
+        hasOutline: r > (maxRadius * 0.2) && p.random() < 0.5 // 50% chance for edge leaves to have outline
         // movementFactor,
         // movementDirection
       };
@@ -392,10 +407,37 @@ export class VermontTreePerformant {
 
     // Draw Each Leaf to Buffer
     bushelBuffer.push(); // Isolate buffer drawing state
-    bushelBuffer.noStroke();
+    bushelBuffer.colorMode(p.HSL);
+    bushelBuffer.noStroke(); // Default to no stroke
+    
     leaves.forEach(leaf => {
-       bushelBuffer.fill(leaf.fill_c);
-       bushelBuffer.ellipse(leaf.x, leaf.y, leaf.w, leaf.h); 
+       bushelBuffer.fill(leaf.fill);
+       
+       if (leaf.hasOutline) {
+         // For leaves with outline, we need to draw the leaf in two parts:
+         // 1. The full leaf with no stroke
+         bushelBuffer.noStroke();
+         bushelBuffer.ellipse(leaf.x, leaf.y, leaf.w, leaf.h);
+         
+         // 2. The outer half with stroke
+         bushelBuffer.push();
+         // Translate to leaf center
+         bushelBuffer.translate(leaf.x, leaf.y);
+         // Rotate to the angle pointing away from center
+         const angleToCenter = Math.atan2(leaf.y - bufferCenter, leaf.x - bufferCenter);
+         bushelBuffer.rotate(angleToCenter);
+         
+         // 3. Draw only the outer half with stroke
+         bushelBuffer.stroke(p.hue(leaf.fill), p.saturation(leaf.fill), p.lightness(leaf.fill) * 0.5); // Darken Fill Color for Stroke
+         bushelBuffer.strokeWeight(0.5);
+         bushelBuffer.noFill();
+         bushelBuffer.arc(0, 0, leaf.w, leaf.h, -Math.PI/2, Math.PI/2); // Draw an arc for the outer half of the ellipse
+         bushelBuffer.pop();
+       } else {
+         // For leaves without outline, just draw the full ellipse
+         bushelBuffer.noStroke();
+         bushelBuffer.ellipse(leaf.x, leaf.y, leaf.w, leaf.h);
+       }
     });
     bushelBuffer.pop(); // Restore buffer state
 

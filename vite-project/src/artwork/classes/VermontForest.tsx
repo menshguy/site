@@ -86,11 +86,14 @@ export class VermontForest {
 
   #generateForestTrees() {
     const {p, settings} = this;
-    const {forestNumberOfColumns, forestStartX, forestStartY, forestShape,forestPalette,forestTreeSettings, forestLeafSettings, forestTrunkSettings, forestLightSettings} = settings;
-    const {trunkSpace, minHeight, maxHeight} = forestTreeSettings;
+    const {forestNumberOfColumns, forestStartX, forestStartY, forestWidth, forestShape, forestPalette, forestTreeSettings, forestLeafSettings, forestTrunkSettings, forestLightSettings} = settings;
+    const {trunkSpace, minHeight, maxHeight, minWidth, maxWidth} = forestTreeSettings;
     const {numTrunkLines, trunkHeight, trunkWidth: _trunkWidth} = forestTrunkSettings;
     const {leafWidth, leafHeight, minBoundaryRadius, maxBoundaryRadius, numLeavesPerPoint, numPointsPerRow} = forestLeafSettings;
     const {lightAngle, lightFillPercentage} = forestLightSettings || {lightAngle: 0, lightFillPercentage: 0};
+
+    // Calculate column width based on forestWidth and number of columns
+    const columnWidth = forestWidth / forestNumberOfColumns;
 
     let trees = []
     for (let i = 0; i < forestNumberOfColumns; i++) {
@@ -98,15 +101,15 @@ export class VermontForest {
       const {incrementY, numTreesInColumn} = this.#getForestShape(forestShape, i)
       for (let j = Math.floor(numTreesInColumn); j >= 0; j--) {
         // Tree Settings
-        // let trunkHeight = p.random(trunkHeight, trunkHeight);
         const isFirstTreeInColumn = j === 0;
         const includeTrunk = isFirstTreeInColumn;
         const treeHeight = p.random(minHeight, maxHeight); // total height including leaves
         const trunkWidth = _trunkWidth;
-        const treeWidth = p.random(trunkWidth, trunkWidth+5); // total width including leaves
-        // const numTrunkLines = p.random(3,5); //trunks are made up of X bezier curves
+        const treeWidth = p.random(minWidth, maxWidth); 
         const rowHeight = treeHeight/5; //x points will drawn p.randominly in each row. rows increment up by this amount
-        const startX = (forestStartX + treeWidth + 20) + (i * ( (p.width+treeWidth)/forestNumberOfColumns ) + p.random(-25, 25)) // add an extra treeWidth for some bufferspace
+        
+        // Position trees within the forestWidth
+        const startX = forestStartX + (i * columnWidth) + p.random(-15, 15); // Distribute trees evenly across forestWidth
         const startY = forestStartY - (incrementY * j)
         const startPoint = {x: startX, y: startY};
         const midpoint = {x: startPoint.x, y: startPoint.y - (treeHeight/2)};
@@ -159,7 +162,7 @@ export class VermontForest {
 
   #getForestShape(shape: VermontForestShapes, columnIndex: number) {
     const {settings} = this;
-    const {forestHeight, forestNumberOfColumns, forestTreeSettings} = settings;
+    const {forestHeight, forestWidth, forestNumberOfColumns, forestTreeSettings} = settings;
     const {minHeight: minTreeHeight} = forestTreeSettings;
     const maxForestHeight = forestHeight;
     
