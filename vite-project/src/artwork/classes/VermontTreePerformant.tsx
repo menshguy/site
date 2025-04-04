@@ -85,81 +85,89 @@ export type VermontTreePerformantSettings = {
     maxWindIntensity?: number,    // Maximum pixels trees can sway
     windPhase?: number,           // Starting phase of wind oscillation
     windIntensityPhase?: number,  // Starting phase of wind intensity oscillation
+    windVariance?: number,        // How much variance in wind effect between trees (0-1)
   }
 }
 
 export class VermontTreePerformant {
   p: p5;
-  startPoint: {x: number, y: number};
   settings: VermontTreePerformantSettings;
-
-  trunkLines: TrunkLine[];
+  startPoint: Point;
   points: Point[];
-  leafBushelBuffer: p5.Graphics;
+  trunkLines: TrunkLine[];
   image: p5.Graphics;
-
+  leafBushelBuffer: p5.Graphics;
+  
+  // Wind properties
   windSpeed: number;
   windIntensitySpeed: number;
   maxWindIntensity: number;
   windPhase: number;
   windIntensityPhase: number;
-
-  constructor({p5Instance, startPoint, settings}: {p5Instance: p5, startPoint: { x: number, y: number },settings: VermontTreePerformantSettings}){
+  windVariance: number;
+  treeWindOffset: number; // Unique wind offset for this tree
+  
+  constructor({p5Instance, startPoint, settings}: {p5Instance: p5, startPoint: Point, settings: VermontTreePerformantSettings}){
     this.p = p5Instance;
-    this.settings = settings; 
+    this.settings = settings;
     this.startPoint = startPoint;
+    
+    // Initialize wind properties
+    const windSettings = settings.windSettings || {};
+    this.windSpeed = windSettings.windSpeed !== undefined ? 
+      windSettings.windSpeed : 0.05;
+    this.windIntensitySpeed = windSettings.windIntensitySpeed !== undefined ? 
+      windSettings.windIntensitySpeed : 0.02;
+    this.maxWindIntensity = windSettings.maxWindIntensity !== undefined ? 
+      windSettings.maxWindIntensity : 5;
+    this.windVariance = windSettings.windVariance !== undefined ? 
+      windSettings.windVariance : 0.3; // Default variance of 0.3
+    
+    // Create a unique wind offset for this tree
+    this.treeWindOffset = this.p.random(this.p.TWO_PI);
+    
+    // Initialize wind phases (either from settings or random)
+    this.windPhase = windSettings.windPhase !== undefined ? 
+      windSettings.windPhase : this.p.random(this.p.TWO_PI);
+    this.windIntensityPhase = windSettings.windIntensityPhase !== undefined ? 
+      windSettings.windIntensityPhase : this.p.random(this.p.TWO_PI);
+    
     this.trunkLines = this.#generateTrunkLines();
     this.points = this.#generatePoints();
 
     this.leafBushelBuffer = this.#drawLeafBushelBuffer();
 
     this.image = this.#generateInitialImage(this.p.width, this.p.height);
-
-    // Initialize Wind settings from props or use defaults
-    const { windSettings } = settings;
-    // How fast the wind phase changes (oscillation speed)
-    this.windSpeed = windSettings?.windSpeed !== undefined ? 
-      windSettings.windSpeed : this.p.random(0.05, 0.15);
-    
-    // How fast the wind intensity changes
-    this.windIntensitySpeed = windSettings?.windIntensitySpeed !== undefined ? 
-      windSettings.windIntensitySpeed : this.p.random(0.01, 0.03);
-    
-    // Maximum pixels trees can sway
-    this.maxWindIntensity = windSettings?.maxWindIntensity !== undefined ? 
-      windSettings.maxWindIntensity : this.p.random(2, 6);
-    
-    // Starting phase of wind oscillation
-    this.windPhase = windSettings?.windPhase !== undefined ? 
-      windSettings.windPhase : this.p.random(this.p.TWO_PI);
-    
-    // Starting phase of wind intensity oscillation
-    this.windIntensityPhase = windSettings?.windIntensityPhase !== undefined ? 
-      windSettings.windIntensityPhase : this.p.random(this.p.TWO_PI);
   }
 
+  /**
+   * Returns the current tree image.
+   * @returns p5.Graphics
+   */
   getImage() {
-    return this.image
+    return this.image;
   }
 
+  /**
+   * Updates the tree image with the current state of the tree.
+   * @returns void
+   */
   animate() {
-    // Update wind phases
+    // Update wind phases - ensure we're using the full cycle for proper left-to-right movement
     this.windPhase += this.windSpeed;
     this.windIntensityPhase += this.windIntensitySpeed;
     
-    // Keep phases from getting excessively large (optional, helps prevent potential floating point issues)
-    this.windPhase %= this.p.TWO_PI; 
-    this.windIntensityPhase %= this.p.TWO_PI;
-
-    this.image.clear();
+    // Keep phases within reasonable bounds to prevent floating point issues
+    if (this.windPhase > this.p.TWO_PI) {
+      this.windPhase -= this.p.TWO_PI;
+    }
+    if (this.windIntensityPhase > this.p.TWO_PI) {
+      this.windIntensityPhase -= this.p.TWO_PI;
+    }
     
     this.#generateNextImage(this.image, true); // Pass true to indicate it's an animation frame
   }
 
-  /**
-   * Generates an image (p5.graphics) of the full tree.
-   * @returns p5.Graphics
-   */
   #generateInitialImage(width: number, height: number) {
     const buffer = this.p.createGraphics(width, height);
     this.#drawTreeToTreeBuffer(buffer, false); // Draw initially without wind
@@ -169,6 +177,7 @@ export class VermontTreePerformant {
   #generateNextImage(buffer: p5.Graphics, isAnimated: boolean = false) {
     buffer.clear();
     this.#drawTreeToTreeBuffer(buffer, isAnimated); // Redraw with current state
+    return buffer;
   }
   
   #drawTreeToTreeBuffer(buffer: p5.Graphics, isAnimated: boolean = false) {
@@ -198,8 +207,7 @@ export class VermontTreePerformant {
     }
 
     // Draw Leaves to Buffer
-    points.forEach(({ x, y, r, windPhaseOffset }) => {
-      const padding = r ? r.max : 0
+    points.forEach(({ x, y, windPhaseOffset }) => {
       let windSwayX = 0;
       
       if (isAnimated) {
@@ -207,8 +215,16 @@ export class VermontTreePerformant {
         const intensityFactor = (this.p.sin(this.windIntensityPhase) + 1) / 2; 
         const currentMaxIntensity = this.maxWindIntensity * intensityFactor;
         
-        // Calculate current sway offset (oscillates between -currentMaxIntensity and +currentMaxIntensity)
-        windSwayX = this.p.sin(this.windPhase + (windPhaseOffset ?? 0)) * currentMaxIntensity; 
+        // Apply tree-specific wind variance
+        const treeVarianceFactor = this.p.map(
+          this.p.sin(this.windPhase + this.treeWindOffset), 
+          -1, 1, 
+          1 - this.windVariance, 1 + this.windVariance
+        );
+        
+        // Calculate current sway offset with variance
+        const phaseOffset = windPhaseOffset ?? 0;
+        windSwayX = this.p.sin(this.windPhase + phaseOffset) * currentMaxIntensity * treeVarianceFactor; 
         
         // Make higher points sway slightly more
         const heightFactor = this.p.map(y, this.startPoint.y - this.settings.treeSettings.treeHeight, this.startPoint.y, 1, 0.5);
@@ -217,10 +233,10 @@ export class VermontTreePerformant {
       
       buffer.push();
       buffer.noStroke();
-      buffer.translate(x - padding + windSwayX, y - padding); // Apply wind sway to the translation
-      const leafX = 0 
-      const leafY = 0
-      buffer.image(this.leafBushelBuffer, leafX, leafY);
+      // Center the leaf bushel buffer on the point coordinates
+      const bufferSize = this.leafBushelBuffer.width;
+      buffer.translate(x + windSwayX, y); // Apply wind sway to the translation
+      buffer.image(this.leafBushelBuffer, -bufferSize/2, -bufferSize/2);
       buffer.pop();
     })
 
@@ -342,7 +358,6 @@ export class VermontTreePerformant {
     return points;
   }
 
-  // Generate a point within the pointBoundary radius for each numPointsPerRow
   #genLeafCoordinates (
     startPoint: {x: number, y: number},
     treeWidth: number,
@@ -427,7 +442,7 @@ export class VermontTreePerformant {
     // *** CHANGE: Determine buffer size and center based on max radius ***
     const maxRadius = pointBoundaryRadius.max;
     const bufferSize = maxRadius * 2; // Buffer needs to be diameter x diameter
-    const bufferCenter = maxRadius; // Center coordinate within the buffer
+    const bufferCenter = bufferSize / 2; // Center coordinate within the buffer
     
     const bushelBuffer: p5.Graphics = p.createGraphics(bufferSize, bufferSize);
     let leaves: Leaf[] = this.#generateLeavesPerPoint(numLeavesPerPoint, leafWidth, leafHeight, maxRadius, bufferCenter);
@@ -437,14 +452,14 @@ export class VermontTreePerformant {
     bushelBuffer.colorMode(p.HSL);
 
     this.#drawLeavesToBuffer(bushelBuffer, leaves, bufferCenter);
-    const rotatedBushelBuffer = this.#rotateBushelBufferToNewBuffer(bushelBuffer);
-
+    const rotatedBushelBuffer = this.#rotateBushelBufferToNewBuffer(bushelBuffer, bufferCenter);
+    
     return rotatedBushelBuffer;
   }
 
   #drawLeavesToBuffer(bushelBuffer: p5.Graphics, leaves: Leaf[], bufferCenter: number) {
     const {p} = this;
-    console.log("leaves", leaves)
+    
     leaves.forEach(leaf => {
       bushelBuffer.noStroke(); // Default to no stroke
       bushelBuffer.fill(leaf.fill);
@@ -484,7 +499,9 @@ export class VermontTreePerformant {
     const {p} = this;
     // Create a new buffer for the rotated version with the same size
     const rotatedBuffer = p.createGraphics(bushelBuffer.width, bushelBuffer.height);
-        
+    const bufferSize = bushelBuffer.width;
+    bufferCenter = bufferSize / 2; // Ensure we're using the correct center
+    
     // Calculate a random rotation angle - using pastel-friendly subtle rotation
     const rotationAngle = p.random(-p.PI/6, p.PI/6);
     
@@ -500,7 +517,7 @@ export class VermontTreePerformant {
 
     return rotatedBuffer;
   }
-  
+
   #isSunLeaf (p: p5, leafAngle: number, sunlightAngle: number) {
     let min = sunlightAngle - p.HALF_PI
     let max = sunlightAngle + p.HALF_PI
@@ -513,5 +530,4 @@ export class VermontTreePerformant {
     this.leafBushelBuffer.clear();
     this.image.clear();
   }
-
 }

@@ -93,25 +93,28 @@ const mySketch = (p: p5) => {
     // Wind Settings
     const WINDSETTINGS = {
       foreground: {
-        windSpeed: 0.08,           // How fast the wind phase changes (oscillation speed)
+        windSpeed: 0.05,           // How fast the wind phase changes (oscillation speed)
         windIntensitySpeed: 0.02,  // How fast the wind intensity changes
-        maxWindIntensity: 5,       // Maximum pixels trees can sway
+        maxWindIntensity: 15,      // Maximum pixels trees can sway
         windPhase: 0,              // Starting phase of wind oscillation
         windIntensityPhase: 0,     // Starting phase of wind intensity oscillation
+        windVariance: 0.1,         // Variance in wind effect between trees (0-1) - Higher value = more variation
       },
       midground: {
-        windSpeed: 0.06,           // Slightly slower wind for midground trees
+        windSpeed: 0.04,           // Slightly slower wind for midground trees
         windIntensitySpeed: 0.015, // Slightly slower intensity changes
-        maxWindIntensity: 3,       // Less movement for midground trees
-        windPhase: 0.5,            // Offset phase for variation
+        maxWindIntensity: 5,       // Less movement for midground trees
+        windPhase: 1.5,            // Offset phase for variation
         windIntensityPhase: 0.5,   // Offset phase for variation
+        windVariance: 0.3,         // Slightly less variance for midground
       },
       background: {
-        windSpeed: 0.04,           // Slowest wind for background trees
+        windSpeed: 0.03,           // Slowest wind for background trees
         windIntensitySpeed: 0.01,  // Slowest intensity changes
-        maxWindIntensity: 1.5,     // Minimal movement for background trees
-        windPhase: 1.0,            // Offset phase for variation
+        maxWindIntensity: 2,       // Minimal movement for background trees
+        windPhase: 3.0,            // Offset phase for variation
         windIntensityPhase: 1.0,   // Offset phase for variation
+        windVariance: 0.2,         // Minimal variance for distant trees
       }
     }
 
@@ -130,7 +133,7 @@ const mySketch = (p: p5) => {
         forestTreeSettings: {
           trunkSpace: 20, // Space to expose bottom of trunks, between bottom of tree and where leaves start
           minHeight: 30, 
-          maxHeight: 100, 
+          maxHeight: 70, 
           minWidth: 40, 
           maxWidth: 80, 
         },
