@@ -20,6 +20,7 @@ export type Point = {
   x: number;
   y: number;
   r?: { min: number; max: number;};
+  windPhaseOffset?: number;
 };
 
 export type BoundaryPoint = {
@@ -173,21 +174,20 @@ export class VermontTreePerformant {
     }
 
     // Draw Leaves to Buffer
-    points.forEach(({ x, y, r }) => {
+    points.forEach(({ x, y, r, windPhaseOffset }) => {
       const padding = r ? r.max : 0
       let windSwayX = 0;
       
       if (isAnimated) {
         // Calculate current max intensity (oscillates between 0 and maxWindIntensity)
-        // (sin returns -1 to 1, map to 0 to 1, then scale)
         const intensityFactor = (this.p.sin(this.windIntensityPhase) + 1) / 2; 
         const currentMaxIntensity = this.maxWindIntensity * intensityFactor;
         
         // Calculate current sway offset (oscillates between -currentMaxIntensity and +currentMaxIntensity)
-        windSwayX = this.p.sin(this.windPhase) * currentMaxIntensity;
+        windSwayX = this.p.sin(this.windPhase + (windPhaseOffset ?? 0)) * currentMaxIntensity; 
         
-        // Optional: Make higher points sway slightly more
-        const heightFactor = this.p.map(y, this.startPoint.y - this.settings.treeSettings.treeHeight, this.startPoint.y, 0.8, 1.2);
+        // Make higher points sway slightly more
+        const heightFactor = this.p.map(y, this.startPoint.y - this.settings.treeSettings.treeHeight, this.startPoint.y, 1, 0.5);
         windSwayX *= heightFactor; 
       }
       
@@ -314,7 +314,8 @@ export class VermontTreePerformant {
       let x = this.p.random(min_x, max_x);
       let y = this.p.random(min_y, max_y);
       let r = pointBoundaryRadius;
-      let leaf = {x, y, r}; 
+      let windPhaseOffset = this.p.random(-this.p.PI / 4, this.p.PI / 4); // Generate a random offset for each point, so that each point sways differently
+      let leaf = {x, y, r, windPhaseOffset};
       leafCoords.push(leaf);
     }
     

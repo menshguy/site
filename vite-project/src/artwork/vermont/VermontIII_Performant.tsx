@@ -1,10 +1,10 @@
 import React from 'react';
 import P5Wrapper from '../../components/P5Wrapper.tsx';
-import {VermontTreePerformant, VermontTreePerformantSettings, TreeColorPalette, Season, TimeOfDay} from '../classes/VermontTreePerformant.tsx';
+import p5 from 'p5';
+import {TreeColorPalette, Season, TimeOfDay} from '../classes/VermontTreePerformant.tsx';
 import {VermontForest, VermontForestShapes} from '../classes/VermontForest.tsx';
 // import {shuffleArray} from '../../helpers/arrays.ts';
-import {drawMoon, drawStars, Moon, Stars} from '../../helpers/skyHelpers.tsx';
-import p5 from 'p5';
+// import {drawMoon, drawStars, Moon, Stars} from '../../helpers/skyHelpers.tsx';
 import { rect_gradient } from '../../helpers/shapes.ts';
 
 type GroundSettings = {
@@ -16,14 +16,17 @@ type GroundSettings = {
 
 const mySketch = (p: p5) => {
 
-  let cw: number = 1200; 
-  let ch: number = 800;
-  let bottom = 300;
+  let cw: number = 1000; 
+  let ch: number = 600;
+  let bottom = 200;
   let season: Season;
   let fgForest: VermontForest;
   let fgForestImage: p5.Graphics | p5.Image;
   let timeOfDay: TimeOfDay;
   let groundLineBuffer: p5.Graphics;
+  let reflectionBuffer: p5.Graphics;
+  let circleBuffer: p5.Graphics;
+  let mgBuffer: p5.Graphics;
   
   p.setup = () => {
     p.colorMode(p.HSL);
@@ -47,10 +50,10 @@ const mySketch = (p: p5) => {
     const PALETTES: Record<TimeOfDay, Record<Season, TreeColorPalette[]>> = {
       day: {
         fall: [
-          {base: p.color(p.random(74,107), 70, 40.3), highlight: p.color(p.random(74,107), 70, 70.3), shadow: p.color(p.random(74,107), 70, 40.3)}, // Green
-          {base: p.color(p.random(42,80), 70, 55), highlight: p.color(p.random(42,80), 70, 70.3), shadow: p.color(p.random(42,80), 70, 55)}, // Yellow
-          {base: p.color(p.random(27,50), 70, 56), highlight: p.color(p.random(27,50), 70, 70.3), shadow: p.color(p.random(27,50), 70, 56)}, // Orange
-          {base: p.color(p.random(2,35), 70, 57), highlight: p.color(p.random(2,35), 70, 70.3), shadow: p.color(p.random(2,35), 70, 57)}, // Red
+          {base: p.color(95, 63, 26), highlight: p.color(102, 65, 57.3), shadow: p.color(102, 70, 20.3)}, // Green
+          {base: p.color(57, 63, 26), highlight: p.color(57, 65, 57.3), shadow: p.color(57, 70, 21)}, // Yellow
+          {base: p.color(32, 63, 26), highlight: p.color(32, 65, 57.3), shadow: p.color(32, 70, 21)}, // Orange
+          {base: p.color(7, 63, 26), highlight: p.color(7, 65, 57.3), shadow: p.color(7, 70, 21)}, // Red
         ],
         winter: [],
         spring: [],
@@ -74,7 +77,7 @@ const mySketch = (p: p5) => {
     const LIGHTSETTINGS = {
       day: {
         lightAngle: p.radians(p.random(200, 340)), 
-        lightFillPercentage: p.random(0.15, 0.55)
+        lightFillPercentage: p.random(0.75, 0.95)
       },
       night: {
         lightAngle: p.radians(p.random(200, 340)), 
@@ -87,11 +90,11 @@ const mySketch = (p: p5) => {
      */
     // Forest Settings
     const forestWidth = p.width;
-    const forestHeight = 250;
-    const forestStartX = 100;
+    const forestHeight = 300;
+    const forestStartX = -100;
     const forestStartY = ch - bottom;
-    const forestNumberOfColumns = 15;
-    const forestShape: VermontForestShapes = 'upHill';
+    const forestNumberOfColumns = 20;
+    const forestShape: VermontForestShapes = p.random(['upHill', 'downHill', 'concave', 'convex', 'flat']);
     const forestTreeSettings = {
       trunkSpace: 20, // Space to expose bottom of trunks, between bottom of tree and where leaves start
       minHeight: 30, 
@@ -101,17 +104,17 @@ const mySketch = (p: p5) => {
     }
     const forestTrunkSettings = {
       numTrunkLines: 5, 
-      trunkHeight: 60,
-      trunkWidth: 40, 
+      trunkHeight: 70,
+      trunkWidth: 60, 
     }
     const forestLeafSettings = {
-      rows: 3,
-      numPointsPerRow: 3, 
-      numLeavesPerPoint: 1000, 
-      minBoundaryRadius: 2,
-      maxBoundaryRadius: 30,
-      leafWidth: 2, 
-      leafHeight: 2,
+      rows: 25,
+      numPointsPerRow: 30, 
+      numLeavesPerPoint: 300, 
+      minBoundaryRadius: 15,
+      maxBoundaryRadius: 20,
+      leafWidth: 1.5, 
+      leafHeight: 1.5,
       rowHeight: 10, // REMOVE this and calcuate within
     }
     const forestPalette: TreeColorPalette[] = PALETTES[timeOfDay][season];
@@ -144,7 +147,16 @@ const mySketch = (p: p5) => {
     }
     groundLineBuffer = p.createGraphics(p.width, p.height)
     drawGroundLineToBuffer(groundLineBuffer, groundSettings.startX, groundSettings.startY, groundSettings.endX, groundSettings.fill)
-    
+
+    // Reflection
+    reflectionBuffer = p.createGraphics(p.width, p.height) // Reflection Buffer
+    reflectionBuffer.colorMode(reflectionBuffer.HSL)
+    circleBuffer = generateCircleBuffer(reflectionBuffer, timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2))
+    circleBuffer.colorMode(reflectionBuffer.HSL)
+
+    // Midground Buffer
+    mgBuffer = p.createGraphics(p.width, p.height)
+    mgBuffer.colorMode(mgBuffer.HSL)
   }
   
   p.draw = () => {
@@ -158,17 +170,19 @@ const mySketch = (p: p5) => {
     p.rect(0, 0, p.width, p.height)
 
     // Buffer for midground image to be drawn to.
-    let mg = p.createGraphics(p.width, p.height)
     let shadowColor = timeOfDay === "night" ? p.color(30, 30, 5) : p.color(211, 30, 22)
-    mg.colorMode(mg.HSL)
     
     // Draw Shadow (The dark area under the trees)
-    mg.push()
-    mg.noStroke()
-    mg.fill(shadowColor)
-    mg.rect(0, p.height-bottom-30, p.width, 30)
-    rect_gradient(mg, 0, p.height-bottom-60, p.width, 30, true, shadowColor)
-    mg.pop()
+    mgBuffer.clear()
+    mgBuffer.push()
+    mgBuffer.noStroke()
+    mgBuffer.fill(shadowColor)
+    mgBuffer.rect(0, p.height-bottom-30, p.width, 30)
+    rect_gradient(mgBuffer, 0, p.height-bottom-60, p.width, 30, true, shadowColor)
+    mgBuffer.pop()
+    
+    // Draw Midground
+    p.image(mgBuffer, 0, 0)
 
     // Draw Sky Reflection
     p.noStroke()
@@ -196,19 +210,23 @@ const mySketch = (p: p5) => {
     p.image(groundLineBuffer, 0, 0)
     
     // Create Reflection Buffer and draw all relevant images to it (trees, moon, etc)
-    // const reflectionBuffer = p.createGraphics(p.width, p.height) // Reflection Buffer
-    // addReflectionImageToReflection(reflectionBuffer, fgForestImage as p5.Graphics) // Add all of the reflection images to a single buffer image
-    // addCircleImageToReflection(reflectionBuffer, timeOfDay === "night" ? p.color(223, 68, 8) : p.color(215, 40.7, 64.2))
+    addReflectionImageToReflection(reflectionBuffer, fgForestImage) // Add all of the reflection images to a single buffer image
+    addCircleImageToReflection(reflectionBuffer, circleBuffer)
 
     // Draw Reflection Image to Canvas
-    // const rx = 0
-    // const ry = -p.height - (p.height - bottom) + bottom
-    // p.push();
-    // p.scale(1, -1); // Flip the y-axis to draw upside down
-    // p.translate(rx, ry); // Adjust translation for the buffer
-    // p.image(reflectionBuffer, 0, 0)
-    // p.pop();
+    const rx = 0
+    const ry = -p.height - (p.height - bottom) + bottom
+    p.push();
+    p.scale(1, -1); // Flip the y-axis to draw upside down
+    p.translate(rx, ry); // Adjust translation for the buffer
+    p.clip(reflectionMask) // Clip out the overlap
+    p.image(reflectionBuffer, 0, 0)
+    p.pop();
 
+  }
+
+  function reflectionMask() {
+    p.rect(0, 0, p.width, p.height-bottom)
   }
 
   function addReflectionImageToReflection(
@@ -224,17 +242,10 @@ const mySketch = (p: p5) => {
     return reflectionBuffer;
   }
 
-  const addCircleImageToReflection = (reflectionBuffer: p5.Graphics, fill: p5.Color) => {
+  const generateCircleBuffer = (reflectionBuffer: p5.Graphics, fill: p5.Color) => {
     const circlesBuffer = p.createGraphics(reflectionBuffer.width, reflectionBuffer.height)
     const circlesImage = _generateCircles(circlesBuffer, 3, fill)
-    
-    // Erase the eraserBuffer circles from buffer
-    reflectionBuffer.push()
-    // buffer.blendMode(buffer.REMOVE as any); // For some reason REMOVE gets highlighted as an issue, but it is in the docs: https://p5js.org/reference/p5/blendMode/
-    reflectionBuffer.image(circlesImage, 0, 0);
-    reflectionBuffer.blendMode(reflectionBuffer.BLEND); // Reset to normal blend mode
-    reflectionBuffer.pop()
-    return reflectionBuffer;
+    return circlesImage;
 
     function _generateCircles(buffer: p5.Graphics, numCirlces: number, fill?: p5.Color) {
       for (let i = 0; i < numCirlces; i++) { // Adjust the number of ovals as needed
@@ -255,6 +266,14 @@ const mySketch = (p: p5) => {
       }
       return buffer;
     }
+  }
+
+  const addCircleImageToReflection = (reflectionBuffer: p5.Graphics, circlesBuffer: p5.Graphics) => {
+    reflectionBuffer.push()
+    reflectionBuffer.image(circlesBuffer, 0, 0);
+    reflectionBuffer.blendMode(reflectionBuffer.BLEND); // Reset to normal blend mode
+    reflectionBuffer.pop()
+    return reflectionBuffer;
   }
 
   // function drawTree(tree: VermontTree, buffer: p5.Graphics, strokeColor: p5.Color) {
